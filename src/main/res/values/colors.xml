@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF5722</color>
+    <color name="colorPrimaryLight">#FFCCBC</color>
+    <color name="colorPrimarySuperLight">#FDF0EC</color>
+    <color name="colorPrimaryDark">#E64A19</color>
+    <color name="colorAccent">#FFC107</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name= "colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#000000</color>
+    <color name="fragment_background">#FFF2EE</color>
+
+    <color name="colorBlu">#2196F3</color>
+    <color name="colorRed">#F44336</color>
+    <color name="colorGreen">#4CAF50</color>
+
+    <color name="activity_background">#FFFFFF</color>
+
+    <color name="dark_gray">#BDBDBD</color>
+    <color name="white_tint_1">#e5e5e5</color>
+    <color name="black_tint_2">#323232</color>
+    <color name="black_tint_2_85">#d9323232</color>
+    <color name="shutta_blue">#4c7eed</color>
+    <color name="shutta_blue_85">#d94c7eed</color>
+    <color name="shutta_blue_light">#FF9DB6ED</color>
+</resources>

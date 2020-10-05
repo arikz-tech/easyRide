@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/friends"
+            android:enabled="true"
+            android:icon="@drawable/ic_friends_24"
+            android:title="@string/friends" />
+
+        <item
+            android:id="@+id/profile"
+            android:enabled="true"
+            android:icon="@drawable/ic_profile_24"
+            android:title="@string/profile" />
+
+        <item
+            android:id="@+id/setting"
+            android:enabled="true"
+            android:icon="@drawable/ic_settings_24"
+            android:title="@string/setting" />
+
+    </group>
+
+    <item android:title="other">
+        <menu>
+            <item
+                android:id="@+id/share"
+                android:enabled="true"
+                android:icon="@drawable/ic_share_24"
+                android:title="@string/share" />
+            <item
+                android:id="@+id/logout"
+                android:enabled="true"
+                android:icon="@drawable/ic_logout_24"
+                android:title="@string/logout" />
+
+            <item
+                android:id="@+id/exit"
+                android:enabled="true"
+                android:icon="@drawable/ic_exit_24"
+                android:title="@string/exit" />
+        </menu>
+    </item>
+
+
+</menu>

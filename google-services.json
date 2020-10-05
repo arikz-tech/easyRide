@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "794656232658",
+    "firebase_url": "https://easyride-ce6b4.firebaseio.com",
+    "project_id": "easyride-ce6b4",
+    "storage_bucket": "easyride-ce6b4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794656232658:android:2785792b2676473c67c90b",
+        "android_client_info": {
+          "package_name": "arikz.easyride"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "794656232658-344l4usirjipiiagge23vi75lt938evb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCasf4DTrFPABNIDlt3-ITpvh-x-G-mgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "794656232658-344l4usirjipiiagge23vi75lt938evb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

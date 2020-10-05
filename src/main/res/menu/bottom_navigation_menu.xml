@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/requests"
+        android:enabled="true"
+        android:icon="@drawable/ic_request_24"
+        android:title="@string/request" />
+
+    <item
+        android:id="@+id/rides"
+        android:enabled="true"
+        android:icon="@drawable/ic_rides_24"
+        android:title="@string/rides" />
+    
+    <item
+        android:id="@+id/map"
+        android:enabled="true"
+        android:icon="@drawable/ic_map_24"
+        android:title="@string/map" />
+</menu>
