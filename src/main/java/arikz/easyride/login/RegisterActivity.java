@@ -20,10 +20,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.data.User;
+import arikz.easyride.objects.User;
 
 public class RegisterActivity extends AppCompatActivity {
-
+    private static final String TAG = ".RegisterActivity";
     private TextInputEditText etFirst, etLast, etMail, etPhone, etPassword;
     private MaterialButton btnRegister;
     private ProgressBar pbRegister;
@@ -70,16 +70,13 @@ public class RegisterActivity extends AppCompatActivity {
                                 user.setFirst(etFirst.getText().toString().trim());
                                 user.setLast(etLast.getText().toString().trim());
                                 user.setPhone(etPhone.getText().toString().trim());
+                                user.setUid(task.getResult().getUser().getUid());
 
-                                //TODO Check if there is need for keep uid //user.setUid();
-
-                                //Get uid key from the current user
-                                String uid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
 
                                 //TODO check on failure listener for saving user value
 
                                 // New access into firebase to store user information
-                                FirebaseDatabase.getInstance().getReference().child("users").child(uid).setValue(user);
+                                FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).setValue(user);
 
                                 //Sign out from user
                                 FirebaseAuth.getInstance().signOut();

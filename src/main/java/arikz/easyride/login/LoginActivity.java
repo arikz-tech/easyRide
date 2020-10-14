@@ -23,7 +23,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,12 +49,14 @@ import java.io.ByteArrayOutputStream;
 import java.util.Objects;
 import java.util.UUID;
 
-import arikz.easyride.data.User;
+import arikz.easyride.objects.User;
 import arikz.easyride.ui.main.MainActivity;
 import arikz.easyride.R;
 
+
+//TODO after register add login info
 public class LoginActivity extends AppCompatActivity {
-    private String TAG = ".LoginActivity";
+    private static final String TAG = ".LoginActivity";
     private final int RC_SIGN_IN = 3;
 
     private TextInputEditText etMail, etPassword;
@@ -124,10 +125,10 @@ public class LoginActivity extends AppCompatActivity {
         boolean passField = etPassword.getText().toString().isEmpty();
 
         if (emailField)
-            etMail.setError("Incorrect email address");
+            etMail.setError(getString(R.string.incorrect_email_adress));
 
         if (passField)
-            etPassword.setError("Incorrect password");
+            etPassword.setError(getString(R.string.incorrect_password));
 
         if (!emailField && !passField) {
             String email = etMail.getText().toString().trim();
@@ -214,7 +215,7 @@ public class LoginActivity extends AppCompatActivity {
                             saveGoogleUserInfoAndLogin();
                         } else {
                             // If sign in fails, display a message to the user.
-                            Toast.makeText(LoginActivity.this, "Login has failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, R.string.login_failed, Toast.LENGTH_SHORT).show();
                             pbLogin.setVisibility(View.INVISIBLE);
                         }
 
@@ -237,6 +238,7 @@ public class LoginActivity extends AppCompatActivity {
                             user.setFirst(googleUser.getGivenName());
                             user.setLast(googleUser.getFamilyName());
                             user.setEmail(googleUser.getEmail());
+                            user.setUid(uid);
                             user.setPhone(null);
                             snapshot.getRef().setValue(user);
 

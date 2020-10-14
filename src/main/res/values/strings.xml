@@ -44,8 +44,29 @@
     <string name="register_success">Successfully registered</string>
     <string name="scheduled_rides">Scheduled Rides</string>
     <string name="participants">Participants</string>
-    <string name="destination">destination:</string>
-    <string name="source">source:</string>
-    <string name="add_ride">New Ride</string>
+    <string name="dest">Destination:</string>
+    <string name="src">Starting Point:</string>
+    <string name="add_ride">Add Ride</string>
+    <string name="ride_name">Ride name</string>
+    <string name="ride_details">Ride Details</string>
+    <string name="destination">Destination</string>
+    <string name="starting_point">Starting Point</string>
+    <string name="add">ADD</string>
+    <string name="saving_changes">\"Saving changes, wait... \"</string>
+    <string name="rides_requests">Rides requests</string>
+    <string name="confirm">Confirm</string>
+    <string name="ride_added">Ride has been added successfully</string>
+    <string name="incorrect_email_adress">Incorrect email address</string>
+    <string name="incorrect_password">Incorrect password</string>
+    <string name="login_failed">Login has failed</string>
+    <string name="please_enter_mail">Please Enter Your Mail Address</string>
+    <string name="verification_email_sent">Verification email has sent</string>
+    <string name="permission_importance">The permission is really important to see who in your friend list is already registered</string>
+    <string name="confirmed">confirmed</string>
+    <string name="new_ride_request_title">New ride request</string>
+    <string name="new_ride_request_body">You received new ride request from</string>
+    <string name="add_participants">Add Participants</string>
+    <string name="delete_ride">Delete Ride</string>
+    <string name="leave_ride">Leave Ride</string>
 
 </resources>

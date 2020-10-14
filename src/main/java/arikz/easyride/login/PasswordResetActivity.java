@@ -18,7 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import arikz.easyride.R;
 
 public class PasswordResetActivity extends AppCompatActivity {
-
+    private static final String TAG = ".PasswordResetActivity";
     private ProgressBar pbReset;
     private TextInputEditText etMail;
     private MaterialButton btnSend;
@@ -37,7 +37,7 @@ public class PasswordResetActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (etMail.getText().toString().isEmpty()) {
-                    Toast.makeText(PasswordResetActivity.this, "Please Enter Your Mail Address", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PasswordResetActivity.this, R.string.please_enter_mail, Toast.LENGTH_SHORT).show();
                 } else {
                     pbReset.setVisibility(View.VISIBLE);
                     //Getting authorisation from firebase and send email request using google services
@@ -48,7 +48,7 @@ public class PasswordResetActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-                                        Toast.makeText(PasswordResetActivity.this, "Verification email has sent", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(PasswordResetActivity.this, R.string.verification_email_sent, Toast.LENGTH_SHORT).show();
                                         finish();
                                     }
                                 }

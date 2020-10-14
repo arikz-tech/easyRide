@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main;
+package arikz.easyride.ui.main.map;
 
 import android.os.Bundle;
 
@@ -11,11 +11,11 @@ import android.view.ViewGroup;
 import arikz.easyride.R;
 
 public class MapFragment extends Fragment {
-
+    private static final String TAG = ".MapFragment";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 }

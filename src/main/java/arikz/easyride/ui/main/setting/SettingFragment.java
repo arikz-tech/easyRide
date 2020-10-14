@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main;
+package arikz.easyride.ui.main.setting;
 
 import android.os.Bundle;
 
@@ -9,12 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import arikz.easyride.R;
-public class RequestsFragment extends Fragment {
+
+public class SettingFragment extends Fragment {
+    private static final String TAG = ".SettingFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_requests, container, false);
+        return inflater.inflate(R.layout.fragment_setting, container, false);
     }
 }

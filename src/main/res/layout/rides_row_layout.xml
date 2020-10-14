@@ -2,16 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="340dp">
+    android:layout_height="300dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card"
-        android:layout_width="344dp"
-        android:layout_height="315dp"
+        android:id="@+id/cvRide"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
         android:layout_margin="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="@drawable/custom_ripple"
+        android:foreground="?attr/selectableItemBackground"
         app:cardElevation="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,7 +20,7 @@
             android:layout_height="match_parent">
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cvRow"
+                android:id="@+id/cvOwner"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -67,13 +65,12 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-
             </com.google.android.material.card.MaterialCardView>
 
             <ImageView
                 android:id="@+id/ivRidePic"
-                android:layout_width="344dp"
-                android:layout_height="140dp"
+                android:layout_width="380dp"
+                android:layout_height="200dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +93,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="3dp"
-                android:text="@string/source"
+                android:text="@string/src"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
                 app:layout_constraintStart_toStartOf="parent"
@@ -106,8 +103,8 @@
                 android:id="@+id/tvSrcFill"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
                 android:layout_marginStart="4dp"
+                android:layout_marginTop="3dp"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
                 app:layout_constraintStart_toEndOf="@+id/tvSrc"
@@ -118,7 +115,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:text="@string/destination"
+                android:text="@string/dest"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
                 app:layout_constraintStart_toStartOf="parent"
@@ -133,17 +130,6 @@
                 android:textColor="?android:attr/textColorSecondary"
                 app:layout_constraintStart_toEndOf="@+id/tvDest"
                 app:layout_constraintTop_toBottomOf="@+id/tvSrcFill" />
-
-            <!-- Buttons -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnParticipants"
-                style="?attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/participants"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvDest" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

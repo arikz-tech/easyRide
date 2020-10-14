@@ -21,6 +21,13 @@
             android:layout_height="90dp"
             android:src="@drawable/avatar_logo" />
 
+        <ProgressBar
+            android:id="@+id/pbLoadingPic"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|center_horizontal"/>
+
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.textview.MaterialTextView

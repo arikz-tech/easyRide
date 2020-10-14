@@ -1,8 +1,11 @@
 package arikz.easyride.ui.main.profile;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +15,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
@@ -31,18 +38,20 @@ import java.util.Map;
 import java.util.UUID;
 
 import arikz.easyride.R;
+import arikz.easyride.objects.User;
 
 //TODO ADD DESCRIPTION !!
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private final static String TAG = ".EditProfileActivity";
+    private static final String TAG = ".EditProfileActivity";
 
     private TextInputEditText etFirst, etLast, etPhone;
     private ImageView ivProfile;
-    private ProgressBar pbEdit;
+    private ProgressBar pbEdit, pbLoadingPic;
 
-    private String firstName, lastName, phoneNumber, mailAddress, oldPID, newPID;
+    private User loggedInUser;
+    private String oldPID;
     private Uri filePath = null;
     private boolean saving;
 
@@ -52,6 +61,7 @@ public class EditProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_profile);
 
         //Attach layout component
+        pbLoadingPic = findViewById(R.id.pbLoadingPic);
         etFirst = findViewById(R.id.etFirst);
         etLast = findViewById(R.id.etLast);
         etPhone = findViewById(R.id.etPhone);
@@ -60,35 +70,34 @@ public class EditProfileActivity extends AppCompatActivity {
         MaterialButton btnSave = findViewById(R.id.btnSave);
         FloatingActionButton fabPicEdit = findViewById(R.id.fabPicEdit);
 
-        Bundle bundle = getIntent().getExtras();
-
-        firstName = bundle.getString("first");
-        lastName = bundle.getString("last");
-        phoneNumber = bundle.getString("phone");
-        mailAddress = bundle.getString("email");
-        oldPID = bundle.getString("pid");
-
-        etFirst.setText(firstName);
-        etLast.setText(lastName);
-        etPhone.setText(phoneNumber);
+        loggedInUser = getIntent().getExtras().getParcelable("user");
+        etFirst.setText(loggedInUser.getFirst());
+        etLast.setText(loggedInUser.getLast());
+        etPhone.setText(loggedInUser.getPhone());
+        oldPID = loggedInUser.getPid();
         setProfilePicture();
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                saving = true;
                 if (etFirst.getText().toString().isEmpty() || etLast.getText().toString().isEmpty()
                         || etPhone.getText().toString().isEmpty())
                     Toast.makeText(EditProfileActivity.this, getText(R.string.enter_fields), Toast.LENGTH_SHORT).show();
                 else {
                     pbEdit.setVisibility(View.VISIBLE);
-                    firstName = etFirst.getText().toString().trim();
-                    lastName = etLast.getText().toString().trim();
-                    phoneNumber = etPhone.getText().toString().trim();
+                    String firstName = etFirst.getText().toString().trim();
+                    String lastName = etLast.getText().toString().trim();
+                    String phoneNumber = etPhone.getText().toString().trim();
 
                     Map<String, Object> editUser = new HashMap<>();
                     editUser.put("first", firstName);
                     editUser.put("last", lastName);
                     editUser.put("phone", phoneNumber);
+
+                    loggedInUser.setFirst(firstName);
+                    loggedInUser.setLast(lastName);
+                    loggedInUser.setPhone(phoneNumber);
 
                     String uid = getCurrentUserId();
                     if (uid != null) {
@@ -97,15 +106,11 @@ public class EditProfileActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Intent data = new Intent();
-                                data.putExtra("first", firstName);
-                                data.putExtra("last", lastName);
-                                data.putExtra("email", mailAddress);
-                                data.putExtra("phone", phoneNumber);
+                                data.putExtra("user", loggedInUser);
                                 if (filePath != null) {
-                                    newPID = UUID.randomUUID().toString();
-                                    data.putExtra("pid", newPID);
-                                    setResult(RESULT_OK, data);
+                                    loggedInUser.setPid(UUID.randomUUID().toString());
                                     uploadImage();
+                                    setResult(RESULT_OK, data);
                                 } else {
                                     setResult(RESULT_OK, data);
                                     finish();
@@ -153,9 +158,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void uploadImage() {
         if (filePath != null) {
-            saving = true;
             FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child(newPID).putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    child("images").child("users").child(loggedInUser.getPid()).putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     if (oldPID != null) {
@@ -177,7 +181,7 @@ public class EditProfileActivity extends AppCompatActivity {
         final String uid = getCurrentUserId();
         if (uid != null) {
             FirebaseDatabase.getInstance().getReference().
-                    child("users").child(uid).child("pid").setValue(newPID).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    child("users").child(uid).child("pid").setValue(loggedInUser.getPid()).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     finish();
@@ -187,11 +191,27 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void setProfilePicture() {
+        pbLoadingPic.setVisibility(View.VISIBLE);
         if (oldPID != null) {
             StorageReference imageRef = FirebaseStorage.getInstance().getReference().
                     child("images").child("users").child(oldPID);
 
-            Glide.with(this).load(imageRef).into(ivProfile);
+            Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    pbLoadingPic.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    pbLoadingPic.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+            }).into(ivProfile);
+        }else{
+            ivProfile.setImageResource(R.drawable.avatar_logo);
+            pbLoadingPic.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -206,7 +226,7 @@ public class EditProfileActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (saving)
-            Toast.makeText(this, "Saving changes, wait... ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.saving_changes, Toast.LENGTH_SHORT).show();
         else
             super.onBackPressed();
     }

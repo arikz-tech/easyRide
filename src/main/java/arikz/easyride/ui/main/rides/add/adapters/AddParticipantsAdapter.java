@@ -1,5 +1,6 @@
-package arikz.easyride.ui.main.friends;
+package arikz.easyride.ui.main.rides.add.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +17,21 @@ import com.google.firebase.storage.StorageReference;
 import java.util.List;
 
 import arikz.easyride.R;
-import arikz.easyride.data.User;
+import arikz.easyride.objects.User;
 
 //TODO Ripple Effect Accent
-public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
-    List<User> friends;
+public class AddParticipantsAdapter extends RecyclerView.Adapter<AddParticipantsAdapter.ViewHolder> {
+    private static final String TAG = ".AddParticipantsAdapter";
+    List<User> participants;
+    AddParticipantListener clickHandle;
 
-    public FriendsAdapter(List<User> friends) {
-        this.friends = friends;
+    public interface AddParticipantListener {
+        void onClick(int index);
+    }
+
+    public AddParticipantsAdapter(List<User> participants, Context activity) {
+        this.participants = participants;
+        clickHandle = (AddParticipantListener) activity;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -31,11 +39,19 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         ImageView ivAvatar, ivLogo;
         MaterialTextView tvName;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull final View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.ivAvatar);
             ivLogo = itemView.findViewById(R.id.ivLogo);
             tvName = itemView.findViewById(R.id.tvName);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickHandle.onClick(participants.indexOf(itemView.getTag()));
+                }
+            });
+
         }
     }
 
@@ -43,13 +59,14 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).
-                inflate(R.layout.friends_row_layout, parent, false);
+                inflate(R.layout.participants_row_layout, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        User friend = friends.get(position);
+        User friend = participants.get(position);
+        holder.itemView.setTag(friend);
         holder.tvName.setText(friend.displayName());
 
         setProfileAvatar(holder.itemView, holder.ivAvatar, friend.getPid());
@@ -57,7 +74,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return friends.size();
+        return participants.size();
     }
 
     private void setProfileAvatar(View view, ImageView ivAvatar, String pid) {
@@ -68,6 +85,4 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
             Glide.with(view).load(imageRef).into(ivAvatar);
         }
     }
-
-
 }

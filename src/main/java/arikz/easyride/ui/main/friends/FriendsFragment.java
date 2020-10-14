@@ -9,7 +9,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,26 +24,29 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import arikz.easyride.R;
-import arikz.easyride.data.User;
+import arikz.easyride.objects.User;
 
 public class FriendsFragment extends Fragment {
-    private static String TAG = ".FriendsFragment";
+    private static final String TAG = ".FriendsFragment";
     private static final int CONTACT_REQUEST_CODE = 15;
     private View view;
-    List<User> friends;
-    FriendsAdapter friendsAdapter;
-    ProgressBar pbFriends;
-    String currentUserPhoneNumber;
+    private List<User> friends;
+    private FriendsAdapter friendsAdapter;
+    private ProgressBar pbFriends;
+    private User loggedInUser;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,8 +60,7 @@ public class FriendsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         pbFriends = view.findViewById(R.id.pbFriends);
 
-        Bundle bundle = this.getArguments();
-        currentUserPhoneNumber = bundle.getString("phone");
+        loggedInUser = getArguments().getParcelable("user");
 
         RecyclerView rvFriends = view.findViewById(R.id.rvFriends);
         rvFriends.setHasFixedSize(true);
@@ -101,7 +102,7 @@ public class FriendsFragment extends Fragment {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
                     if (phoneNumbers.contains(friend.getPhone())) {
-                        if (!friends.contains(friend) && !friend.getPhone().equals(currentUserPhoneNumber))
+                        if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
                             friends.add(friend);
                     }
 
@@ -127,10 +128,65 @@ public class FriendsFragment extends Fragment {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 fetchContact();
             } else
-                Toast.makeText(getContext(), "The permission is really important to see who in your friend list is already registered", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.permission_importance, Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
+    //TODO Ripple Effect Accent
+    public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
+        List<User> friends;
+
+        public FriendsAdapter(List<User> friends) {
+            this.friends = friends;
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+
+            ImageView ivAvatar, ivLogo;
+            MaterialTextView tvName;
+
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                ivAvatar = itemView.findViewById(R.id.ivAvatar);
+                ivLogo = itemView.findViewById(R.id.ivLogo);
+                tvName = itemView.findViewById(R.id.tvName);
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.e(TAG, "Check !!");
+                    }
+                });
+            }
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.friends_row_layout, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            User friend = friends.get(position);
+            holder.tvName.setText(friend.displayName());
+
+            setProfileAvatar(holder.itemView, holder.ivAvatar, friend.getPid());
+        }
+
+        @Override
+        public int getItemCount() {
+            return friends.size();
+        }
+
+        private void setProfileAvatar(View view, ImageView ivAvatar, String pid) {
+            if (pid != null) {
+                StorageReference imageRef = FirebaseStorage.getInstance().getReference().
+                        child("images").child("users").child(pid);
+
+                Glide.with(view).load(imageRef).into(ivAvatar);
+            }
+        }
+    }
 }

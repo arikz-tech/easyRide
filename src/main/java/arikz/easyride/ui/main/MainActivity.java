@@ -1,6 +1,7 @@
 package arikz.easyride.ui.main;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -9,13 +10,19 @@ import androidx.fragment.app.Fragment;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -34,11 +41,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import arikz.easyride.R;
-import arikz.easyride.data.User;
+import arikz.easyride.objects.User;
 import arikz.easyride.login.LoginActivity;
 import arikz.easyride.ui.main.friends.FriendsFragment;
+import arikz.easyride.ui.main.map.MapFragment;
 import arikz.easyride.ui.main.profile.ProfileFragment;
+import arikz.easyride.ui.main.requests.RequestsFragment;
 import arikz.easyride.ui.main.rides.RidesFragment;
+import arikz.easyride.ui.main.setting.SettingFragment;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = ".MainActivity";
@@ -48,7 +58,11 @@ public class MainActivity extends AppCompatActivity {
     private View navHeader;
     private MaterialTextView tvName, tvMail;
     private ImageView ivProfilePic;
-    private User loggedInUser;
+    private RidesFragment ridesFragment;
+    private BottomNavigationView bottomNavigationView;
+    private MaterialToolbar toolbar;
+    private Bundle userBundle;
+    private ProgressBar pbLoadingPic;
 
     @Override
     protected void onStart() {
@@ -61,18 +75,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Set the default fragment when user open app to be rides fragment
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new RidesFragment());
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        navigationView = findViewById(R.id.nav_view);
+        drawer = findViewById(R.id.drawer_layout);
+        toolbar = findViewById(R.id.topAppBar);
+
+        setRidesDefaultFragment();
 
         //Set the bottom navigation view
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Fragment selectedFragment = null;
                 switch (item.getItemId()) {
                     case R.id.rides:
-                        selectedFragment = new RidesFragment();
+                        selectedFragment = ridesFragment;
                         break;
                     case R.id.requests:
                         selectedFragment = new RequestsFragment();
@@ -81,47 +98,54 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment = new MapFragment();
                         break;
                 }
-                getSupportFragmentManager().
-                        beginTransaction().
-                        replace(R.id.fragment_container, selectedFragment).
-                        commit();
-                return true;
+
+                item.setCheckable(true);
+                item.setChecked(true);
+
+                for (int i = 0; i < navigationView.getMenu().size(); i++)
+                    navigationView.getMenu().getItem(i).setChecked(false);
+
+                selectedFragment.setArguments(userBundle);
+
+                if (selectedFragment != null) {
+                    getSupportFragmentManager().
+                            beginTransaction().
+                            replace(R.id.fragment_container, selectedFragment).
+                            commit();
+                    return true;
+                } else
+                    return false;
             }
 
         });
 
-        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
+
         setSupportActionBar(toolbar);
-        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Bundle bundle = new Bundle();
                 switch (item.getItemId()) {
                     case R.id.friends:
-                        FriendsFragment friendsFragment = new FriendsFragment();
-                        bundle.putString("phone", loggedInUser.getPhone());
-                        friendsFragment.setArguments(bundle);
-                        getSupportFragmentManager().
-                                beginTransaction().
-                                replace(R.id.fragment_container, friendsFragment).commit();
+                        if (userBundle != null) {
+                            FriendsFragment friendsFragment = new FriendsFragment();
+                            friendsFragment.setArguments(userBundle);
+                            getSupportFragmentManager().
+                                    beginTransaction().
+                                    replace(R.id.fragment_container, friendsFragment).commit();
+                        }
                         break;
                     case R.id.profile:
-                        ProfileFragment profileFragment = new ProfileFragment();
-                        bundle.putString("first", loggedInUser.getFirst());
-                        bundle.putString("last", loggedInUser.getLast());
-                        bundle.putString("email", loggedInUser.getEmail());
-                        bundle.putString("phone", loggedInUser.getPhone());
-                        bundle.putString("pid", loggedInUser.getPid());
-                        profileFragment.setArguments(bundle);
-                        getSupportFragmentManager().
-                                beginTransaction().
-                                replace(R.id.fragment_container, profileFragment).commit();
+                        if (userBundle != null) {
+                            ProfileFragment profileFragment = new ProfileFragment();
+                            profileFragment.setArguments(userBundle);
+                            getSupportFragmentManager().
+                                    beginTransaction().
+                                    replace(R.id.fragment_container, profileFragment).commit();
+                        }
                         break;
                     case R.id.setting:
                         getSupportFragmentManager().
@@ -148,6 +172,9 @@ public class MainActivity extends AppCompatActivity {
                         finish();
                         break;
                 }
+                item.setCheckable(true);
+                item.setChecked(true);
+                bottomNavigationView.getMenu().setGroupCheckable(0, false, true);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
@@ -158,7 +185,18 @@ public class MainActivity extends AppCompatActivity {
         tvName = navHeader.findViewById(R.id.tvFirst);
         tvMail = navHeader.findViewById(R.id.tvMail);
         ivProfilePic = navHeader.findViewById(R.id.ivProfilePic);
+        pbLoadingPic = navHeader.findViewById(R.id.pbLoadingPic);
 
+    }
+
+
+    private void setRidesDefaultFragment() {
+        ridesFragment = new RidesFragment();
+        getSupportFragmentManager().
+                beginTransaction().
+                replace(R.id.fragment_container, ridesFragment).
+                commit();
+        bottomNavigationView.getMenu().getItem(1).setChecked(true);
     }
 
     private void getUserAndDisplayInfo() {
@@ -169,11 +207,15 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    loggedInUser = snapshot.getValue(User.class);
+                    User loggedInUser = snapshot.getValue(User.class);
+
+                    userBundle = new Bundle();
+                    userBundle.putParcelable("user", loggedInUser);
+                    ridesFragment.setArguments(userBundle);
+
                     tvName.setText(loggedInUser.displayName());
                     tvMail.setText(loggedInUser.getEmail());
-
-                    setProfilePicture();
+                    setProfilePicture(loggedInUser.getPid());
 
                 }
 
@@ -185,13 +227,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setProfilePicture() {
-        String pid = loggedInUser.getPid();
+    @Override
+    public void onAttachFragment(@NonNull Fragment fragment) {
+        super.onAttachFragment(fragment);
+
+
+    }
+
+    private void setProfilePicture(String pid) {
+        pbLoadingPic.setVisibility(View.VISIBLE);
         if (pid != null) {
             StorageReference imageRef = FirebaseStorage.getInstance().getReference().
                     child("images").child("users").child(pid);
 
-            Glide.with(this).load(imageRef).into(ivProfilePic);
+            Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    pbLoadingPic.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    pbLoadingPic.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+            }).into(ivProfilePic);
+        }else{
+            ivProfilePic.setImageResource(R.drawable.avatar_logo);
+            pbLoadingPic.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -212,12 +276,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ProfileFragment profileFragment = new ProfileFragment();
-                Bundle bundle = new Bundle();
-                bundle.putCharSequence("first", loggedInUser.getFirst());
-                bundle.putCharSequence("last", loggedInUser.getLast());
-                bundle.putCharSequence("email", loggedInUser.getEmail());
-                bundle.putCharSequence("phone", loggedInUser.getPhone());
-                profileFragment.setArguments(bundle);
+                profileFragment.setArguments(userBundle);
                 getSupportFragmentManager().
                         beginTransaction().
                         replace(R.id.fragment_container, profileFragment).

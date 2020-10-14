@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.profile.ProfileFragment"
-    android:background="@color/fragment_background">
+    android:background="@color/colorBackground"
+    tools:context=".ui.main.profile.ProfileFragment">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/materialTextView2"
@@ -39,6 +39,16 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+
+                <ProgressBar
+                android:id="@+id/pbLoadingPic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivProfile"
+                    app:layout_constraintEnd_toEndOf="@+id/ivProfile"
+                    app:layout_constraintStart_toStartOf="@+id/ivProfile"
+                    app:layout_constraintTop_toTopOf="@+id/ivProfile" />
 
                 <ImageView
                     android:id="@+id/ivProfile"
@@ -154,13 +164,12 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-25dp"
             android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/colorPrimaryDark"
+            android:backgroundTint="@color/colorAccent"
             android:text="@string/button_edit"
             android:textColor="@color/colorWhite"
             app:icon="@drawable/ic_edit_24"
             app:iconTint="@color/colorWhite" />
     </RelativeLayout>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

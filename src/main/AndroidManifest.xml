@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -13,21 +14,38 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.main.rides.AddRideActivity"></activity>
+        <activity android:name=".ui.main.rides.RideInfoActivity" />
+        <activity android:name=".ui.main.rides.add.AddParticipantActivity" />
+        <activity
+            android:name=".ui.main.rides.add.AddRideActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.main.profile.EditProfileActivity" />
         <activity android:name=".login.PasswordResetActivity" />
         <activity android:name=".login.RegisterActivity" />
-        <activity android:name=".ui.main.MainActivity" />
+        <activity android:name=".ui.main.MainActivity">
+            <intent-filter>
+                <action android:name="arikz.easyride.notification_handle"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
+
+        <service
+            android:name=".notificationServices.MyFirebaseMessagingService"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
