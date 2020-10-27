@@ -1,11 +1,15 @@
 package arikz.easyride.ui.main.rides;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -14,7 +18,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -54,6 +63,7 @@ public class RideInfoActivity extends AppCompatActivity {
     private MaterialButton btnDelete;
     private ParticipantsAdapter participantsAdapter;
     private List<UserInRide> participants;
+    private Bundle imagesBundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,9 +77,10 @@ public class RideInfoActivity extends AppCompatActivity {
         btnDelete = findViewById(R.id.btnDelete);
         pbRideInfo = findViewById(R.id.pbRideInfo);
         fabMap = findViewById(R.id.fabMap);
-
+        imagesBundle = new Bundle();
         rvParticipants = findViewById(R.id.rvParticipants);
         participants = new ArrayList<>();
+
         participantsAdapter = new ParticipantsAdapter(participants, RideInfoActivity.this);
         rvParticipants.setAdapter(participantsAdapter);
         rvParticipants.setLayoutManager(new LinearLayoutManager(this));
@@ -106,6 +117,8 @@ public class RideInfoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
                 intent.putParcelableArrayListExtra("users",(ArrayList) participants);
+                //TODO Should wait until all the picture has uploaded, counter or something like that..
+                intent.putExtra("images",imagesBundle);
                 startActivity(intent);
             }
         });
@@ -171,8 +184,10 @@ public class RideInfoActivity extends AppCompatActivity {
                 countTotalThread(snapshot);
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     UserInRide user = snap.getValue(UserInRide.class);
-                    if (user.isInRide())
+                    if (user.isInRide()){
                         participants.add(0, user);
+                        addParticipantImage(user.getUid());
+                    }
                     else
                         participants.add(user);
 
@@ -190,6 +205,33 @@ public class RideInfoActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, error.getMessage());
+            }
+        });
+
+    }
+
+    private void addParticipantImage(String uid) {
+        FirebaseDatabase.getInstance().getReference().
+                child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                final User user = snapshot.getValue(User.class);
+                if(user.getPid()!=null){
+                    Task<byte[]> task = FirebaseStorage.getInstance().getReference().
+                            child("images").child("users").child(user.getPid()).getBytes(Long.MAX_VALUE);
+                    task.addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                        @Override
+                        public void onSuccess(byte[] bytes) {
+                            imagesBundle.putByteArray(user.getPid(),bytes);
+                        }
+                    });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG,error.getMessage());
             }
         });
 

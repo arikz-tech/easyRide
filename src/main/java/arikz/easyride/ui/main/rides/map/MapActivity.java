@@ -4,9 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -21,13 +27,19 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.maps.android.clustering.ClusterManager;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import arikz.easyride.R;
@@ -36,8 +48,9 @@ import arikz.easyride.objects.UserInRide;
 import arikz.easyride.ui.main.GlideOptions;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
-
-    private GoogleMap mMap;
+    private static final String TAG = ".MapActivity";
+    private ClusterManager<ClusterMarker> clusterManager;
+    private MyClusterManagerRenderer clusterManagerRenderer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,24 +75,44 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     public void onMapReady(GoogleMap googleMap) {
         double avgLat = 0, avgLong = 0;
         int numOfMarkers = 0;
-
         List<UserInRide> users = getIntent().getParcelableArrayListExtra("users");
-
-        for (UserInRide user : users) {
-            if(user.isInRide()){
-                numOfMarkers++;
-            MarkerOptions markerOptions = new MarkerOptions();
-            avgLat += user.getLatitude();
-            avgLong += user.getLongitude();
-            LatLng position = new LatLng(user.getLatitude(), user.getLongitude());
-            markerOptions.position(position);
-            markerOptions.title(user.getUid());
-            googleMap.addMarker(markerOptions);
+        final Bundle images = getIntent().getBundleExtra("images");
+        if (googleMap != null) {
+            if (clusterManager == null) {
+                clusterManager = new ClusterManager<>(getApplicationContext(),googleMap);
             }
+            if (clusterManagerRenderer == null) {
+                clusterManagerRenderer = new MyClusterManagerRenderer(getApplicationContext(), googleMap, clusterManager);
+                clusterManager.setRenderer(clusterManagerRenderer);
+            }
+
+            for (final UserInRide user : users) {
+                numOfMarkers++;
+                avgLat += user.getLatitude();
+                avgLong += user.getLongitude();
+                FirebaseDatabase.getInstance().getReference().
+                        child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        User userInfo = snapshot.getValue(User.class);
+                        ClusterMarker clusterMarker = new ClusterMarker(new LatLng(user.getLatitude(),user.getLongitude()),
+                                userInfo.displayName(),userInfo.getEmail(),images.getByteArray(userInfo.getPid()));
+                        clusterManager.addItem(clusterMarker);
+                        clusterManager.cluster();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG,error.getMessage());
+                    }
+                });
+
+            }
+            LatLng avgPosition = new LatLng(avgLat / numOfMarkers, avgLong / numOfMarkers);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(avgPosition, 20));
+
         }
 
-        LatLng avgPosition = new LatLng(avgLat / numOfMarkers, avgLong / numOfMarkers);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(avgPosition, 10));
     }
-
 }
+
