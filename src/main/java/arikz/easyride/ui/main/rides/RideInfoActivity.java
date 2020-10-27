@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,11 +38,13 @@ import arikz.easyride.objects.Ride;
 import arikz.easyride.objects.User;
 import arikz.easyride.objects.UserInRide;
 import arikz.easyride.ui.main.rides.add.adapters.ParticipantsAdapter;
+import arikz.easyride.ui.main.rides.map.MapActivity;
 
 public class RideInfoActivity extends AppCompatActivity {
     private static final String TAG = ".RideInfoActivity";
     private long totalThread, cntThreads;
     private ProgressBar pbRideInfo;
+    private FloatingActionButton fabMap;
     private MaterialToolbar toolbar;
     private ImageView ivRidePic;
     private Ride ride;
@@ -49,7 +53,7 @@ public class RideInfoActivity extends AppCompatActivity {
     private RecyclerView rvParticipants;
     private MaterialButton btnDelete;
     private ParticipantsAdapter participantsAdapter;
-    private List<User> participants;
+    private List<UserInRide> participants;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +66,11 @@ public class RideInfoActivity extends AppCompatActivity {
         tvDestFill = findViewById(R.id.tvDestFill);
         btnDelete = findViewById(R.id.btnDelete);
         pbRideInfo = findViewById(R.id.pbRideInfo);
+        fabMap = findViewById(R.id.fabMap);
 
         rvParticipants = findViewById(R.id.rvParticipants);
         participants = new ArrayList<>();
-        participantsAdapter = new ParticipantsAdapter(participants);
+        participantsAdapter = new ParticipantsAdapter(participants, RideInfoActivity.this);
         rvParticipants.setAdapter(participantsAdapter);
         rvParticipants.setLayoutManager(new LinearLayoutManager(this));
 
@@ -93,6 +98,15 @@ public class RideInfoActivity extends AppCompatActivity {
                     deleteRideOwner();
                 else
                     exitRide();
+            }
+        });
+
+        fabMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
+                intent.putParcelableArrayListExtra("users",(ArrayList) participants);
+                startActivity(intent);
             }
         });
 
@@ -157,24 +171,19 @@ public class RideInfoActivity extends AppCompatActivity {
                 countTotalThread(snapshot);
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     UserInRide user = snap.getValue(UserInRide.class);
-                    dbRef.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            participants.add(snapshot.getValue(User.class));
-                            countThread();
-                            if (allThreadFinished()) {
-                                participantsAdapter.notifyDataSetChanged();
-                                pbRideInfo.setVisibility(View.INVISIBLE);
-                                cntThreads = 0;
-                                totalThread = 0;
-                            }
-                        }
+                    if (user.isInRide())
+                        participants.add(0, user);
+                    else
+                        participants.add(user);
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.e(TAG, error.getMessage());
-                        }
-                    });
+                    countThread();
+                }
+
+                if (allThreadFinished()) {
+                    pbRideInfo.setVisibility(View.INVISIBLE);
+                    participantsAdapter.notifyDataSetChanged();
+                    cntThreads = 0;
+                    totalThread = 0;
                 }
             }
 
@@ -240,7 +249,8 @@ public class RideInfoActivity extends AppCompatActivity {
             }
         });
 
-        FirebaseStorage.getInstance().getReference().
+        if(ride.getPid()!=null)
+            FirebaseStorage.getInstance().getReference().
                 child("images").child("rides").child(ride.getPid()).delete();
 
     }

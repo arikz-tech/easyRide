@@ -26,7 +26,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     implementation 'com.google.android.gms:play-services-auth:18.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
@@ -39,7 +39,7 @@ dependencies {
 
     //Firebase implementation
     implementation 'com.google.firebase:firebase-auth:19.4.0'
-    implementation 'com.google.firebase:firebase-database:19.5.0'
+    implementation 'com.google.firebase:firebase-database:19.5.1'
     implementation 'com.google.firebase:firebase-storage:19.2.0'
     implementation 'com.google.firebase:firebase-messaging:20.3.0'
     implementation 'com.firebaseui:firebase-ui-storage:6.2.0'
@@ -53,4 +53,9 @@ dependencies {
 
     //Volley for JSON notification file
     implementation 'com.android.volley:volley:1.1.1'
+
+    //Google maps
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    
+
 }

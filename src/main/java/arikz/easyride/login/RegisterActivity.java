@@ -3,6 +3,7 @@ package arikz.easyride.login;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -58,6 +59,10 @@ public class RegisterActivity extends AppCompatActivity {
                     //Collect email and password details
                     String email = etMail.getText().toString().trim();
                     String password = etPassword.getText().toString().trim();
+                    Intent data = new Intent();
+                    data.putExtra("email",email);
+                    data.putExtra("password",password);
+                    setResult(RESULT_OK,data);
 
                     // Register new user using firebase authorization
                     FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -71,7 +76,6 @@ public class RegisterActivity extends AppCompatActivity {
                                 user.setLast(etLast.getText().toString().trim());
                                 user.setPhone(etPhone.getText().toString().trim());
                                 user.setUid(task.getResult().getUser().getUid());
-
 
                                 //TODO check on failure listener for saving user value
 

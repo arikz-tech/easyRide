@@ -2,13 +2,20 @@ package arikz.easyride.ui.main.rides.add;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -45,8 +52,12 @@ import arikz.easyride.ui.main.rides.add.interfaces.DetailsEvents;
 import arikz.easyride.ui.main.rides.add.tabs.DetailsFragment;
 import arikz.easyride.ui.main.rides.add.tabs.ParticipantsFragment;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 public class AddRideActivity extends AppCompatActivity implements ParticipantsEvents, DetailsEvents {
     private static final String TAG = ".AddRideActivity";
+    private static final int PERMISSION_REQUEST_CODE = 19;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -55,6 +66,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     private List<User> rideParticipants;
     private User owner;
     private boolean saving;
+    private String namePar,srcPar,destPar,pidPar; // Saved parameters if need permission
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,75 +108,93 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     @Override
     public void onSubmit(String name, String src, String dest, String pid) {
         tabLayout.setVisibility(View.INVISIBLE);
-        rideParticipants.add(owner);
-        final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-        final Ride ride = new Ride();
-        ride.setName(name);
-        ride.setOwnerUID(owner.getUid());
-        ride.setSource(src);
-        ride.setDestination(dest);
-        ride.setPid(pid);
-        ride.setRid(dbRef.child("rides").push().getKey());
-
-        Intent data = new Intent();
-        data.putExtra("ride", ride);
-        setResult(RESULT_OK, data);
-
-        dbRef.child("rides").child(ride.getRid()).setValue(ride);
-
-        List<UserInRide> rideUsers = new ArrayList<>();
-        for (User participant : rideParticipants) {
-            UserInRide user = new UserInRide();
-            user.setUid(participant.getUid());
-            if (participant.getUid().equals(owner.getUid()))
-                user.setInRide(true);
-            else
-                user.setInRide(false);
-            rideUsers.add(user);
-        }
-
-        dbRef.child("rideUsers").child(ride.getRid()).setValue(rideUsers);
-
-        for (User participant : rideParticipants) {
-            dbRef.child("userRides").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            namePar = name;
+            srcPar = src;
+            destPar = dest;
+            pidPar = pid;
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},PERMISSION_REQUEST_CODE);
+        } else {
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 500.0f, new LocationListener() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    List<String> userRides = new ArrayList<>();
-                    if (snapshot.exists()) {
-                        for (DataSnapshot snap : snapshot.getChildren()) {
-                            userRides.add(snap.getValue(String.class));
+                public void onLocationChanged(@NonNull Location location) {
+                }
+            });
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            rideParticipants.add(owner);
+            final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+            final Ride ride = new Ride();
+            ride.setName(name);
+            ride.setOwnerUID(owner.getUid());
+            ride.setSource(src);
+            ride.setDestination(dest);
+            ride.setPid(pid);
+            ride.setRid(dbRef.child("rides").push().getKey());
+
+            Intent data = new Intent();
+            data.putExtra("ride", ride);
+            setResult(RESULT_OK, data);
+
+            dbRef.child("rides").child(ride.getRid()).setValue(ride);
+
+            List<UserInRide> rideUsers = new ArrayList<>();
+            for (User participant : rideParticipants) {
+                UserInRide user = new UserInRide();
+                user.setUid(participant.getUid());
+                if (participant.getUid().equals(owner.getUid())) {
+                    user.setLatitude(location.getLatitude());
+                    user.setLongitude(location.getLongitude());
+                    user.setInRide(true);
+                } else
+                    user.setInRide(false);
+                rideUsers.add(user);
+            }
+
+            dbRef.child("rideUsers").child(ride.getRid()).setValue(rideUsers);
+
+            for (User participant : rideParticipants) {
+                dbRef.child("userRides").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<String> userRides = new ArrayList<>();
+                        if (snapshot.exists()) {
+                            for (DataSnapshot snap : snapshot.getChildren()) {
+                                userRides.add(snap.getValue(String.class));
+                            }
                         }
+                        userRides.add(ride.getRid());
+                        snapshot.getRef().setValue(userRides);
                     }
-                    userRides.add(ride.getRid());
-                    snapshot.getRef().setValue(userRides);
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, error.getMessage());
-                }
-            });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG, error.getMessage());
+                    }
+                });
+            }
+
+            rideParticipants.remove(owner);
+            for (final User participant : rideParticipants) {
+                dbRef.child("tokens").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String token = snapshot.getValue(String.class);
+                        sendNotification(token, owner.displayName());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG, error.getMessage());
+                    }
+                });
+            }
+
+            Toast.makeText(AddRideActivity.this, R.string.ride_added, Toast.LENGTH_SHORT).show();
+            finish();
         }
-
-        rideParticipants.remove(owner);
-        for (final User participant : rideParticipants) {
-            dbRef.child("tokens").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String token = snapshot.getValue(String.class);
-                    sendNotification(token, owner.displayName());
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, error.getMessage());
-                }
-            });
-        }
-
-        Toast.makeText(AddRideActivity.this, R.string.ride_added, Toast.LENGTH_SHORT).show();
-        finish();
-
     }
 
     @Override
@@ -258,4 +288,17 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                this.onSubmit(namePar,srcPar,destPar,pidPar);
+            } else{
+                Toast.makeText(this, "Adding ride has failed, to add ride you have to grant location permission", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
+    }
 }

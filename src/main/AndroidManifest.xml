@@ -2,10 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="arikz.easyride">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -14,6 +17,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+        <activity
+            android:name=".ui.main.rides.map.MapActivity"
+            android:label="@string/title_activity_map" />
         <activity android:name=".ui.main.rides.RideInfoActivity" />
         <activity android:name=".ui.main.rides.add.AddParticipantActivity" />
         <activity
@@ -24,13 +33,15 @@
         <activity android:name=".login.RegisterActivity" />
         <activity android:name=".ui.main.MainActivity">
             <intent-filter>
-                <action android:name="arikz.easyride.notification_handle"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="arikz.easyride.notification_handle" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

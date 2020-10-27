@@ -24,7 +24,7 @@ import java.util.List;
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
 import arikz.easyride.ui.main.rides.add.AddParticipantActivity;
-import arikz.easyride.ui.main.rides.add.adapters.ParticipantsAdapter;
+import arikz.easyride.ui.main.rides.add.adapters.AddedParticipantsAdapter;
 import arikz.easyride.ui.main.rides.add.interfaces.ParticipantsEvents;
 
 public class ParticipantsFragment extends Fragment {
@@ -32,7 +32,7 @@ public class ParticipantsFragment extends Fragment {
     private static final int ADD_REQUEST_CODE = 17;
     View view;
     List<User> participants;
-    ParticipantsAdapter participantsAdapter;
+    AddedParticipantsAdapter participantsAdapter;
     ProgressBar pbParticipants;
     ExtendedFloatingActionButton fabAddParticipant;
     ParticipantsEvents event;
@@ -65,7 +65,7 @@ public class ParticipantsFragment extends Fragment {
         rvParticipants.setLayoutManager(new LinearLayoutManager(getContext()));
 
         participants = new ArrayList<>();
-        participantsAdapter = new ParticipantsAdapter(participants);
+        participantsAdapter = new AddedParticipantsAdapter(participants);
         rvParticipants.setAdapter(participantsAdapter);
 
         fabAddParticipant.setOnClickListener(new View.OnClickListener() {

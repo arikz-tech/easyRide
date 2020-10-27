@@ -3,12 +3,17 @@ package arikz.easyride.login;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -53,11 +58,10 @@ import arikz.easyride.objects.User;
 import arikz.easyride.ui.main.MainActivity;
 import arikz.easyride.R;
 
-
-//TODO after register add login info
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = ".LoginActivity";
     private final int RC_SIGN_IN = 3;
+    private final int REGISTER_INFO = 5;
 
     private TextInputEditText etMail, etPassword;
     private ProgressBar pbLogin;
@@ -114,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REGISTER_INFO);
             }
         });
 
@@ -199,6 +203,14 @@ public class LoginActivity extends AppCompatActivity {
                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                 pbLogin.setVisibility(View.INVISIBLE);
                 // ...
+            }
+        }
+        if(requestCode == REGISTER_INFO){
+            if(resultCode==RESULT_OK){
+                String email = data.getStringExtra("email");
+                String password = data.getStringExtra("password");
+                etMail.setText(email);
+                etPassword.setText(password);
             }
         }
     }

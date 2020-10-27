@@ -1,6 +1,7 @@
 package arikz.easyride.ui.main.rides.add.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -38,12 +40,14 @@ public class AddParticipantsAdapter extends RecyclerView.Adapter<AddParticipants
 
         ImageView ivAvatar, ivLogo;
         MaterialTextView tvName;
+        MaterialCardView cvRow;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.ivAvatar);
             ivLogo = itemView.findViewById(R.id.ivLogo);
             tvName = itemView.findViewById(R.id.tvName);
+            cvRow = itemView.findViewById(R.id.cvRow);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

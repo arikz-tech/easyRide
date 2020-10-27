@@ -139,7 +139,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
                     child("images").child("rides").child(pid);
 
             Glide.with(itemView).load(imageRef).into(ivRidePic);
-        }
+        }else ivRidePic.setImageResource(R.drawable.card_view_sample);
     }
 
 }

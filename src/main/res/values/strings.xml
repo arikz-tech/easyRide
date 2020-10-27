@@ -68,5 +68,8 @@
     <string name="add_participants">Add Participants</string>
     <string name="delete_ride">Delete Ride</string>
     <string name="leave_ride">Leave Ride</string>
+    <string name="arrival_confirmed">Arrival confirmed</string>
+    <string name="arrival_not_confirmed">Arrival not confirmed</string>
+    <string name="title_activity_map">Map</string>
 
 </resources>

@@ -44,7 +44,6 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
     private ProgressBar pbRides;
     private RidesAdapter ridesAdapter;
     private List<Ride> rides;
-    private long cntThreads, totalThread;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -90,23 +89,18 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
-                        countThread();
-                        countTotalThread(snapshot);
                         for (final DataSnapshot snap : snapshot.getChildren()) {
                             final String rid = snap.getValue(String.class);
                             if (rid != null) {
                                 dbRef.child("rides").child(rid).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        countThread();
                                         final Ride ride = snapshot.getValue(Ride.class);
                                         if (ride != null) {
                                             dbRef.child("rideUsers").child(ride.getRid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                    countTotalThread(snapshot);
                                                     for (DataSnapshot snap : snapshot.getChildren()) {
-                                                        countThread();
                                                         UserInRide user = snap.getValue(UserInRide.class);
                                                         if (user != null) {
                                                             if (user.getUid().equals(uid) && user.isInRide()) {
@@ -114,10 +108,17 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                                                                 ridesAdapter.notifyDataSetChanged();
                                                             }
                                                         }
-                                                    }
 
-                                                    if (allThreadFinished())
-                                                        pbRides.setVisibility(View.INVISIBLE);
+                                                        int lastUser = Integer.parseInt(snap.getKey());
+                                                        if(lastUser == snapshot.getChildrenCount() - 1) {
+                                                            try {
+                                                                Thread.sleep((long) 0.1);
+                                                            } catch (InterruptedException e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                            pbRides.setVisibility(View.INVISIBLE);
+                                                        }
+                                                    }
                                                 }
 
                                                 @Override
@@ -147,19 +148,8 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                     Log.e(TAG, error.getMessage());
                 }
             });
-        }
-    }
-
-    private boolean allThreadFinished() {
-        return cntThreads >= totalThread;
-    }
-
-    private synchronized void countTotalThread(DataSnapshot snapshot) {
-        totalThread += snapshot.getChildrenCount();
-    }
-
-    private synchronized void countThread() {
-        cntThreads++;
+        }else
+            pbRides.setVisibility(View.INVISIBLE);
     }
 
     @Override

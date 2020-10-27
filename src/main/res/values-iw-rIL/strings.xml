@@ -69,4 +69,6 @@
     <string name="add_participants">הוסף משתתפים</string>
     <string name="delete_ride">מחק נסיעה</string>
     <string name="leave_ride">צא מנסיעה</string>
+    <string name="arrival_confirmed">אישר\\ה נסיעה</string>
+    <string name="arrival_not_confirmed">לא אישר/ה נסיעה</string>
 </resources>

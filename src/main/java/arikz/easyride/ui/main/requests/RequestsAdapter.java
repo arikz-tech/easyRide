@@ -1,14 +1,24 @@
 package arikz.easyride.ui.main.requests;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -34,13 +44,20 @@ import arikz.easyride.objects.UserInRide;
 
 public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHolder> {
     private final static String TAG = ".RequestsAdapter";
-    List<Ride> rides;
-    Context context;
+    private List<Ride> rides;
+    private Activity activity;
+    private OnRequestClicked requestFrag;
+    public ViewHolder viewHolder;
+
+    public interface OnRequestClicked {
+        void onClick(int index,boolean confirm);
+    }
 
 
-    public RequestsAdapter(Context context, List<Ride> rides) {
+    public RequestsAdapter(Activity activity, Fragment requestFrag , List<Ride> rides) {
         this.rides = rides;
-        this.context = context;
+        this.requestFrag = (OnRequestClicked) requestFrag;
+        this.activity = activity;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -61,67 +78,35 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
             btnConfirm = itemView.findViewById(R.id.btnConfirm);
             btnConfirm.setOnClickListener(new View.OnClickListener() {
                 boolean confirm = true;
-
                 @Override
                 public void onClick(View v) {
                     int index = rides.indexOf(itemView.getTag());
-                    if (confirm) {
-                        btnConfirm.setStrokeColorResource(R.color.colorPrimary);
-                        btnConfirm.setTextColor(context.getColor(R.color.colorPrimary));
-                        btnConfirm.setText(R.string.confirmed);
-                    } else {
-                        btnConfirm.setStrokeColorResource(R.color.colorBlack);
-                        btnConfirm.setTextColor(context.getColor(R.color.colorBlack));
-                        btnConfirm.setText(R.string.confirm);
-                    }
-                    confirmRejectRide(pbConfirm, btnConfirm, index, confirm);
+                    changeState(confirm);
+                    requestFrag.onClick(index,confirm);
                     confirm = !confirm;
                 }
             });
+        }
 
+        public void changeState(boolean confirm) {
+            if (confirm) {
+                btnConfirm.setStrokeColorResource(R.color.colorPrimary);
+                btnConfirm.setTextColor(activity.getColor(R.color.colorPrimary));
+                btnConfirm.setText(R.string.confirmed);
+            } else {
+                btnConfirm.setStrokeColorResource(R.color.colorBlack);
+                btnConfirm.setTextColor(activity.getColor(R.color.colorBlack));
+                btnConfirm.setText(R.string.confirm);
+            }
         }
     }
-
-    private void confirmRejectRide(final ProgressBar pb, final MaterialButton btn, int index, final boolean confirm) {
-        pb.setVisibility(View.VISIBLE);
-        btn.setVisibility(View.INVISIBLE);
-
-        final String rid = rides.get(index).getRid();
-        final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-        dbRef.child("rideUsers").child(rid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String uid = getCurrentUserId();
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    UserInRide user = snap.getValue(UserInRide.class);
-                    if (user.getUid().equals(uid)) {
-                        String key = snap.getKey();
-                        dbRef.child("rideUsers").child(rid).child(key).child("inRide").setValue(confirm).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                pb.setVisibility(View.INVISIBLE);
-                                btn.setVisibility(View.VISIBLE);
-                            }
-                        });
-                    }
-
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.requests_row_layout, parent, false);
-        return new ViewHolder(view);
+        viewHolder = new ViewHolder(view);
+        return viewHolder;
     }
 
     @Override
@@ -164,14 +149,6 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     @Override
     public int getItemCount() {
         return rides.size();
-    }
-
-    private String getCurrentUserId() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null)
-            return user.getUid();
-        else
-            return null;
     }
 
 }
