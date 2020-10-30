@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -41,6 +43,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
@@ -77,9 +80,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         int numOfMarkers = 0;
         List<UserInRide> users = getIntent().getParcelableArrayListExtra("users");
         final Bundle images = getIntent().getBundleExtra("images");
+
         if (googleMap != null) {
             if (clusterManager == null) {
-                clusterManager = new ClusterManager<>(getApplicationContext(),googleMap);
+                clusterManager = new ClusterManager<>(getApplicationContext(), googleMap);
             }
             if (clusterManagerRenderer == null) {
                 clusterManagerRenderer = new MyClusterManagerRenderer(getApplicationContext(), googleMap, clusterManager);
@@ -87,30 +91,39 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             }
 
             for (final UserInRide user : users) {
-                numOfMarkers++;
-                avgLat += user.getLatitude();
-                avgLong += user.getLongitude();
-                FirebaseDatabase.getInstance().getReference().
-                        child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        User userInfo = snapshot.getValue(User.class);
-                        ClusterMarker clusterMarker = new ClusterMarker(new LatLng(user.getLatitude(),user.getLongitude()),
-                                userInfo.displayName(),userInfo.getEmail(),images.getByteArray(userInfo.getPid()));
-                        clusterManager.addItem(clusterMarker);
-                        clusterManager.cluster();
-                    }
+                if (user.isInRide()) {
+                    numOfMarkers++;
+                    avgLat += user.getLatitude();
+                    avgLong += user.getLongitude();
+                    FirebaseDatabase.getInstance().getReference().
+                            child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            List<Address> addresses;
+                            Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                            try {
+                                addresses = geocoder.getFromLocation(user.getLatitude(), user.getLongitude(), 1);
+                                User userInfo = snapshot.getValue(User.class);
+                                ClusterMarker clusterMarker = new ClusterMarker(new LatLng(user.getLatitude(), user.getLongitude()),
+                                        userInfo.displayName(),addresses.get(0).getAddressLine(0), images.getByteArray(userInfo.getPid()));
+                                clusterManager.addItem(clusterMarker);
+                                clusterManager.cluster();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e(TAG,error.getMessage());
-                    }
-                });
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e(TAG, error.getMessage());
+                        }
+                    });
+
+                }
 
             }
             LatLng avgPosition = new LatLng(avgLat / numOfMarkers, avgLong / numOfMarkers);
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(avgPosition, 20));
-
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(avgPosition, 15));
         }
 
     }

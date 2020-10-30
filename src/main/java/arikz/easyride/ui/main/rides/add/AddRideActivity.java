@@ -13,6 +13,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -38,9 +40,11 @@ import com.google.firebase.database.ValueEventListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import arikz.easyride.R;
@@ -58,6 +62,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class AddRideActivity extends AppCompatActivity implements ParticipantsEvents, DetailsEvents {
     private static final String TAG = ".AddRideActivity";
     private static final int PERMISSION_REQUEST_CODE = 19;
+    private static final int ADD_REQUEST_CODE = 17;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -66,7 +71,6 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     private List<User> rideParticipants;
     private User owner;
     private boolean saving;
-    private String namePar,srcPar,destPar,pidPar; // Saved parameters if need permission
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,23 +110,25 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     }
 
     @Override
-    public void onSubmit(String name, String src, String dest, String pid) {
+    public void onSubmit(String name, String src, String dest, String date, String pid) {
         tabLayout.setVisibility(View.INVISIBLE);
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            namePar = name;
-            srcPar = src;
-            destPar = dest;
-            pidPar = pid;
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
         } else {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 500.0f, new LocationListener() {
+            LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(@NonNull Location location) {
                 }
-            });
+            };
+
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 500.0f,listener);
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            double ownerLat = location.getLatitude();
+            double ownerLong = location.getLongitude();
+            locationManager.removeUpdates(listener);
+
 
             rideParticipants.add(owner);
             final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
@@ -131,6 +137,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
             ride.setOwnerUID(owner.getUid());
             ride.setSource(src);
             ride.setDestination(dest);
+            ride.setDate(date);
             ride.setPid(pid);
             ride.setRid(dbRef.child("rides").push().getKey());
 
@@ -145,14 +152,13 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 UserInRide user = new UserInRide();
                 user.setUid(participant.getUid());
                 if (participant.getUid().equals(owner.getUid())) {
-                    user.setLatitude(location.getLatitude());
-                    user.setLongitude(location.getLongitude());
+                    user.setLatitude(ownerLat);
+                    user.setLongitude(ownerLong);
                     user.setInRide(true);
                 } else
                     user.setInRide(false);
                 rideUsers.add(user);
             }
-
             dbRef.child("rideUsers").child(ride.getRid()).setValue(rideUsers);
 
             for (User participant : rideParticipants) {
@@ -294,8 +300,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
 
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                this.onSubmit(namePar,srcPar,destPar,pidPar);
-            } else{
+            } else {
                 Toast.makeText(this, "Adding ride has failed, to add ride you have to grant location permission", Toast.LENGTH_LONG).show();
                 finish();
             }

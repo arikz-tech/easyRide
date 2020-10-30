@@ -10,6 +10,7 @@ public class Ride implements Parcelable {
     private String name;
     private String source;
     private String destination;
+    private String date;
     private String pid;
     private String ownerUID;
 
@@ -21,6 +22,7 @@ public class Ride implements Parcelable {
         name = in.readString();
         source = in.readString();
         destination = in.readString();
+        date = in.readString();
         pid = in.readString();
         ownerUID = in.readString();
     }
@@ -36,6 +38,22 @@ public class Ride implements Parcelable {
             return new Ride[size];
         }
     };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(rid);
+        dest.writeString(name);
+        dest.writeString(source);
+        dest.writeString(destination);
+        dest.writeString(date);
+        dest.writeString(pid);
+        dest.writeString(ownerUID);
+    }
 
     public String getRid() {
         return rid;
@@ -69,6 +87,14 @@ public class Ride implements Parcelable {
         this.destination = destination;
     }
 
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
     public String getPid() {
         return pid;
     }
@@ -85,18 +111,7 @@ public class Ride implements Parcelable {
         this.ownerUID = ownerUID;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(rid);
-        dest.writeString(name);
-        dest.writeString(source);
-        dest.writeString(destination);
-        dest.writeString(pid);
-        dest.writeString(ownerUID);
+    public static Creator<Ride> getCREATOR() {
+        return CREATOR;
     }
 }

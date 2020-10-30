@@ -58,12 +58,13 @@ public class RideInfoActivity extends AppCompatActivity {
     private ImageView ivRidePic;
     private Ride ride;
     private CollapsingToolbarLayout toolbarLayout;
-    private MaterialTextView tvSrcFill, tvDestFill;
+    private MaterialTextView tvSrcFill, tvDestFill,tvDateFill;
     private RecyclerView rvParticipants;
     private MaterialButton btnDelete;
     private ParticipantsAdapter participantsAdapter;
     private List<UserInRide> participants;
     private Bundle imagesBundle;
+    private int imgCnt,totalPic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class RideInfoActivity extends AppCompatActivity {
         toolbarLayout = findViewById(R.id.toolbarLayout);
         tvSrcFill = findViewById(R.id.tvSrcFill);
         tvDestFill = findViewById(R.id.tvDestFill);
+        tvDateFill = findViewById(R.id.tvDateFill);
         btnDelete = findViewById(R.id.btnDelete);
         pbRideInfo = findViewById(R.id.pbRideInfo);
         fabMap = findViewById(R.id.fabMap);
@@ -93,6 +95,7 @@ public class RideInfoActivity extends AppCompatActivity {
 
         tvSrcFill.setText(ride.getSource());
         tvDestFill.setText(ride.getDestination());
+        tvDateFill.setText(ride.getDate());
 
         collectParticipants();
 
@@ -115,14 +118,19 @@ public class RideInfoActivity extends AppCompatActivity {
         fabMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
-                intent.putParcelableArrayListExtra("users",(ArrayList) participants);
-                //TODO Should wait until all the picture has uploaded, counter or something like that..
-                intent.putExtra("images",imagesBundle);
-                startActivity(intent);
+
+                if (allImagePassed()) {
+                    Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
+                    intent.putParcelableArrayListExtra("users", (ArrayList) participants);
+                    intent.putExtra("images", imagesBundle);
+                    startActivity(intent);
+                }
             }
         });
+    }
 
+    private boolean allImagePassed() {
+        return imgCnt == totalPic; //true only if all the image is in bundle
     }
 
     private void exitRide() {
@@ -184,11 +192,10 @@ public class RideInfoActivity extends AppCompatActivity {
                 countTotalThread(snapshot);
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     UserInRide user = snap.getValue(UserInRide.class);
-                    if (user.isInRide()){
-                        participants.add(0, user);
+                    if (user.isInRide()) {
+                        participants.add(0, user); // Add participant into front of array list
                         addParticipantImage(user.getUid());
-                    }
-                    else
+                    } else
                         participants.add(user);
 
                     countThread();
@@ -216,13 +223,15 @@ public class RideInfoActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 final User user = snapshot.getValue(User.class);
-                if(user.getPid()!=null){
+                totalPic++;
+                if (user.getPid() != null) {
                     Task<byte[]> task = FirebaseStorage.getInstance().getReference().
                             child("images").child("users").child(user.getPid()).getBytes(Long.MAX_VALUE);
                     task.addOnSuccessListener(new OnSuccessListener<byte[]>() {
                         @Override
                         public void onSuccess(byte[] bytes) {
-                            imagesBundle.putByteArray(user.getPid(),bytes);
+                            imgCnt++;
+                            imagesBundle.putByteArray(user.getPid(), bytes);
                         }
                     });
                 }
@@ -231,7 +240,7 @@ public class RideInfoActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG,error.getMessage());
+                Log.e(TAG, error.getMessage());
             }
         });
 
@@ -291,9 +300,9 @@ public class RideInfoActivity extends AppCompatActivity {
             }
         });
 
-        if(ride.getPid()!=null)
+        if (ride.getPid() != null)
             FirebaseStorage.getInstance().getReference().
-                child("images").child("rides").child(ride.getPid()).delete();
+                    child("images").child("rides").child(ride.getPid()).delete();
 
     }
 

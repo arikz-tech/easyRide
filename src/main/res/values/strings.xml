@@ -66,10 +66,19 @@
     <string name="new_ride_request_title">New ride request</string>
     <string name="new_ride_request_body">You received new ride request from</string>
     <string name="add_participants">Add Participants</string>
+    <string name="add_participant">Add Participant</string>
     <string name="delete_ride">Delete Ride</string>
     <string name="leave_ride">Leave Ride</string>
     <string name="arrival_confirmed">Arrival confirmed</string>
     <string name="arrival_not_confirmed">Arrival not confirmed</string>
     <string name="title_activity_map">Map</string>
+    <string name="date">Date</string>
+    <string name="date_colon">Date:</string>
+    <string name="date_select">Select ride date</string>
+    <string name="current_location">Current location</string>
+    <string name="take_current_pos">would you like to use current position as ride\'s starting point</string>
+    <string name="yes">yes</string>
+    <string name="no">No</string>
+    <string name="never_ask_again">Never ask again</string>
 
 </resources>

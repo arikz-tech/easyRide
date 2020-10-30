@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,7 +35,6 @@ import arikz.easyride.objects.UserInRide;
 import arikz.easyride.ui.main.rides.add.AddRideActivity;
 import arikz.easyride.ui.main.rides.add.adapters.RidesAdapter;
 
-//TODO ADD DATE PICKER!
 public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicked {
     private static String TAG = ".RidesFragment";
     private static int ADD_REQUEST_CODE = 4;
@@ -55,7 +55,6 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         pbRides = view.findViewById(R.id.pbRides);
         ExtendedFloatingActionButton fabAddRide = view.findViewById(R.id.fabAddRide);
         RecyclerView rvRides = view.findViewById(R.id.rvRides);

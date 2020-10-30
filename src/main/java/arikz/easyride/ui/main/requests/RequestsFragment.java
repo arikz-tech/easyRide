@@ -46,6 +46,8 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
     private RequestsAdapter requestsAdapter;
     private List<Ride> requests;
     private int indexPar;//On permission result parameters
+    private LocationManager locationManager;
+    private LocationListener listener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,6 +63,19 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
         RecyclerView rvRequests = view.findViewById(R.id.rvRequests);
         rvRequests.setHasFixedSize(true);
         rvRequests.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        listener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+            }
+        };
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
+        } else {
+            locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 500.0f, listener);
+        }
 
         requests = new ArrayList<>();
         requestsAdapter = new RequestsAdapter(getActivity(), this, requests);
@@ -95,7 +110,7 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
                                                         }
 
                                                         int lastUser = Integer.parseInt(snap.getKey());
-                                                        if (lastUser == snapshot.getChildrenCount() - 1){
+                                                        if (lastUser == snapshot.getChildrenCount() - 1) {
                                                             try {
                                                                 Thread.sleep((long) 0.1);
                                                             } catch (InterruptedException e) {
@@ -159,12 +174,6 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
             indexPar = index;
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
         } else {
-            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 500.0f, new LocationListener() {
-                @Override
-                public void onLocationChanged(@NonNull Location location) {
-                }
-            });
             final Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             final String rid = requests.get(index).getRid();
             final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
@@ -181,6 +190,7 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
                             dbRef.child("rideUsers").child(rid).child(key).child("longitude").setValue(location.getLongitude());
                         }
                     }
+                    locationManager.removeUpdates(listener);
                 }
 
                 @Override

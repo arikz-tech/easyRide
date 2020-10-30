@@ -22,23 +22,32 @@
             android:value="@string/google_maps_key" />
         <activity
             android:name=".ui.main.rides.map.MapActivity"
-            android:label="@string/title_activity_map" />
-        <activity android:name=".ui.main.rides.RideInfoActivity" />
-        <activity android:name=".ui.main.rides.add.AddParticipantActivity" />
+            android:label="@string/title_activity_map"
+            android:launchMode= "singleInstance"/>
+        <activity android:name=".ui.main.rides.RideInfoActivity"
+            android:launchMode= "singleInstance"/>
+        <activity android:name=".ui.main.rides.add.AddParticipantActivity"
+            android:launchMode= "singleInstance"/>
         <activity
             android:name=".ui.main.rides.add.AddRideActivity"
-            android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".ui.main.profile.EditProfileActivity" />
-        <activity android:name=".login.PasswordResetActivity" />
-        <activity android:name=".login.RegisterActivity" />
-        <activity android:name=".ui.main.MainActivity">
+            android:windowSoftInputMode="adjustPan"
+            android:launchMode= "singleInstance"/>
+        <activity android:name=".ui.main.profile.EditProfileActivity"
+            android:launchMode= "singleInstance"/>
+        <activity android:name=".login.PasswordResetActivity"
+            android:launchMode= "singleInstance"/>
+        <activity android:name=".login.RegisterActivity"
+            android:launchMode= "singleInstance"/>
+        <activity android:name=".ui.main.MainActivity"
+            android:launchMode= "singleInstance">
             <intent-filter>
                 <action android:name="arikz.easyride.notification_handle" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".login.LoginActivity">
+        <activity android:name=".login.LoginActivity"
+            android:launchMode= "singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,7 +56,8 @@
         </activity>
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat" />
+            android:theme="@style/Base.Theme.AppCompat"
+            android:launchMode= "singleInstance"/>
 
         <service
             android:name=".notificationServices.MyFirebaseMessagingService"

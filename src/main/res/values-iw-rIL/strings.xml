@@ -9,7 +9,6 @@
     <string name="text_view_register">אין לך חשבון? הרשם</string>
     <string name="text_view_or">או</string>
     <string name="title_registration">הרשמה</string>
-    <string name="title_password_reset">איפוס סיסמה</string>
     <string name="body_password_reset">בשביל לאפס את הסיסמה הכנס את כתובת הדוא\"ל, הסיסמה החדשה תשלח לתיבת הדואר הנכנס בדוא\"ל האישי</string>
     <string name="button_send_mail">שלח סיסמה חדשה</string>
     <string name="alert_dialog_body_phone">ברוכים הבאים, כדי ליראות את החברים הרשומים לאיזי רייד יש להכניס את מספר הטלפון הסלולרי בלשונית "פרופיל"</string>
@@ -71,4 +70,14 @@
     <string name="leave_ride">צא מנסיעה</string>
     <string name="arrival_confirmed">אישר\\ה נסיעה</string>
     <string name="arrival_not_confirmed">לא אישר/ה נסיעה</string>
+    <string name="title_activity_map">מפה</string>
+    <string name="date">תאריך</string>
+    <string name="date_colon">תאריך:</string>
+    <string name="date_select">בחר תאריך נסיעה</string>
+    <string name="current_location">מיקום נוכחי</string>
+    <string name="take_current_pos">תרצה להשתמש במיקום הנוכחי כנקודת התחלה ?</string>
+    <string name="yes">כן</string>
+    <string name="no">לא</string>
+    <string name="never_ask_again">אל תשאל שוב</string>
+    <string name="add_participant">הוסף משתתף</string>
 </resources>

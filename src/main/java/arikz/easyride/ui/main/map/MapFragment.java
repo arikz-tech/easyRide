@@ -33,8 +33,11 @@ public class MapFragment extends Fragment {
 
         //Async map
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
+
             @Override
             public void onMapReady(final GoogleMap googleMap) {
+
+                //Get user current position
 
                 MarkerOptions firstMarker = new MarkerOptions();
                 LatLng position = new LatLng(31.599982,34.767230);

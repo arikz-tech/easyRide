@@ -120,6 +120,28 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/etDateLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:hint="@string/date"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etDestLayout"
+        app:startIconDrawable="@drawable/ic_event_24">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddParticipants"
         android:layout_width="0dp"
@@ -131,8 +153,7 @@
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnAddRide"
-        app:layout_constraintTop_toBottomOf="@+id/etDestLayout" />
-
+        app:layout_constraintTop_toBottomOf="@+id/etDateLayout" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddRide"
@@ -142,7 +163,7 @@
         android:layout_marginTop="10dp"
         android:text="@string/add_ride"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etDestLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/etDateLayout" />
 
     <ProgressBar
         android:id="@+id/pbAddRide"
