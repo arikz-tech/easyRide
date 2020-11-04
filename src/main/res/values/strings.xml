@@ -80,5 +80,6 @@
     <string name="yes">yes</string>
     <string name="no">No</string>
     <string name="never_ask_again">Never ask again</string>
+    <string name="accept_ride">Ride as been accepted</string>
 
 </resources>

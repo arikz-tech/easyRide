@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.Ride;
@@ -42,12 +43,13 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
 
     private View view;
     private ProgressBar pbRides;
-    private RidesAdapter ridesAdapter;
-    private List<Ride> rides;
+    private RidesAdapter ridesAdapter; //Adapter that holds ride items for recyclerview
+    private List<Ride> rides; //Hold rides data
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //Inflate fragment ride layout, insert
         view = inflater.inflate(R.layout.fragment_rides, container, false);
         return view;
     }
@@ -80,6 +82,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
 
     }
 
+    //TODO CHANGE TO Classes listeners
     private void collectRidesInfo() {
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         final String uid = getCurrentUserId();
@@ -108,8 +111,8 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                                                             }
                                                         }
 
-                                                        int lastUser = Integer.parseInt(snap.getKey());
-                                                        if(lastUser == snapshot.getChildrenCount() - 1) {
+                                                        int lastUser = Integer.parseInt(Objects.requireNonNull(snap.getKey()));
+                                                        if (lastUser == snapshot.getChildrenCount() - 1) {
                                                             try {
                                                                 Thread.sleep((long) 0.1);
                                                             } catch (InterruptedException e) {
@@ -147,7 +150,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                     Log.e(TAG, error.getMessage());
                 }
             });
-        }else
+        } else
             pbRides.setVisibility(View.INVISIBLE);
     }
 
@@ -156,7 +159,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ADD_REQUEST_CODE) {
             if (resultCode == AppCompatActivity.RESULT_OK) {
-                Ride ride = data.getExtras().getParcelable("ride");
+                Ride ride = Objects.requireNonNull(Objects.requireNonNull(data).getExtras()).getParcelable("ride");
                 rides.add(ride);
                 ridesAdapter.notifyDataSetChanged();
             }
@@ -164,7 +167,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
 
         if (requestCode == LEAVE_REQUEST_CODE) {
             if (resultCode == AppCompatActivity.RESULT_OK) {
-                String rid = data.getExtras().getString("ride");
+                String rid = Objects.requireNonNull(Objects.requireNonNull(data).getExtras()).getString("ride");
 
                 if (!rides.isEmpty())
                     for (Ride ride : rides)

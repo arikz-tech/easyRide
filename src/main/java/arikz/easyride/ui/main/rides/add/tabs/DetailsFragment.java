@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,21 +60,17 @@ import static android.app.Activity.RESULT_OK;
 
 public class DetailsFragment extends Fragment {
     private static final String TAG = "DetailsFragment";
-    private static final int PERMISSION_REQUEST_CODE = 19;
+    private static final int LOCATION_REQUEST_CODE = 19;
 
     private View view;
     private TextInputEditText etName, etSrc, etDest, etDate;
     private ImageView ivRidePic;
     private MaterialButton btnAddRide, btnAddParticipants;
     private DetailsEvents event;
-    private FloatingActionButton fabPicEdit;
-    private RelativeLayout ivRidePicLayout;
-    private ProgressBar pbAddRide;
+    private ProgressBar pbAddRide, pbLocation;
     private Uri filePath = null;
-    private TextInputLayout etNameLayout, etSrcLayout, etDestLayout, etDateLayout;
     private boolean askForPos;
     private LocationManager locationManager;
-    private LocationListener listener;
 
     public DetailsFragment(Context context) {
         event = (DetailsEvents) context;
@@ -90,39 +87,22 @@ public class DetailsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        etNameLayout = view.findViewById(R.id.etNameLayout);
-        etSrcLayout = view.findViewById(R.id.etSrcLayout);
-        etDestLayout = view.findViewById(R.id.etDestLayout);
-        etDateLayout = view.findViewById(R.id.etDateLayout);
         ivRidePic = view.findViewById(R.id.ivRidePic);
         etName = view.findViewById(R.id.etName);
         etSrc = view.findViewById(R.id.etSrc);
         etDest = view.findViewById(R.id.etDest);
         etDate = view.findViewById(R.id.etDate);
         btnAddRide = view.findViewById(R.id.btnAddRide);
-        fabPicEdit = view.findViewById(R.id.fabPicEdit);
-        ivRidePicLayout = view.findViewById(R.id.ivRidePicLayout);
+        FloatingActionButton fabPicEdit = view.findViewById(R.id.fabPicEdit);
         pbAddRide = view.findViewById(R.id.pbAddRide);
+        pbLocation = view.findViewById(R.id.pbLocation);
         btnAddParticipants = view.findViewById(R.id.btnAddParticipants);
-
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        listener = new LocationListener() {
-            @Override
-            public void onLocationChanged(@NonNull Location location) {
-            }
-        };
-
-        if (ActivityCompat.checkSelfPermission(getContext(), ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
-        } else
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 500.0f, listener);
 
         btnAddRide.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (etName.getText().toString().isEmpty() || etSrc.getText().toString().isEmpty() ||
-                        etDest.getText().toString().isEmpty() || etDate.getText().toString().isEmpty())
+                if (Objects.requireNonNull(etName.getText()).toString().isEmpty() || Objects.requireNonNull(etSrc.getText()).toString().isEmpty() ||
+                        Objects.requireNonNull(etDest.getText()).toString().isEmpty() || Objects.requireNonNull(etDate.getText()).toString().isEmpty())
                     Toast.makeText(getContext(), getString(R.string.enter_fields), Toast.LENGTH_SHORT).show();
                 else {
                     String rideName = etName.getText().toString();
@@ -137,11 +117,9 @@ public class DetailsFragment extends Fragment {
         fabPicEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                locationManager.removeUpdates(listener);
-
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
-                        .start(getContext(), DetailsFragment.this);
+                        .start(Objects.requireNonNull(getContext()), DetailsFragment.this);
             }
         });
 
@@ -177,8 +155,6 @@ public class DetailsFragment extends Fragment {
                             etSrc.setShowSoftInputOnFocus(true);
                         }
                     }).show();
-
-                    locationManager.removeUpdates(listener);
                 }
             }
         });
@@ -189,50 +165,57 @@ public class DetailsFragment extends Fragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    MaterialDatePicker.Builder builder = MaterialDatePicker.Builder.datePicker();
-                    builder.setTitleText(R.string.date_select);
-                    final MaterialDatePicker materialDatePicker = builder.build();
 
-                    materialDatePicker.show(getActivity().getSupportFragmentManager(), "DATE_PICKER");
-                    materialDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
+                    MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
+                    builder.setTitleText(R.string.date_select);
+                    final MaterialDatePicker<Long> materialDatePicker = builder.build();
+
+                    materialDatePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "DATE_PICKER");
+
+                    class OnDateClicked implements MaterialPickerOnPositiveButtonClickListener<Long> {
                         @Override
-                        public void onPositiveButtonClick(Object selection) {
+                        public void onPositiveButtonClick(Long selection) {
                             etDate.setText(materialDatePicker.getHeaderText());
                         }
-                    });
+                    }
+                    materialDatePicker.addOnPositiveButtonClickListener(new OnDateClicked());
                 }
             }
         });
     }
 
     private void takeUserCurrentPosition() {
-        if (ActivityCompat.checkSelfPermission(getContext(), ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
-        } else {
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            List<Address> addresses;
-            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
-            try {
-                addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                etSrc.setText(addresses.get(0).getAddressLine(0));
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
+            } else {
+                pbLocation.setVisibility(View.VISIBLE);
+                class Listener implements LocationListener {
+                    @Override
+                    public void onLocationChanged(@NonNull Location location) {
+                        List<Address> addresses;
+                        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+                        try {
+                            addresses = geocoder.getFromLocation(Objects.requireNonNull(location).getLatitude(), location.getLongitude(), 1);
+                            etSrc.setText(addresses.get(0).getAddressLine(0));
+                            locationManager.removeUpdates(this);
+                            pbLocation.setVisibility(View.INVISIBLE);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                Listener listener = new Listener();
+                locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000L, 5, listener);
             }
-        }
     }
 
     private void uploadImageAndSubmit(final String rideName, final String source, final String destination, final String date) {
         event.onImageUpload();
-        pbAddRide.setVisibility(View.VISIBLE);
-        ivRidePicLayout.setVisibility(View.INVISIBLE);
-        etNameLayout.setVisibility(View.INVISIBLE);
-        etSrcLayout.setVisibility(View.INVISIBLE);
-        etDestLayout.setVisibility(View.INVISIBLE);
-        etDateLayout.setVisibility(View.INVISIBLE);
         btnAddRide.setVisibility(View.INVISIBLE);
         btnAddParticipants.setVisibility(View.INVISIBLE);
-
+        pbAddRide.setVisibility(View.VISIBLE);
         if (filePath != null) {
             final String pid = UUID.randomUUID().toString();
             FirebaseStorage.getInstance().getReference().
@@ -244,9 +227,6 @@ public class DetailsFragment extends Fragment {
             });
         } else
             event.onSubmit(rideName, source, destination, date, null);
-
-        locationManager.removeUpdates(listener);
-
     }
 
     @Override
@@ -262,9 +242,20 @@ public class DetailsFragment extends Fragment {
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Toast.makeText(getActivity(), result.getError().getMessage(), Toast.LENGTH_SHORT).show();
                 Exception error = result.getError();
+                Log.d(TAG, error + "");
             }
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == LOCATION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takeUserCurrentPosition();
+            }
+        }
+    }
 
 }

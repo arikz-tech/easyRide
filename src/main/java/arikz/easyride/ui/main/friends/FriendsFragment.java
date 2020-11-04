@@ -35,6 +35,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
@@ -60,7 +61,7 @@ public class FriendsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         pbFriends = view.findViewById(R.id.pbFriends);
 
-        loggedInUser = getArguments().getParcelable("user");
+        loggedInUser = Objects.requireNonNull(getArguments()).getParcelable("user");
 
         RecyclerView rvFriends = view.findViewById(R.id.rvFriends);
         rvFriends.setHasFixedSize(true);
@@ -74,7 +75,7 @@ public class FriendsFragment extends Fragment {
     }
 
     private void collectContactFriends() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, CONTACT_REQUEST_CODE);
         else
             fetchContact();
@@ -85,12 +86,12 @@ public class FriendsFragment extends Fragment {
         pbFriends.setVisibility(View.VISIBLE);
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
         String[] projection = {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER};
-        ContentResolver resolver = getActivity().getContentResolver();
+        ContentResolver resolver = Objects.requireNonNull(getActivity()).getContentResolver();
         Cursor cursor = resolver.query(uri, projection, null, null, null);
 
         final ArrayList<String> phoneNumbers = new ArrayList<>();
 
-        while (cursor.moveToNext()) {
+        while (Objects.requireNonNull(cursor).moveToNext()) {
             String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             phoneNumbers.add(PhoneNumberUtils.normalizeNumber(phoneNumber));
         }
@@ -101,7 +102,7 @@ public class FriendsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
-                    if (phoneNumbers.contains(friend.getPhone())) {
+                    if (phoneNumbers.contains(Objects.requireNonNull(friend).getPhone())) {
                         if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
                             friends.add(friend);
                     }
@@ -132,14 +133,14 @@ public class FriendsFragment extends Fragment {
     }
 
     //TODO Ripple Effect Accent
-    public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
+    public static class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
         List<User> friends;
 
         public FriendsAdapter(List<User> friends) {
             this.friends = friends;
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder {
+        static class ViewHolder extends RecyclerView.ViewHolder {
 
             ImageView ivAvatar, ivLogo;
             MaterialTextView tvName;

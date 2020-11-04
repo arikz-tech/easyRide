@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.Ride;
@@ -61,16 +63,13 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class AddRideActivity extends AppCompatActivity implements ParticipantsEvents, DetailsEvents {
     private static final String TAG = ".AddRideActivity";
-    private static final int PERMISSION_REQUEST_CODE = 19;
-    private static final int ADD_REQUEST_CODE = 17;
+    private static final int LOCATION_REQUEST_CODE = 14;
 
-    private TabLayout tabLayout;
     private ViewPager viewPager;
-    private NestedScrollView nsv;
-    private ViewPagerAdapter viewPagerAdapter;
     private List<User> rideParticipants;
     private User owner;
     private boolean saving;
+    private String[] parameters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,20 +77,19 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         setContentView(R.layout.activity_add_ride);
 
         rideParticipants = new ArrayList<>();
-        owner = getIntent().getExtras().getParcelable("user");
+        owner = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
 
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
-        tabLayout = findViewById(R.id.tabLayout);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
-        nsv = findViewById(R.id.nsv);
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), 0);
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), 0);
         viewPagerAdapter.setFirstTabTitle(getText(R.string.ride_details));
         viewPagerAdapter.setSecondTabTitle(getText(R.string.participants));
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
-        tabLayout.getTabAt(0).setIcon(R.drawable.ic_rides_24);
-        tabLayout.getTabAt(1).setIcon(R.drawable.ic_friends_24);
+        Objects.requireNonNull(tabLayout.getTabAt(0)).setIcon(R.drawable.ic_rides_24);
+        Objects.requireNonNull(tabLayout.getTabAt(1)).setIcon(R.drawable.ic_friends_24);
     }
 
     @Override
@@ -111,24 +109,20 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
 
     @Override
     public void onSubmit(String name, String src, String dest, String date, String pid) {
-        tabLayout.setVisibility(View.INVISIBLE);
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
+            parameters = new String[5];
+            parameters[0] = name;
+            parameters[1] = src;
+            parameters[2] = dest;
+            parameters[3] = date;
+            parameters[4] = pid;
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
-            LocationListener listener = new LocationListener() {
-                @Override
-                public void onLocationChanged(@NonNull Location location) {
-                }
-            };
-
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 500.0f,listener);
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            double ownerLat = location.getLatitude();
+            double ownerLat = Objects.requireNonNull(location).getLatitude();
             double ownerLong = location.getLongitude();
-            locationManager.removeUpdates(listener);
-
 
             rideParticipants.add(owner);
             final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
@@ -227,7 +221,8 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 case 1:
                     return new ParticipantsFragment(AddRideActivity.this);
                 default:
-                    return null;
+                    //?
+                    return new Fragment();
             }
         }
 
@@ -276,7 +271,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("JSON_OBJECT_ERROR: ", error.getMessage());
+                Log.d("JSON_OBJECT_ERROR: ", Objects.requireNonNull(error.getMessage()));
             }
         }) {
             @Override
@@ -298,8 +293,9 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == PERMISSION_REQUEST_CODE) {
+        if (requestCode == LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                onSubmit(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
             } else {
                 Toast.makeText(this, "Adding ride has failed, to add ride you have to grant location permission", Toast.LENGTH_LONG).show();
                 finish();

@@ -14,6 +14,8 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessagingService;
 
+import java.util.Objects;
+
 public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
 
     private static final String TAG = "mFirebaseIIDService";
@@ -37,9 +39,9 @@ public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
                         }
 
                         // Get new Instance ID token
-                        String token = task.getResult().getToken();
+                        String token = Objects.requireNonNull(task.getResult()).getToken();
                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-                        ref.child("tokens").child(getCurrentUserId()).setValue(token);
+                        ref.child("tokens").child(Objects.requireNonNull(getCurrentUserId())).setValue(token);
                     }
                 });
     }

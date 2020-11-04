@@ -36,6 +36,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.Ride;
@@ -48,13 +49,14 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     private Activity activity;
     private OnRequestClicked requestFrag;
     public ViewHolder viewHolder;
+    private boolean confirmed;
 
     public interface OnRequestClicked {
-        void onClick(int index,boolean confirm);
+        void onClick(int index);
     }
 
 
-    public RequestsAdapter(Activity activity, Fragment requestFrag , List<Ride> rides) {
+    public RequestsAdapter(Activity activity, Fragment requestFrag, List<Ride> rides) {
         this.rides = rides;
         this.requestFrag = (OnRequestClicked) requestFrag;
         this.activity = activity;
@@ -77,18 +79,21 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
             tvDest = itemView.findViewById(R.id.tvDestFill);
             btnConfirm = itemView.findViewById(R.id.btnConfirm);
             btnConfirm.setOnClickListener(new View.OnClickListener() {
-                boolean confirm = true;
                 @Override
                 public void onClick(View v) {
-                    int index = rides.indexOf(itemView.getTag());
-                    changeState(confirm);
-                    requestFrag.onClick(index,confirm);
-                    confirm = !confirm;
+                    if (!confirmed) {
+                        int index = rides.indexOf((Ride) itemView.getTag());
+                        requestFrag.onClick(index);
+                        pbConfirm.setVisibility(View.VISIBLE);
+                        btnConfirm.setVisibility(View.INVISIBLE);
+                    }
                 }
             });
         }
 
         public void changeState(boolean confirm) {
+            btnConfirm.setVisibility(View.VISIBLE);
+            confirmed = confirm;
             if (confirm) {
                 btnConfirm.setStrokeColorResource(R.color.colorPrimary);
                 btnConfirm.setTextColor(activity.getColor(R.color.colorPrimary));
@@ -98,6 +103,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
                 btnConfirm.setTextColor(activity.getColor(R.color.colorBlack));
                 btnConfirm.setText(R.string.confirm);
             }
+            pbConfirm.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -126,7 +132,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
-                holder.tvRideOwner.setText(user.displayName());
+                holder.tvRideOwner.setText(Objects.requireNonNull(user).displayName());
                 setOwnerImage(holder.itemView, holder.ivAvatar, user.getPid());
             }
 

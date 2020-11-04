@@ -59,11 +59,20 @@
         android:backgroundTint="@color/colorAccent"
         android:elevation="1dp"
         android:src="@drawable/ic_map_24"
+        android:visibility="invisible"
         app:borderWidth="0dp"
         app:layout_anchor="@id/appBarLayout"
         app:layout_anchorGravity="bottom|end|right"
         app:maxImageSize="28dp"
         app:tint="@color/colorWhite" />
+
+    <ProgressBar
+        android:id="@+id/pbMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="25dp"
+        app:layout_anchor="@id/appBarLayout"
+        app:layout_anchorGravity="bottom|end|right"/>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -138,12 +147,6 @@
                     android:textColor="?android:attr/textColorSecondary" />
             </LinearLayout>
 
-            <ProgressBar
-                android:id="@+id/pbRideInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="invisible" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvParticipants"
@@ -159,13 +162,22 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvParticipants"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                app:layout_anchor="@id/tvParticipants"
+                app:layout_anchorGravity="bottom"/>
+
+            <ProgressBar
+                android:id="@+id/pbRideInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_gravity="center_horizontal"/>
 
         </LinearLayout>

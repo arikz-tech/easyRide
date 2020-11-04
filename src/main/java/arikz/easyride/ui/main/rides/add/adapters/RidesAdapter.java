@@ -27,6 +27,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.Ride;
@@ -69,7 +70,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
                 public void onClick(View v) {
                     cvRide.setBackground(getRippleEffect());
                     cvOwner.setBackground(getRippleEffect());
-                    int index = rides.indexOf(itemView.getTag());
+                    int index = rides.indexOf((Ride) itemView.getTag());
                     ridesFrag.onClick(index);
                 }
             });
@@ -108,7 +109,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
-                holder.tvRideOwner.setText(user.displayName());
+                holder.tvRideOwner.setText(Objects.requireNonNull(user).displayName());
                 setOwnerImage(holder.itemView, holder.ivAvatar, user.getPid());
             }
 
@@ -139,7 +140,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
                     child("images").child("rides").child(pid);
 
             Glide.with(itemView).load(imageRef).into(ivRidePic);
-        }else ivRidePic.setImageResource(R.drawable.card_view_sample);
+        } else ivRidePic.setImageResource(R.drawable.card_view_sample);
     }
 
 }

@@ -20,6 +20,7 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
@@ -72,7 +73,7 @@ public class ParticipantsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddParticipantActivity.class);
-                intent.putExtra("user", getActivity().getIntent().getExtras().getParcelable("user"));
+                intent.putExtra("user", Objects.requireNonNull(Objects.requireNonNull(getActivity()).getIntent().getExtras()).getParcelable("user"));
                 startActivityForResult(intent, ADD_REQUEST_CODE);
             }
         });
@@ -84,11 +85,11 @@ public class ParticipantsFragment extends Fragment {
         if (requestCode == ADD_REQUEST_CODE) {
             if (resultCode == AppCompatActivity.RESULT_OK) {
 
-                User participant = data.getExtras().getParcelable("user");
+                User participant = Objects.requireNonNull(Objects.requireNonNull(data).getExtras()).getParcelable("user");
 
                 //TODO Change this approach !@#
                 for (User user : participants)
-                    if (user.getUid().equals(participant.getUid()))
+                    if (user.getUid().equals(Objects.requireNonNull(participant).getUid()))
                         return;
 
 

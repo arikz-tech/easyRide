@@ -24,6 +24,8 @@ import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Objects;
+
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
 
@@ -60,7 +62,7 @@ public class ProfileFragment extends Fragment {
         ivProfile = view.findViewById(R.id.ivProfile);
 
 
-        loggedInUser = getArguments().getParcelable("user");
+        loggedInUser = Objects.requireNonNull(getArguments()).getParcelable("user");
         if (loggedInUser != null) {
             tvFirst.setText(loggedInUser.getFirst());
             tvLast.setText(loggedInUser.getLast());
@@ -87,7 +89,7 @@ public class ProfileFragment extends Fragment {
             if (data != null && data.getExtras() != null) {
                 if (resultCode == RESULT_OK) {
                     loggedInUser = data.getExtras().getParcelable("user");
-                    tvFirst.setText(loggedInUser.getFirst());
+                    tvFirst.setText(Objects.requireNonNull(loggedInUser).getFirst());
                     tvLast.setText(loggedInUser.getLast());
                     tvMail.setText(loggedInUser.getEmail());
                     tvPhone.setText(loggedInUser.getPhone());

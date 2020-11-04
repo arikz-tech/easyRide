@@ -15,13 +15,14 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Objects;
+
 import arikz.easyride.R;
 
 public class PasswordResetActivity extends AppCompatActivity {
     private static final String TAG = ".PasswordResetActivity";
     private ProgressBar pbReset;
     private TextInputEditText etMail;
-    private MaterialButton btnSend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +32,13 @@ public class PasswordResetActivity extends AppCompatActivity {
         //Attach layout component
         pbReset = findViewById(R.id.pbReset);
         etMail = findViewById(R.id.etMail);
-        btnSend = findViewById(R.id.btnSend);
+
+        MaterialButton btnSend = findViewById(R.id.btnSend);
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (etMail.getText().toString().isEmpty()) {
+                if (Objects.requireNonNull(etMail.getText()).toString().isEmpty()) {
                     Toast.makeText(PasswordResetActivity.this, R.string.please_enter_mail, Toast.LENGTH_SHORT).show();
                 } else {
                     pbReset.setVisibility(View.VISIBLE);

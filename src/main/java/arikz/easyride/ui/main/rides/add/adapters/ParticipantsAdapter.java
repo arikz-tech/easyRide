@@ -23,6 +23,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
@@ -44,7 +45,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
         this.activity = activity;
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivAvatar, ivLogo;
         MaterialTextView tvName,tvArrive;
@@ -65,7 +66,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     public ParticipantsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).
                 inflate(R.layout.participants_row_layout, parent, false);
-        return new ParticipantsAdapter.ViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
@@ -89,7 +90,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
-                holder.tvName.setText(user.displayName());
+                holder.tvName.setText(Objects.requireNonNull(user).displayName());
                 holder.tvName.setTextColor(Color.WHITE);
                 setProfileAvatar(holder.itemView, holder.ivAvatar, user.getPid());
             }

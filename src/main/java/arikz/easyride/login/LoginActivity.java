@@ -60,8 +60,10 @@ import arikz.easyride.R;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = ".LoginActivity";
-    private final int RC_SIGN_IN = 3;
-    private final int REGISTER_INFO = 5;
+
+    //Constant variables
+    private static final int RC_SIGN_IN = 3; //Request code for google sign in
+    private static final int REGISTER_INFO = 5; //
 
     private TextInputEditText etMail, etPassword;
     private ProgressBar pbLogin;
@@ -125,8 +127,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void emailSignIn(final View view) {
-        boolean emailField = etMail.getText().toString().isEmpty();
-        boolean passField = etPassword.getText().toString().isEmpty();
+        boolean emailField = Objects.requireNonNull(etMail.getText()).toString().isEmpty();
+        boolean passField = Objects.requireNonNull(etPassword.getText()).toString().isEmpty();
 
         if (emailField)
             etMail.setError(getString(R.string.incorrect_email_adress));
@@ -150,7 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Snackbar.make(view, e.getMessage(), Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(view, Objects.requireNonNull(e.getMessage()), Snackbar.LENGTH_SHORT).show();
                     pbLogin.setVisibility(View.INVISIBLE);
                 }
             });
@@ -158,7 +160,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    //Enter to the main interface
+    //Enter to the main ui
     private void login() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -322,7 +324,7 @@ public class LoginActivity extends AppCompatActivity {
                             Log.w(TAG, "getInstanceId failed", task.getException());
                             return;
                         }
-                        String token = task.getResult().getToken();
+                        String token = Objects.requireNonNull(task.getResult()).getToken();
                         FirebaseDatabase.getInstance().getReference().
                                 child("tokens").child(uid).setValue(token);
                     }

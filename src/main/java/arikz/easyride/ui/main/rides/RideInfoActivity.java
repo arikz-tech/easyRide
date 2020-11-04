@@ -41,6 +41,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.Ride;
@@ -51,36 +52,32 @@ import arikz.easyride.ui.main.rides.map.MapActivity;
 
 public class RideInfoActivity extends AppCompatActivity {
     private static final String TAG = ".RideInfoActivity";
-    private long totalThread, cntThreads;
-    private ProgressBar pbRideInfo;
+    private ProgressBar pbRideInfo, pbMap;
     private FloatingActionButton fabMap;
-    private MaterialToolbar toolbar;
     private ImageView ivRidePic;
     private Ride ride;
-    private CollapsingToolbarLayout toolbarLayout;
-    private MaterialTextView tvSrcFill, tvDestFill,tvDateFill;
-    private RecyclerView rvParticipants;
-    private MaterialButton btnDelete;
     private ParticipantsAdapter participantsAdapter;
     private List<UserInRide> participants;
     private Bundle imagesBundle;
-    private int imgCnt,totalPic;
+    private long imgCnt, totalParticipants;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ride_info);
-        toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        CollapsingToolbarLayout toolbarLayout = findViewById(R.id.toolbarLayout);
+        MaterialTextView tvSrcFill = findViewById(R.id.tvSrcFill);
+        MaterialTextView tvDestFill = findViewById(R.id.tvDestFill);
+        MaterialTextView tvDateFill = findViewById(R.id.tvDateFill);
+        MaterialButton btnDelete = findViewById(R.id.btnDelete);
+
         ivRidePic = findViewById(R.id.ivRidePic);
-        toolbarLayout = findViewById(R.id.toolbarLayout);
-        tvSrcFill = findViewById(R.id.tvSrcFill);
-        tvDestFill = findViewById(R.id.tvDestFill);
-        tvDateFill = findViewById(R.id.tvDateFill);
-        btnDelete = findViewById(R.id.btnDelete);
         pbRideInfo = findViewById(R.id.pbRideInfo);
+        pbMap = findViewById(R.id.pbMap);
         fabMap = findViewById(R.id.fabMap);
         imagesBundle = new Bundle();
-        rvParticipants = findViewById(R.id.rvParticipants);
+        RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         participants = new ArrayList<>();
 
         participantsAdapter = new ParticipantsAdapter(participants, RideInfoActivity.this);
@@ -89,8 +86,8 @@ public class RideInfoActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
-        ride = getIntent().getExtras().getParcelable("ride");
-        toolbarLayout.setTitle(ride.getName());
+        ride = Objects.requireNonNull(getIntent().getExtras()).getParcelable("ride");
+        toolbarLayout.setTitle(Objects.requireNonNull(ride).getName());
         setRideImage();
 
         tvSrcFill.setText(ride.getSource());
@@ -118,32 +115,26 @@ public class RideInfoActivity extends AppCompatActivity {
         fabMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (allImagePassed()) {
-                    Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
-                    intent.putParcelableArrayListExtra("users", (ArrayList) participants);
-                    intent.putExtra("images", imagesBundle);
-                    startActivity(intent);
-                }
+                Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
+                intent.putParcelableArrayListExtra("users", (ArrayList<UserInRide>) participants);
+                intent.putExtra("images", imagesBundle);
+                startActivity(intent);
             }
         });
     }
 
-    private boolean allImagePassed() {
-        return imgCnt == totalPic; //true only if all the image is in bundle
-    }
-
     private void exitRide() {
+        pbRideInfo.setVisibility(View.VISIBLE);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         final String uid = getCurrentUserId();
-        dbRef.child("userRides").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("userRides").child(Objects.requireNonNull(uid)).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     String key = snap.getKey();
                     String rid = snap.getValue(String.class);
-                    if (rid.equals(ride.getRid()))
-                        dbRef.child("userRides").child(uid).child(key).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    if (Objects.equals(rid, ride.getRid()))
+                        dbRef.child("userRides").child(uid).child(Objects.requireNonNull(key)).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Intent data = new Intent();
@@ -167,8 +158,8 @@ public class RideInfoActivity extends AppCompatActivity {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     String key = snap.getKey();
                     UserInRide user = snap.getValue(UserInRide.class);
-                    if (user.getUid().equals(uid))
-                        dbRef.child("rideUsers").child(ride.getRid()).child(key).child("inRide").setValue(false);
+                    if (Objects.requireNonNull(user).getUid().equals(uid))
+                        dbRef.child("rideUsers").child(ride.getRid()).child(Objects.requireNonNull(key)).child("inRide").setValue(false);
                 }
             }
 
@@ -184,28 +175,32 @@ public class RideInfoActivity extends AppCompatActivity {
     }
 
     private void collectParticipants() {
-        pbRideInfo.setVisibility(View.VISIBLE);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child("rideUsers").child(ride.getRid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                countTotalThread(snapshot);
+                setTotalParticipants(snapshot.getChildrenCount());
                 for (DataSnapshot snap : snapshot.getChildren()) {
+                    String key = snap.getKey();
                     UserInRide user = snap.getValue(UserInRide.class);
-                    if (user.isInRide()) {
-                        participants.add(0, user); // Add participant into front of array list
+                    if (Objects.requireNonNull(user).isInRide()) {
+                        participants.add(0, user); //Add participant into front of array list
                         addParticipantImage(user.getUid());
-                    } else
+                    } else {
+                        isImagesUploaded();
                         participants.add(user);
+                    }
 
-                    countThread();
-                }
 
-                if (allThreadFinished()) {
-                    pbRideInfo.setVisibility(View.INVISIBLE);
-                    participantsAdapter.notifyDataSetChanged();
-                    cntThreads = 0;
-                    totalThread = 0;
+                    if (Integer.parseInt(Objects.requireNonNull(key)) == snapshot.getChildrenCount() - 1) {
+                        try {
+                            Thread.sleep((long) 0.1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        participantsAdapter.notifyDataSetChanged();
+                        pbRideInfo.setVisibility(View.INVISIBLE);
+                    }
                 }
             }
 
@@ -214,7 +209,6 @@ public class RideInfoActivity extends AppCompatActivity {
                 Log.e(TAG, error.getMessage());
             }
         });
-
     }
 
     private void addParticipantImage(String uid) {
@@ -223,19 +217,25 @@ public class RideInfoActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 final User user = snapshot.getValue(User.class);
-                totalPic++;
-                if (user.getPid() != null) {
+                if (Objects.requireNonNull(user).getPid() != null) {
                     Task<byte[]> task = FirebaseStorage.getInstance().getReference().
                             child("images").child("users").child(user.getPid()).getBytes(Long.MAX_VALUE);
                     task.addOnSuccessListener(new OnSuccessListener<byte[]>() {
                         @Override
                         public void onSuccess(byte[] bytes) {
-                            imgCnt++;
                             imagesBundle.putByteArray(user.getPid(), bytes);
+                            if (isImagesUploaded()) {
+                                fabMap.setVisibility(View.VISIBLE);
+                                pbMap.setVisibility(View.INVISIBLE);
+                            }
                         }
                     });
+                } else {
+                    if (isImagesUploaded()) {
+                        fabMap.setVisibility(View.VISIBLE);
+                        pbMap.setVisibility(View.INVISIBLE);
+                    }
                 }
-
             }
 
             @Override
@@ -263,26 +263,29 @@ public class RideInfoActivity extends AppCompatActivity {
         dbRef.child("userRides").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                countTotalThread(snapshot);
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     final String uid = snap.getKey();
-                    dbRef.child("userRides").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                    dbRef.child("userRides").child(Objects.requireNonNull(uid)).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                             for (DataSnapshot snap : snapshot.getChildren()) {
                                 String key = snap.getKey();
                                 String rid = snap.getValue(String.class);
-                                if (rid.equals(ride.getRid()))
-                                    dbRef.child("userRides").child(uid).child(key).removeValue();
-                            }
+                                if (Objects.equals(rid, ride.getRid()))
+                                    dbRef.child("userRides").child(uid).child(Objects.requireNonNull(key)).removeValue();
 
-                            countThread();
-                            if (allThreadFinished()) {
-                                Intent data = new Intent();
-                                data.putExtra("ride", ride.getRid());
-                                setResult(RESULT_OK, data);
-                                finish();
+                                if (Integer.parseInt(Objects.requireNonNull(key)) == snapshot.getChildrenCount() - 1) {
+                                    try {
+                                        Thread.sleep((long) 0.1);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Intent data = new Intent();
+                                    data.putExtra("ride", ride.getRid());
+                                    setResult(RESULT_OK, data);
+                                    finish();
+                                }
                             }
                         }
 
@@ -306,18 +309,13 @@ public class RideInfoActivity extends AppCompatActivity {
 
     }
 
-    private boolean allThreadFinished() {
-        return cntThreads >= totalThread;
+    public synchronized void setTotalParticipants(long total) {
+        imgCnt = total;
     }
 
-    private synchronized void countTotalThread(DataSnapshot snapshot) {
-        totalThread += snapshot.getChildrenCount();
+    public synchronized boolean isImagesUploaded() {
+        return --imgCnt == 0;
     }
-
-    private synchronized void countThread() {
-        cntThreads++;
-    }
-
 
     private String getCurrentUserId() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

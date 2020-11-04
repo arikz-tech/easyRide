@@ -23,20 +23,16 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
 
     private final IconGenerator iconGenerator;
     private final ImageView imageView;
-    private final int markWidth;
-    private final int markHeight;
-    private final Context context;
 
     public MyClusterManagerRenderer(Context context, GoogleMap map, ClusterManager<ClusterMarker> clusterManager) {
         super(context, map, clusterManager);
-        this.context = context;
 
         iconGenerator =  new IconGenerator(context.getApplicationContext());
         imageView = new ImageView(context.getApplicationContext());
         imageView.setImageResource(R.drawable.avatar_logo);
-        markWidth = (int) context.getResources().getDimension(R.dimen.custom_marker_image);
-        markHeight = (int) context.getResources().getDimension(R.dimen.custom_marker_image);
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(markWidth,markHeight));
+        int markWidth = (int) context.getResources().getDimension(R.dimen.custom_marker_image);
+        int markHeight = (int) context.getResources().getDimension(R.dimen.custom_marker_image);
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(markWidth, markHeight));
         int padding = (int) context.getResources().getDimension(R.dimen.custom_marker_padding);
         imageView.setPadding(padding,padding,padding,padding);
         iconGenerator.setContentView(imageView);

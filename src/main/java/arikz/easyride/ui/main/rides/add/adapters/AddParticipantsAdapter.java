@@ -52,7 +52,7 @@ public class AddParticipantsAdapter extends RecyclerView.Adapter<AddParticipants
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    clickHandle.onClick(participants.indexOf(itemView.getTag()));
+                    clickHandle.onClick(participants.indexOf((User) itemView.getTag()));
                 }
             });
 

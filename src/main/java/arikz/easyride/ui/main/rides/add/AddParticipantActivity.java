@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
@@ -54,7 +55,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
         toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
 
-        loggedInUser = getIntent().getExtras().getParcelable("user");
+        loggedInUser = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
 
         RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         rvParticipants.setHasFixedSize(true);
@@ -84,7 +85,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
 
         final ArrayList<String> phoneNumbers = new ArrayList<>();
 
-        while (cursor.moveToNext()) {
+        while (Objects.requireNonNull(cursor).moveToNext()) {
             String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             phoneNumbers.add(PhoneNumberUtils.normalizeNumber(phoneNumber));
         }
@@ -95,7 +96,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
-                    if (phoneNumbers.contains(friend.getPhone())) {
+                    if (phoneNumbers.contains(Objects.requireNonNull(friend).getPhone())) {
                         if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
                             participants.add(friend);
                     }

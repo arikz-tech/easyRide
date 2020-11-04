@@ -26,7 +26,6 @@ import arikz.easyride.objects.User;
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = ".RegisterActivity";
     private TextInputEditText etFirst, etLast, etMail, etPhone, etPassword;
-    private MaterialButton btnRegister;
     private ProgressBar pbRegister;
 
     @Override
@@ -41,7 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         etPassword = findViewById(R.id.etPassword);
         pbRegister = findViewById(R.id.pbRegister);
-        btnRegister = findViewById(R.id.btnRegister);
+        MaterialButton btnRegister = findViewById(R.id.btnRegister);
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,9 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 user.setFirst(etFirst.getText().toString().trim());
                                 user.setLast(etLast.getText().toString().trim());
                                 user.setPhone(etPhone.getText().toString().trim());
-                                user.setUid(task.getResult().getUser().getUid());
-
-                                //TODO check on failure listener for saving user value
+                                user.setUid(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid());
 
                                 // New access into firebase to store user information
                                 FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).setValue(user);

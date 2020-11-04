@@ -3,6 +3,8 @@ package arikz.easyride.ui.main.requests;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -30,8 +32,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.Ride;
@@ -39,15 +44,13 @@ import arikz.easyride.objects.UserInRide;
 
 public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequestClicked {
     private static String TAG = ".RequestsFragment";
-    private static final int PERMISSION_REQUEST_CODE = 19;
+    private static final int LOCATION_REQUEST_CODE = 59;
 
     private View view;
     private ProgressBar pbRequests;
     private RequestsAdapter requestsAdapter;
     private List<Ride> requests;
-    private int indexPar;//On permission result parameters
-    private LocationManager locationManager;
-    private LocationListener listener;
+    private int indexPar;  //On permission result parameters
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,19 +66,6 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
         RecyclerView rvRequests = view.findViewById(R.id.rvRequests);
         rvRequests.setHasFixedSize(true);
         rvRequests.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        listener = new LocationListener() {
-            @Override
-            public void onLocationChanged(@NonNull Location location) {
-            }
-        };
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
-        } else {
-            locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 500.0f, listener);
-        }
 
         requests = new ArrayList<>();
         requestsAdapter = new RequestsAdapter(getActivity(), this, requests);
@@ -104,12 +94,12 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
                                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                                     for (DataSnapshot snap : snapshot.getChildren()) {
                                                         UserInRide user = snap.getValue(UserInRide.class);
-                                                        if (user.getUid().equals(uid) && !user.isInRide()) {
+                                                        if (Objects.requireNonNull(user).getUid().equals(uid) && !user.isInRide()) {
                                                             requests.add(ride);
                                                             requestsAdapter.notifyDataSetChanged();
                                                         }
 
-                                                        int lastUser = Integer.parseInt(snap.getKey());
+                                                        int lastUser = Integer.parseInt(Objects.requireNonNull(snap.getKey()));
                                                         if (lastUser == snapshot.getChildrenCount() - 1) {
                                                             try {
                                                                 Thread.sleep((long) 0.1);
@@ -156,9 +146,9 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == PERMISSION_REQUEST_CODE) {
+        if (requestCode == LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                onClick(indexPar, true);
+                    onClick(indexPar);
             } else {
                 requestsAdapter.viewHolder.changeState(false);
                 Toast.makeText(getContext(), "To let the ride owner know where to pick you up you have to gran permission", Toast.LENGTH_LONG).show();
@@ -167,37 +157,46 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
     }
 
     @Override
-    public void onClick(int index, final boolean confirm) {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+    public void onClick(final int index) {
+
+        if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //Save function parameters
             indexPar = index;
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_CODE);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
-            final Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            final String rid = requests.get(index).getRid();
-            final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-            dbRef.child("rideUsers").child(rid).addListenerForSingleValueEvent(new ValueEventListener() {
+            class Listener implements LocationListener {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String uid = getCurrentUserId();
-                    for (DataSnapshot snap : snapshot.getChildren()) {
-                        UserInRide user = snap.getValue(UserInRide.class);
-                        if (user.getUid().equals(uid)) {
-                            String key = snap.getKey();
-                            dbRef.child("rideUsers").child(rid).child(key).child("inRide").setValue(confirm);
-                            dbRef.child("rideUsers").child(rid).child(key).child("latitude").setValue(location.getLatitude());
-                            dbRef.child("rideUsers").child(rid).child(key).child("longitude").setValue(location.getLongitude());
+                public void onLocationChanged(@NonNull final Location location) {
+                    final String rid = requests.get(index).getRid();
+                    final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+                    dbRef.child("rideUsers").child(rid).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String uid = getCurrentUserId();
+                            for (DataSnapshot snap : snapshot.getChildren()) {
+                                UserInRide user = snap.getValue(UserInRide.class);
+                                if (Objects.requireNonNull(user).getUid().equals(uid)) {
+                                    String key = snap.getKey();
+                                    dbRef.child("rideUsers").child(rid).child(key).child("inRide").setValue(true);
+                                    dbRef.child("rideUsers").child(rid).child(key).child("latitude").setValue(Objects.requireNonNull(location).getLatitude());
+                                    dbRef.child("rideUsers").child(rid).child(key).child("longitude").setValue(location.getLongitude());
+                                    requestsAdapter.viewHolder.changeState(true);
+                                    Toast.makeText(getActivity(), R.string.accept_ride, Toast.LENGTH_SHORT).show();
+                                }
+                            }
                         }
-                    }
-                    locationManager.removeUpdates(listener);
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, error.getMessage());
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e(TAG, error.getMessage());
+                        }
+                    });
                 }
-            });
+            }
+            Listener listener = new Listener();
+            LocationManager locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000L, 5, listener);
         }
     }
 

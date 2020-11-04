@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
@@ -62,7 +63,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        Objects.requireNonNull(mapFragment).getMapAsync(this);
     }
 
     /**
@@ -90,7 +91,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 clusterManager.setRenderer(clusterManagerRenderer);
             }
 
-            for (final UserInRide user : users) {
+            for (final UserInRide user : Objects.requireNonNull(users)) {
                 if (user.isInRide()) {
                     numOfMarkers++;
                     avgLat += user.getLatitude();
@@ -105,7 +106,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                                 addresses = geocoder.getFromLocation(user.getLatitude(), user.getLongitude(), 1);
                                 User userInfo = snapshot.getValue(User.class);
                                 ClusterMarker clusterMarker = new ClusterMarker(new LatLng(user.getLatitude(), user.getLongitude()),
-                                        userInfo.displayName(),addresses.get(0).getAddressLine(0), images.getByteArray(userInfo.getPid()));
+                                        Objects.requireNonNull(userInfo).displayName(),addresses.get(0).getAddressLine(0), Objects.requireNonNull(images).getByteArray(userInfo.getPid()));
                                 clusterManager.addItem(clusterMarker);
                                 clusterManager.cluster();
                             } catch (IOException e) {

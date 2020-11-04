@@ -20,18 +20,19 @@ import arikz.easyride.R;
 
 public class MapFragment extends Fragment {
     private static final String TAG = ".MapFragment";
-    private View view;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         //Initialize view
-        view = inflater.inflate(R.layout.fragment_map, container, false);
+        View view = inflater.inflate(R.layout.fragment_map, container, false);
 
         //Initialize map fragment
         SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
 
         //Async map
+        assert supportMapFragment != null;
         supportMapFragment.getMapAsync(new OnMapReadyCallback() {
 
             @Override

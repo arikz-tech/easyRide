@@ -35,12 +35,11 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
-
-//TODO ADD DESCRIPTION !!
 
 public class EditProfileActivity extends AppCompatActivity {
 
@@ -70,7 +69,8 @@ public class EditProfileActivity extends AppCompatActivity {
         MaterialButton btnSave = findViewById(R.id.btnSave);
         FloatingActionButton fabPicEdit = findViewById(R.id.fabPicEdit);
 
-        loggedInUser = getIntent().getExtras().getParcelable("user");
+        loggedInUser = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
+        assert loggedInUser != null;
         etFirst.setText(loggedInUser.getFirst());
         etLast.setText(loggedInUser.getLast());
         etPhone.setText(loggedInUser.getPhone());
@@ -81,8 +81,8 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 saving = true;
-                if (etFirst.getText().toString().isEmpty() || etLast.getText().toString().isEmpty()
-                        || etPhone.getText().toString().isEmpty())
+                if (Objects.requireNonNull(etFirst.getText()).toString().isEmpty() || Objects.requireNonNull(etLast.getText()).toString().isEmpty()
+                        || Objects.requireNonNull(etPhone.getText()).toString().isEmpty())
                     Toast.makeText(EditProfileActivity.this, getText(R.string.enter_fields), Toast.LENGTH_SHORT).show();
                 else {
                     pbEdit.setVisibility(View.VISIBLE);
@@ -119,7 +119,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, e.getMessage());
+                                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                                 Intent data = new Intent();
                                 data.putExtra("exception", e.getMessage());
                                 setResult(RESULT_CANCELED);
@@ -152,6 +152,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 Glide.with(this).load(filePath).into(ivProfile);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
+                Log.d(TAG, error + "");
             }
         }
     }
@@ -163,7 +164,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     if (oldPID != null) {
-                        taskSnapshot.getStorage().getParent().child(oldPID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        Objects.requireNonNull(taskSnapshot.getStorage().getParent()).child(oldPID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 savePictureID();
@@ -209,7 +210,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     return false;
                 }
             }).into(ivProfile);
-        }else{
+        } else {
             ivProfile.setImageResource(R.drawable.avatar_logo);
             pbLoadingPic.setVisibility(View.INVISIBLE);
         }

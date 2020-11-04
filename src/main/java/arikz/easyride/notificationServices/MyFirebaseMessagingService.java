@@ -63,10 +63,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 setContentInfo("Info");
 
         notificationManager.notify(new Random().nextInt(), notificationBuilder.build());
-
-
-
-
-
     }
 }

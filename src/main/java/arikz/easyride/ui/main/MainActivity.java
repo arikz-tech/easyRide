@@ -12,11 +12,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -40,6 +42,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Objects;
+
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
 import arikz.easyride.login.LoginActivity;
@@ -55,12 +59,10 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawer;
     private NavigationView navigationView;
-    private View navHeader;
     private MaterialTextView tvName, tvMail;
     private ImageView ivProfilePic;
     private RidesFragment ridesFragment;
     private BottomNavigationView bottomNavigationView;
-    private MaterialToolbar toolbar;
     private Bundle userBundle;
     private ProgressBar pbLoadingPic;
 
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         navigationView = findViewById(R.id.nav_view);
         drawer = findViewById(R.id.drawer_layout);
-        toolbar = findViewById(R.id.topAppBar);
+        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
 
         setRidesDefaultFragment();
 
@@ -105,9 +107,8 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < navigationView.getMenu().size(); i++)
                     navigationView.getMenu().getItem(i).setChecked(false);
 
-                selectedFragment.setArguments(userBundle);
-
                 if (selectedFragment != null) {
+                    selectedFragment.setArguments(userBundle);
                     getSupportFragmentManager().
                             beginTransaction().
                             replace(R.id.fragment_container, selectedFragment).
@@ -181,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Attach header layout
-        navHeader = navigationView.getHeaderView(0);
+        View navHeader = navigationView.getHeaderView(0);
         tvName = navHeader.findViewById(R.id.tvFirst);
         tvMail = navHeader.findViewById(R.id.tvMail);
         ivProfilePic = navHeader.findViewById(R.id.ivProfilePic);
@@ -213,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                     userBundle.putParcelable("user", loggedInUser);
                     ridesFragment.setArguments(userBundle);
 
-                    tvName.setText(loggedInUser.displayName());
+                    tvName.setText(Objects.requireNonNull(loggedInUser).displayName());
                     tvMail.setText(loggedInUser.getEmail());
                     setProfilePicture(loggedInUser.getPid());
 
@@ -253,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
             }).into(ivProfilePic);
-        }else{
+        } else {
             ivProfilePic.setImageResource(R.drawable.avatar_logo);
             pbLoadingPic.setVisibility(View.INVISIBLE);
         }
@@ -288,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 FirebaseDatabase.getInstance().getReference().
-                        child("users").child(getCurrentUserId()).child("phone").setValue("-");
+                        child("users").child(Objects.requireNonNull(getCurrentUserId())).child("phone").setValue("-");
                 dialog.dismiss();
             }
         }).show();

@@ -33,7 +33,7 @@ public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticip
         this.participants = participants;
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivAvatar, ivLogo;
         MaterialTextView tvName;
@@ -51,7 +51,7 @@ public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticip
     public AddedParticipantsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).
                 inflate(R.layout.participants_row_layout, parent, false);
-        return new AddedParticipantsAdapter.ViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override

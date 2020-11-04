@@ -1,14 +1,11 @@
 package arikz.easyride.ui.main.rides.map;
 
-import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
-
-import arikz.easyride.objects.User;
 
 public class ClusterMarker implements ClusterItem {
     private LatLng position;
