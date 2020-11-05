@@ -2,12 +2,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="300dp">
+    android:layout_height="320dp">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvRide"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="300dp"
         android:layout_margin="8dp"
         android:foreground="?attr/selectableItemBackground"
         app:cardElevation="1dp"
@@ -74,7 +74,7 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cvRow"
+                app:layout_constraintTop_toTopOf="@+id/cvOwner"
                 app:srcCompat="@drawable/card_view_sample" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -83,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ivRidePic" />
@@ -96,17 +97,19 @@
                 android:text="@string/src"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvRideName" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvSrcFill"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="3dp"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintBottom_toBottomOf="@+id/tvSrc"
                 app:layout_constraintStart_toEndOf="@+id/tvSrc"
                 app:layout_constraintTop_toBottomOf="@+id/tvRideName" />
 
@@ -118,18 +121,43 @@
                 android:text="@string/dest"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvSrc" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvDestFill"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="4dp"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintBottom_toBottomOf="@+id/tvDest"
                 app:layout_constraintStart_toEndOf="@+id/tvDest"
                 app:layout_constraintTop_toBottomOf="@+id/tvSrcFill" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/date_colon"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvDest" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvDateFill"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="4dp"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintBottom_toBottomOf="@+id/tvDate"
+                app:layout_constraintStart_toEndOf="@+id/tvDate"
+                app:layout_constraintTop_toTopOf="@+id/tvDate" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

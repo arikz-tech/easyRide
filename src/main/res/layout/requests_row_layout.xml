@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="200dp">
+    android:layout_height="wrap_content">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="200dp"
         android:layout_margin="10dp"
         android:clickable="true"
         android:focusable="true"
@@ -76,6 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:textStyle="bold"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -88,6 +89,7 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="3dp"
                 android:text="@string/src"
+                android:textStyle="bold"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
                 app:layout_constraintStart_toStartOf="parent"
@@ -96,11 +98,12 @@
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvSrcFill"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="3dp"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintBottom_toBottomOf="@+id/tvSrc"
                 app:layout_constraintStart_toEndOf="@+id/tvSrc"
                 app:layout_constraintTop_toBottomOf="@+id/tvRideName" />
 
@@ -110,6 +113,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="@string/dest"
+                android:textStyle="bold"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
                 app:layout_constraintStart_toStartOf="parent"
@@ -118,12 +122,35 @@
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvDestFill"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="4dp"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintBottom_toBottomOf="@+id/tvDest"
                 app:layout_constraintStart_toEndOf="@+id/tvDest"
                 app:layout_constraintTop_toBottomOf="@+id/tvSrcFill" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/date_colon"
+                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvDest" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvDateFill"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintBottom_toBottomOf="@+id/tvDate"
+                app:layout_constraintStart_toEndOf="@+id/tvDate"
+                app:layout_constraintTop_toTopOf="@+id/tvDate" />
 
             <ProgressBar
                 android:id="@+id/pbConfirm"
@@ -140,12 +167,11 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
                 android:text="@string/confirm"
                 android:textColor="@color/colorBlack"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvDate"
                 app:strokeColor="@color/colorBlack" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

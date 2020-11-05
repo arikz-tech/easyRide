@@ -32,7 +32,7 @@ import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
-import arikz.easyride.ui.main.rides.add.adapters.AddParticipantsAdapter;
+import arikz.easyride.ui.main.rides.adapters.AddParticipantsAdapter;
 
 public class AddParticipantActivity extends AppCompatActivity implements AddParticipantsAdapter.AddParticipantListener {
     private static String TAG = ".AddParticipantActivity";

@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main.rides.add.adapters;
+package arikz.easyride.ui.main.rides.adapters;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -52,7 +52,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private CardView cvRide, cvOwner;
         private ImageView ivAvatar, ivRidePic;
-        private MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest;
+        private MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest, tvDate;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -62,6 +62,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
             tvRideName = itemView.findViewById(R.id.tvRideName);
             tvSrc = itemView.findViewById(R.id.tvSrcFill);
             tvDest = itemView.findViewById(R.id.tvDestFill);
+            tvDate = itemView.findViewById(R.id.tvDateFill);
             cvRide = itemView.findViewById(R.id.cvRide);
             cvOwner = itemView.findViewById(R.id.cvOwner);
 
@@ -98,6 +99,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
         holder.tvRideName.setText(ride.getName());
         holder.tvSrc.setText(ride.getSource());
         holder.tvDest.setText(ride.getDestination());
+        holder.tvDate.setText(ride.getDate());
         setRideImage(holder.itemView, holder.ivRidePic, ride.getPid());
 
         getOwnerInfo(holder, ride.getOwnerUID());

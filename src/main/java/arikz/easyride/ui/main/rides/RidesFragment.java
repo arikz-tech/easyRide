@@ -3,28 +3,18 @@ package arikz.easyride.ui.main.rides;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +22,9 @@ import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.Ride;
-import arikz.easyride.objects.UserInRide;
+import arikz.easyride.ui.main.LoadData;
 import arikz.easyride.ui.main.rides.add.AddRideActivity;
-import arikz.easyride.ui.main.rides.add.adapters.RidesAdapter;
+import arikz.easyride.ui.main.rides.adapters.RidesAdapter;
 
 public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicked {
     private static String TAG = ".RidesFragment";
@@ -67,7 +57,8 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
         ridesAdapter = new RidesAdapter(getContext(), this, rides);
         rvRides.setAdapter(ridesAdapter);
 
-        collectRidesInfo();
+        LoadData loadRides = new LoadData(rides, ridesAdapter, null, pbRides);
+        loadRides.load();
 
         fabAddRide.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,78 +71,6 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
             }
         });
 
-    }
-
-    //TODO CHANGE TO Classes listeners
-    private void collectRidesInfo() {
-        final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-        final String uid = getCurrentUserId();
-        if (uid != null) {
-            dbRef.child("userRides").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        for (final DataSnapshot snap : snapshot.getChildren()) {
-                            final String rid = snap.getValue(String.class);
-                            if (rid != null) {
-                                dbRef.child("rides").child(rid).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        final Ride ride = snapshot.getValue(Ride.class);
-                                        if (ride != null) {
-                                            dbRef.child("rideUsers").child(ride.getRid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                    for (DataSnapshot snap : snapshot.getChildren()) {
-                                                        UserInRide user = snap.getValue(UserInRide.class);
-                                                        if (user != null) {
-                                                            if (user.getUid().equals(uid) && user.isInRide()) {
-                                                                rides.add(ride);
-                                                                ridesAdapter.notifyDataSetChanged();
-                                                            }
-                                                        }
-
-                                                        int lastUser = Integer.parseInt(Objects.requireNonNull(snap.getKey()));
-                                                        if (lastUser == snapshot.getChildrenCount() - 1) {
-                                                            try {
-                                                                Thread.sleep((long) 0.1);
-                                                            } catch (InterruptedException e) {
-                                                                e.printStackTrace();
-                                                            }
-                                                            pbRides.setVisibility(View.INVISIBLE);
-                                                        }
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onCancelled(@NonNull DatabaseError error) {
-                                                    Log.e(TAG, error.getMessage());
-                                                }
-                                            });
-                                        } else
-                                            pbRides.setVisibility(View.INVISIBLE);
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-                                        Log.e(TAG, error.getMessage());
-                                    }
-                                });
-                            } else
-                                pbRides.setVisibility(View.INVISIBLE);
-                        }
-
-                    } else
-                        pbRides.setVisibility(View.INVISIBLE);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, error.getMessage());
-                }
-            });
-        } else
-            pbRides.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -169,6 +88,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
             if (resultCode == AppCompatActivity.RESULT_OK) {
                 String rid = Objects.requireNonNull(Objects.requireNonNull(data).getExtras()).getString("ride");
 
+                //FIX !!
                 if (!rides.isEmpty())
                     for (Ride ride : rides)
                         if (ride.getRid().equals(rid))
@@ -177,14 +97,6 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                 ridesAdapter.notifyDataSetChanged();
             }
         }
-    }
-
-    private String getCurrentUserId() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null)
-            return user.getUid();
-        else
-            return null;
     }
 
     @Override

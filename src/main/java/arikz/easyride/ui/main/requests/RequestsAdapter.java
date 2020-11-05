@@ -49,10 +49,9 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     private Activity activity;
     private OnRequestClicked requestFrag;
     public ViewHolder viewHolder;
-    private boolean confirmed;
 
     public interface OnRequestClicked {
-        void onClick(int index);
+        void onClick(int index, MaterialButton button, ProgressBar progressBar);
     }
 
 
@@ -65,7 +64,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivAvatar;
-        MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest;
+        MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest, tvDate;
         MaterialButton btnConfirm;
         ProgressBar pbConfirm;
 
@@ -77,33 +76,26 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
             tvRideName = itemView.findViewById(R.id.tvRideName);
             tvSrc = itemView.findViewById(R.id.tvSrcFill);
             tvDest = itemView.findViewById(R.id.tvDestFill);
+            tvDate = itemView.findViewById(R.id.tvDateFill);
             btnConfirm = itemView.findViewById(R.id.btnConfirm);
             btnConfirm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!confirmed) {
-                        int index = rides.indexOf((Ride) itemView.getTag());
-                        requestFrag.onClick(index);
-                        pbConfirm.setVisibility(View.VISIBLE);
-                        btnConfirm.setVisibility(View.INVISIBLE);
-                    }
+                    int index = rides.indexOf((Ride) itemView.getTag());
+
+                    /*Show progress bar and hid button*/
+                    pbConfirm.setVisibility(View.VISIBLE);
+                    btnConfirm.setVisibility(View.INVISIBLE);
+
+                    /*Change button style, display confirmed button*/
+                    btnConfirm.setStrokeColorResource(R.color.colorPrimary);
+                    btnConfirm.setTextColor(activity.getColor(R.color.colorPrimary));
+                    btnConfirm.setText(R.string.confirmed);
+
+                    requestFrag.onClick(index, btnConfirm, pbConfirm);
+
                 }
             });
-        }
-
-        public void changeState(boolean confirm) {
-            btnConfirm.setVisibility(View.VISIBLE);
-            confirmed = confirm;
-            if (confirm) {
-                btnConfirm.setStrokeColorResource(R.color.colorPrimary);
-                btnConfirm.setTextColor(activity.getColor(R.color.colorPrimary));
-                btnConfirm.setText(R.string.confirmed);
-            } else {
-                btnConfirm.setStrokeColorResource(R.color.colorBlack);
-                btnConfirm.setTextColor(activity.getColor(R.color.colorBlack));
-                btnConfirm.setText(R.string.confirm);
-            }
-            pbConfirm.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -122,6 +114,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
         holder.tvRideName.setText(ride.getName());
         holder.tvSrc.setText(ride.getSource());
         holder.tvDest.setText(ride.getDestination());
+        holder.tvDate.setText(ride.getDate());
 
         getOwnerInfo(holder, ride.getOwnerUID());
     }

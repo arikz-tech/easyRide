@@ -30,9 +30,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "MESSAGE RECEIVED, FROM: " + remoteMessage.getFrom());
 
         showNotification(remoteMessage.getData().get("name"));
-        //String click_action = remoteMessage.getNotification().getClickAction();
-
-
     }
 
     private void showNotification(String name) {

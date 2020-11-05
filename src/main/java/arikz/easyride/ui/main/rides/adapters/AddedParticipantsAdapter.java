@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main.rides.add.adapters;
+package arikz.easyride.ui.main.rides.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +17,6 @@ import java.util.List;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
-import arikz.easyride.objects.UserInRide;
 
 //TODO Ripple Effect Accent
 public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticipantsAdapter.ViewHolder> {

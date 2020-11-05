@@ -1,7 +1,6 @@
-package arikz.easyride.ui.main.rides.add.adapters;
+package arikz.easyride.ui.main.rides.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

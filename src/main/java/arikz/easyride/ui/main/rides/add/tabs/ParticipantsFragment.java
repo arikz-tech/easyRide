@@ -25,7 +25,7 @@ import java.util.Objects;
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
 import arikz.easyride.ui.main.rides.add.AddParticipantActivity;
-import arikz.easyride.ui.main.rides.add.adapters.AddedParticipantsAdapter;
+import arikz.easyride.ui.main.rides.adapters.AddedParticipantsAdapter;
 import arikz.easyride.ui.main.rides.add.interfaces.ParticipantsEvents;
 
 public class ParticipantsFragment extends Fragment {

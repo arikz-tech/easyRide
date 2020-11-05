@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,6 +40,8 @@ import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClic
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -159,59 +162,99 @@ public class DetailsFragment extends Fragment {
             }
         });
 
-        //TODO TAKE ACTION IN THE ADDRIDEACTIVITY!!
         etDate.setShowSoftInputOnFocus(false);
         etDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            private int hour;
+            private int minute;
+            private int clockFormat;
+
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
+                    clockFormat = TimeFormat.CLOCK_24H;
+
+                    class OnTimeClicked implements View.OnClickListener {
+                        private MaterialTimePicker materialTimePicker;
+                        private String date;
+
+                        public OnTimeClicked(MaterialTimePicker materialTimePicker, String date) {
+                            this.date = date;
+                            this.materialTimePicker = materialTimePicker;
+                        }
+
+                        @Override
+                        public void onClick(View v) {
+                            int newHour = materialTimePicker.getHour();
+                            int newMinute = materialTimePicker.getMinute();
+                            String time = newHour + ":" + (newMinute < 10 ? "0" + newMinute : newMinute);
+                            String completeDate = date + ", " + time;
+                            etDate.setText(completeDate);
+                        }
+                    }
+
+                    class OnDateClicked implements MaterialPickerOnPositiveButtonClickListener<Long> {
+                        private MaterialDatePicker<Long> materialDatePicker;
+
+                        public OnDateClicked(MaterialDatePicker<Long> materialDatePicker) {
+                            this.materialDatePicker = materialDatePicker;
+                        }
+
+                        @Override
+                        public void onPositiveButtonClick(Long selection) {
+                            MaterialTimePicker materialTimePicker = new MaterialTimePicker.Builder().
+                                    setTimeFormat(clockFormat)
+                                    .setHour(hour)
+                                    .setMinute(minute)
+                                    .build();
+
+                            OnTimeClicked timeListener = new OnTimeClicked(materialTimePicker, materialDatePicker.getHeaderText());
+                            materialTimePicker.addOnPositiveButtonClickListener(timeListener);
+                            materialTimePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "TIME_PICKER");
+                        }
+                    }
 
                     MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
                     builder.setTitleText(R.string.date_select);
-                    final MaterialDatePicker<Long> materialDatePicker = builder.build();
+                    MaterialDatePicker<Long> materialDatePicker = builder.build();
 
                     materialDatePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "DATE_PICKER");
-
-                    class OnDateClicked implements MaterialPickerOnPositiveButtonClickListener<Long> {
-                        @Override
-                        public void onPositiveButtonClick(Long selection) {
-                            etDate.setText(materialDatePicker.getHeaderText());
-                        }
-                    }
-                    materialDatePicker.addOnPositiveButtonClickListener(new OnDateClicked());
+                    OnDateClicked dateListener = new OnDateClicked(materialDatePicker);
+                    materialDatePicker.addOnPositiveButtonClickListener(dateListener);
                 }
             }
         });
+
     }
 
     private void takeUserCurrentPosition() {
-            if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
-            } else {
-                pbLocation.setVisibility(View.VISIBLE);
-                class Listener implements LocationListener {
-                    @Override
-                    public void onLocationChanged(@NonNull Location location) {
-                        List<Address> addresses;
-                        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
-                        try {
-                            addresses = geocoder.getFromLocation(Objects.requireNonNull(location).getLatitude(), location.getLongitude(), 1);
-                            etSrc.setText(addresses.get(0).getAddressLine(0));
-                            locationManager.removeUpdates(this);
-                            pbLocation.setVisibility(View.INVISIBLE);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+        if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
+        } else {
+            pbLocation.setVisibility(View.VISIBLE);
+            class Listener implements LocationListener {
+                @Override
+                public void onLocationChanged(@NonNull Location location) {
+                    List<Address> addresses;
+                    Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+                    try {
+                        addresses = geocoder.getFromLocation(Objects.requireNonNull(location).getLatitude(), location.getLongitude(), 1);
+                        etSrc.setText(addresses.get(0).getAddressLine(0));
+                        locationManager.removeUpdates(this);
+                        pbLocation.setVisibility(View.INVISIBLE);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
-                Listener listener = new Listener();
-                locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000L, 5, listener);
             }
+            Listener listener = new Listener();
+            locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000L, 5, listener);
+        }
     }
 
-    private void uploadImageAndSubmit(final String rideName, final String source, final String destination, final String date) {
+    private void uploadImageAndSubmit(final String rideName, final String source,
+                                      final String destination, final String date) {
         event.onImageUpload();
         btnAddRide.setVisibility(View.INVISIBLE);
         btnAddParticipants.setVisibility(View.INVISIBLE);
@@ -248,7 +291,8 @@ public class DetailsFragment extends Fragment {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == LOCATION_REQUEST_CODE) {

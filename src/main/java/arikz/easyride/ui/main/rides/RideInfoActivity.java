@@ -1,27 +1,18 @@
 package arikz.easyride.ui.main.rides;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -47,7 +38,7 @@ import arikz.easyride.R;
 import arikz.easyride.objects.Ride;
 import arikz.easyride.objects.User;
 import arikz.easyride.objects.UserInRide;
-import arikz.easyride.ui.main.rides.add.adapters.ParticipantsAdapter;
+import arikz.easyride.ui.main.rides.adapters.ParticipantsAdapter;
 import arikz.easyride.ui.main.rides.map.MapActivity;
 
 public class RideInfoActivity extends AppCompatActivity {
@@ -76,6 +67,7 @@ public class RideInfoActivity extends AppCompatActivity {
         pbRideInfo = findViewById(R.id.pbRideInfo);
         pbMap = findViewById(R.id.pbMap);
         fabMap = findViewById(R.id.fabMap);
+
         imagesBundle = new Bundle();
         RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         participants = new ArrayList<>();
@@ -104,7 +96,6 @@ public class RideInfoActivity extends AppCompatActivity {
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (isOwner())
                     deleteRideOwner();
                 else
@@ -123,6 +114,7 @@ public class RideInfoActivity extends AppCompatActivity {
         });
     }
 
+    //TODO FIX THIS FUNCTION!!
     private void exitRide() {
         pbRideInfo.setVisibility(View.VISIBLE);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
@@ -168,6 +160,61 @@ public class RideInfoActivity extends AppCompatActivity {
                 Log.e(TAG, error.getMessage());
             }
         });
+    }
+
+    //TODO FIX THIS FUNCTION!!
+    private void deleteRideOwner() {
+        pbRideInfo.setVisibility(View.VISIBLE);
+        final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.child("rides").child(ride.getRid()).removeValue();
+        dbRef.child("rideUsers").child(ride.getRid()).removeValue();
+        dbRef.child("userRides").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    final String uid = snap.getKey();
+                    dbRef.child("userRides").child(Objects.requireNonNull(uid)).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                            for (DataSnapshot snap : snapshot.getChildren()) {
+                                String key = snap.getKey();
+                                String rid = snap.getValue(String.class);
+                                if (Objects.equals(rid, ride.getRid()))
+                                    dbRef.child("userRides").child(uid).child(Objects.requireNonNull(key)).removeValue();
+
+                                if (Integer.parseInt(Objects.requireNonNull(key)) == snapshot.getChildrenCount() - 1) {
+                                    try {
+                                        Thread.sleep((long) 0.1);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Intent data = new Intent();
+                                    data.putExtra("ride", ride.getRid());
+                                    setResult(RESULT_OK, data);
+                                    finish();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e(TAG, error.getMessage());
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
+
+        if (ride.getPid() != null)
+            FirebaseStorage.getInstance().getReference().
+                    child("images").child("rides").child(ride.getPid()).delete();
+
     }
 
     private boolean isOwner() {
@@ -253,60 +300,6 @@ public class RideInfoActivity extends AppCompatActivity {
 
             Glide.with(this).load(imageRef).into(ivRidePic);
         }
-    }
-
-    private void deleteRideOwner() {
-        pbRideInfo.setVisibility(View.VISIBLE);
-        final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-        dbRef.child("rides").child(ride.getRid()).removeValue();
-        dbRef.child("rideUsers").child(ride.getRid()).removeValue();
-        dbRef.child("userRides").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    final String uid = snap.getKey();
-                    dbRef.child("userRides").child(Objects.requireNonNull(uid)).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                            for (DataSnapshot snap : snapshot.getChildren()) {
-                                String key = snap.getKey();
-                                String rid = snap.getValue(String.class);
-                                if (Objects.equals(rid, ride.getRid()))
-                                    dbRef.child("userRides").child(uid).child(Objects.requireNonNull(key)).removeValue();
-
-                                if (Integer.parseInt(Objects.requireNonNull(key)) == snapshot.getChildrenCount() - 1) {
-                                    try {
-                                        Thread.sleep((long) 0.1);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Intent data = new Intent();
-                                    data.putExtra("ride", ride.getRid());
-                                    setResult(RESULT_OK, data);
-                                    finish();
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.e(TAG, error.getMessage());
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, error.getMessage());
-            }
-        });
-
-        if (ride.getPid() != null)
-            FirebaseStorage.getInstance().getReference().
-                    child("images").child("rides").child(ride.getPid()).delete();
-
     }
 
     public synchronized void setTotalParticipants(long total) {
