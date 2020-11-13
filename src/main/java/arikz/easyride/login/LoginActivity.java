@@ -112,6 +112,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, PasswordResetActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
         });
@@ -120,6 +121,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivityForResult(intent, REGISTER_INFO);
             }
         });
@@ -166,6 +168,7 @@ public class LoginActivity extends AppCompatActivity {
         if (user != null) {
             saveUserToken(user.getUid());
             Intent login = new Intent(this, MainActivity.class);
+            login.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(login);
             finish();
         }

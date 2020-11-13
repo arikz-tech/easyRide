@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,11 +89,14 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
             if (resultCode == AppCompatActivity.RESULT_OK) {
                 String rid = Objects.requireNonNull(Objects.requireNonNull(data).getExtras()).getString("ride");
 
-                //FIX !!
-                if (!rides.isEmpty())
-                    for (Ride ride : rides)
-                        if (ride.getRid().equals(rid))
+                if (!rides.isEmpty()) {
+                    for (Ride ride : rides) {
+                        if (ride.getRid().equals(rid)) {
                             rides.remove(ride);
+                            break;
+                        }
+                    }
+                }
 
                 ridesAdapter.notifyDataSetChanged();
             }
@@ -102,6 +106,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
     @Override
     public void onClick(int index) {
         Intent intent = new Intent(getActivity(), RideInfoActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.putExtra("ride", rides.get(index));
         startActivityForResult(intent, LEAVE_REQUEST_CODE);
     }

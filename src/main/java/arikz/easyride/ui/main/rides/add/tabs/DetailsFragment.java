@@ -2,7 +2,6 @@ package arikz.easyride.ui.main.rides.add.tabs;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,36 +18,46 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.datepicker.MaterialDatePicker.Builder;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -59,11 +68,13 @@ import arikz.easyride.ui.main.rides.add.interfaces.DetailsEvents;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 public class DetailsFragment extends Fragment {
     private static final String TAG = "DetailsFragment";
     private static final int LOCATION_REQUEST_CODE = 19;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 79;
 
     private View view;
     private TextInputEditText etName, etSrc, etDest, etDate;
@@ -72,8 +83,6 @@ public class DetailsFragment extends Fragment {
     private DetailsEvents event;
     private ProgressBar pbAddRide, pbLocation;
     private Uri filePath = null;
-    private boolean askForPos;
-    private LocationManager locationManager;
 
     public DetailsFragment(Context context) {
         event = (DetailsEvents) context;
@@ -112,7 +121,9 @@ public class DetailsFragment extends Fragment {
                     String source = etSrc.getText().toString();
                     String destination = etDest.getText().toString();
                     String date = etDate.getText().toString();
-                    uploadImageAndSubmit(rideName, source, destination, date);
+                    LatLng srcLatLng = getLocationFromAddress(getContext(), source);
+                    if (srcLatLng != null)
+                        uploadImageAndSubmit(rideName, source, destination, date, srcLatLng);
                 }
             }
         });
@@ -137,24 +148,24 @@ public class DetailsFragment extends Fragment {
         etSrc.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus && !askForPos) {
+                if (hasFocus) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle(R.string.current_location);
-                    builder.setMessage(R.string.take_current_pos);
-                    builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    builder.setTitle(R.string.starting_point);
+                    builder.setMessage(R.string.wich_location);
+                    builder.setIcon(R.drawable.ic_start_flag_24);
+                    builder.setPositiveButton(R.string.current_location, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             takeUserCurrentPosition();
                         }
-                    }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    }).setNegativeButton(R.string.my_address, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            etSrc.setShowSoftInputOnFocus(true);
+                            takeSavedPosition();
                         }
-                    }).setNeutralButton(R.string.never_ask_again, new DialogInterface.OnClickListener() {
+                    }).setNeutralButton(R.string.type, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            askForPos = !askForPos;
                             etSrc.setShowSoftInputOnFocus(true);
                         }
                     }).show();
@@ -165,7 +176,7 @@ public class DetailsFragment extends Fragment {
         etDate.setShowSoftInputOnFocus(false);
         etDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             private int hour;
-            private int minute;
+            private int minutes;
             private int clockFormat;
 
             @Override
@@ -204,7 +215,7 @@ public class DetailsFragment extends Fragment {
                             MaterialTimePicker materialTimePicker = new MaterialTimePicker.Builder().
                                     setTimeFormat(clockFormat)
                                     .setHour(hour)
-                                    .setMinute(minute)
+                                    .setMinute(minutes)
                                     .build();
 
                             OnTimeClicked timeListener = new OnTimeClicked(materialTimePicker, materialDatePicker.getHeaderText());
@@ -226,11 +237,36 @@ public class DetailsFragment extends Fragment {
 
     }
 
+    private void takeSavedPosition() {
+        pbLocation.setVisibility(View.VISIBLE);
+        final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        String uid = getCurrentUserId();
+        class AddressListener implements ValueEventListener {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String address = snapshot.getValue(String.class);
+                etSrc.setText(address);
+                pbLocation.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        }
+
+        AddressListener addressListener = new AddressListener();
+        dbRef.child("users").child(Objects.requireNonNull(uid)).child("address").addListenerForSingleValueEvent(addressListener);
+
+    }
+
     private void takeUserCurrentPosition() {
         if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
+            final LocationManager locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
             pbLocation.setVisibility(View.VISIBLE);
             class Listener implements LocationListener {
                 @Override
@@ -248,13 +284,12 @@ public class DetailsFragment extends Fragment {
                 }
             }
             Listener listener = new Listener();
-            locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000L, 5, listener);
         }
     }
 
     private void uploadImageAndSubmit(final String rideName, final String source,
-                                      final String destination, final String date) {
+                                      final String destination, final String date, final LatLng srcLatLng) {
         event.onImageUpload();
         btnAddRide.setVisibility(View.INVISIBLE);
         btnAddParticipants.setVisibility(View.INVISIBLE);
@@ -265,11 +300,11 @@ public class DetailsFragment extends Fragment {
                     child("images").child("rides").child(pid).putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    event.onSubmit(rideName, source, destination, date, pid);
+                    event.onSubmit(rideName, source, destination, date, pid, srcLatLng);
                 }
             });
         } else
-            event.onSubmit(rideName, source, destination, date, null);
+            event.onSubmit(rideName, source, destination, date, null, srcLatLng);
     }
 
     @Override
@@ -300,6 +335,44 @@ public class DetailsFragment extends Fragment {
                 takeUserCurrentPosition();
             }
         }
+    }
+
+    private String getCurrentUserId() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null)
+            return user.getUid();
+        else
+            return null;
+    }
+
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+
+        try {
+            // May throw an IOException
+            address = coder.getFromLocationName(strAddress, 5);
+
+            if (address == null) {
+                Toast.makeText(context, R.string.start_point_not_found, Toast.LENGTH_SHORT).show();
+                return null;
+            }
+
+            if (address.isEmpty()) {
+                Toast.makeText(context, R.string.start_point_not_found, Toast.LENGTH_SHORT).show();
+                return null;
+            } else {
+                Address location = address.get(0);
+                p1 = new LatLng(location.getLatitude(), location.getLongitude());
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return p1;
     }
 
 }

@@ -82,18 +82,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
                 @Override
                 public void onClick(View v) {
                     int index = rides.indexOf((Ride) itemView.getTag());
-
-                    /*Show progress bar and hid button*/
-                    pbConfirm.setVisibility(View.VISIBLE);
-                    btnConfirm.setVisibility(View.INVISIBLE);
-
-                    /*Change button style, display confirmed button*/
-                    btnConfirm.setStrokeColorResource(R.color.colorPrimary);
-                    btnConfirm.setTextColor(activity.getColor(R.color.colorPrimary));
-                    btnConfirm.setText(R.string.confirmed);
-
                     requestFrag.onClick(index, btnConfirm, pbConfirm);
-
                 }
             });
         }

@@ -30,6 +30,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
@@ -69,7 +70,6 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     private List<User> rideParticipants;
     private User owner;
     private boolean saving;
-    private String[] parameters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,22 +108,11 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     }
 
     @Override
-    public void onSubmit(String name, String src, String dest, String date, String pid) {
+    public void onSubmit(String name, String src, String dest, String date, String pid, LatLng srcLatLng) {
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            parameters = new String[5];
-            parameters[0] = name;
-            parameters[1] = src;
-            parameters[2] = dest;
-            parameters[3] = date;
-            parameters[4] = pid;
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            double ownerLat = Objects.requireNonNull(location).getLatitude();
-            double ownerLong = location.getLongitude();
-
             rideParticipants.add(owner);
             final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
             final Ride ride = new Ride();
@@ -146,8 +135,8 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 UserInRide user = new UserInRide();
                 user.setUid(participant.getUid());
                 if (participant.getUid().equals(owner.getUid())) {
-                    user.setLatitude(ownerLat);
-                    user.setLongitude(ownerLong);
+                    user.setLatitude(srcLatLng.latitude);
+                    user.setLongitude(srcLatLng.longitude);
                     user.setInRide(true);
                 } else
                     user.setInRide(false);
@@ -286,20 +275,6 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         RequestQueue mRequestQueue;
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
         mRequestQueue.add(request);
-
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == LOCATION_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                onSubmit(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
-            } else {
-                Toast.makeText(this, "Adding ride has failed, to add ride you have to grant location permission", Toast.LENGTH_LONG).show();
-                finish();
-            }
-        }
-    }
 }

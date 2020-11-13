@@ -76,10 +76,21 @@
     <string name="date_colon">Date:</string>
     <string name="date_select">Select ride date</string>
     <string name="current_location">Current location</string>
-    <string name="take_current_pos">would you like to use current position as ride\'s starting point</string>
+    <string name="take_current_pos">would you like to use current position as your default address</string>
     <string name="yes">yes</string>
     <string name="no">No</string>
     <string name="never_ask_again">Never ask again</string>
     <string name="accept_ride">Ride as been accepted</string>
+    <string name="invite_friend">Invite friend</string>
+    <string name="address">Address</string>
+    <string name="address_colon">Address:</string>
+    <string name="pickup_location">Pickup location</string>
+    <string name="wich_location">Which location you prefer ?</string>
+    <string name="saved_location">Your saved Location</string>
+    <string name="type">Type</string>
+    <string name="my_address">My address</string>
+    <string name="start_point_not_found">Didn\'t found your starting point location</string>
+    <string name="address_not_found">Didn\'t found your address</string>
+    <string name="add_address_location">To use saved address you have to enter you address in profile section</string>
 
 </resources>

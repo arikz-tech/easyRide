@@ -75,10 +75,21 @@
     <string name="date_colon">תאריך:</string>
     <string name="date_select">בחר תאריך נסיעה</string>
     <string name="current_location">מיקום נוכחי</string>
-    <string name="take_current_pos">תרצה להשתמש במיקום הנוכחי כנקודת התחלה ?</string>
     <string name="yes">כן</string>
     <string name="no">לא</string>
     <string name="never_ask_again">אל תשאל שוב</string>
     <string name="add_participant">הוסף משתתף</string>
     <string name="accept_ride">הנסיעה אושרה</string>
+    <string name="invite_friend">הזמן חבר</string>
+    <string name="address">כתובת</string>
+    <string name="address_colon">כתובת:</string>
+    <string name="pickup_location">מיקום איסוף</string>
+    <string name="wich_location">איזה מיקום אתה מעדיף?</string>
+    <string name="saved_location">מיקום שמור</string>
+    <string name="type">כתיבה</string>
+    <string name="my_address">הכתובת שלי</string>
+    <string name="start_point_not_found">נקודת התחלה לא נמצאה</string>
+    <string name="take_current_pos">תרצה להשתמש במיקום הנוכחי ככתובת ברירת מחדל ?</string>
+    <string name="address_not_found">כתובת לא נמצאה</string>
+    <string name="add_address_location">כדי להשתמש בכתובת שלך צריך להוסיף כתובת בלשונית \"פרופיל\"</string>
 </resources>

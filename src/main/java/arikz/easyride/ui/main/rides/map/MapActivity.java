@@ -104,11 +104,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                             Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
                             try {
                                 addresses = geocoder.getFromLocation(user.getLatitude(), user.getLongitude(), 1);
-                                User userInfo = snapshot.getValue(User.class);
-                                ClusterMarker clusterMarker = new ClusterMarker(new LatLng(user.getLatitude(), user.getLongitude()),
-                                        Objects.requireNonNull(userInfo).displayName(),addresses.get(0).getAddressLine(0), Objects.requireNonNull(images).getByteArray(userInfo.getPid()));
-                                clusterManager.addItem(clusterMarker);
-                                clusterManager.cluster();
+                                if (!addresses.isEmpty()) {
+                                    User userInfo = snapshot.getValue(User.class);
+                                    LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
+                                    String markerName = Objects.requireNonNull(userInfo).displayName();
+                                    String addressName = addresses.get(0).getAddressLine(0);
+                                    byte[] image = Objects.requireNonNull(images).getByteArray(userInfo.getPid());
+                                    ClusterMarker clusterMarker = new ClusterMarker(latLng, markerName, addressName, image);
+                                    clusterManager.addItem(clusterMarker);
+                                    clusterManager.cluster();
+                                }
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

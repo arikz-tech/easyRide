@@ -37,6 +37,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -127,11 +128,14 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            boolean itemCheckedSign = false;
+
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.friends:
                         if (userBundle != null) {
+                            itemCheckedSign = true;
                             FriendsFragment friendsFragment = new FriendsFragment();
                             friendsFragment.setArguments(userBundle);
                             getSupportFragmentManager().
@@ -141,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.profile:
                         if (userBundle != null) {
+                            itemCheckedSign = true;
                             ProfileFragment profileFragment = new ProfileFragment();
                             profileFragment.setArguments(userBundle);
                             getSupportFragmentManager().
@@ -149,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case R.id.setting:
+                        itemCheckedSign = true;
                         getSupportFragmentManager().
                                 beginTransaction().
                                 replace(R.id.fragment_container, new SettingFragment()).commit();
@@ -173,8 +179,12 @@ public class MainActivity extends AppCompatActivity {
                         finish();
                         break;
                 }
-                item.setCheckable(true);
-                item.setChecked(true);
+                if (itemCheckedSign) {
+                    item.setCheckable(true);
+                    item.setChecked(true);
+                    itemCheckedSign = false;
+                }
+
                 bottomNavigationView.getMenu().setGroupCheckable(0, false, true);
                 drawer.closeDrawer(GravityCompat.START);
                 return true;

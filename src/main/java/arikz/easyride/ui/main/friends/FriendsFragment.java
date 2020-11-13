@@ -1,7 +1,10 @@
 package arikz.easyride.ui.main.friends;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -25,6 +28,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,6 +52,7 @@ public class FriendsFragment extends Fragment {
     private FriendsAdapter friendsAdapter;
     private ProgressBar pbFriends;
     private User loggedInUser;
+    private ExtendedFloatingActionButton fabInviteFriends;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,6 +64,7 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        fabInviteFriends = view.findViewById(R.id.fabInviteFriends);
         pbFriends = view.findViewById(R.id.pbFriends);
 
         loggedInUser = Objects.requireNonNull(getArguments()).getParcelable("user");
@@ -72,6 +78,19 @@ public class FriendsFragment extends Fragment {
         rvFriends.setAdapter(friendsAdapter);
 
         collectContactFriends();
+
+        fabInviteFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, getText(R.string.share_intent_message));
+                sendIntent.setType("text/plain");
+                sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                Intent shareIntent = Intent.createChooser(sendIntent, null);
+                startActivity(shareIntent);
+            }
+        });
     }
 
     private void collectContactFriends() {
@@ -132,15 +151,14 @@ public class FriendsFragment extends Fragment {
         }
     }
 
-    //TODO Ripple Effect Accent
-    public static class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
+    public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
         List<User> friends;
 
         public FriendsAdapter(List<User> friends) {
             this.friends = friends;
         }
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
+        class ViewHolder extends RecyclerView.ViewHolder {
 
             ImageView ivAvatar, ivLogo;
             MaterialTextView tvName;
@@ -153,7 +171,7 @@ public class FriendsFragment extends Fragment {
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.e(TAG, "Check !!");
+                        Toast.makeText(getContext(), "Enter user profile", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -190,3 +208,4 @@ public class FriendsFragment extends Fragment {
         }
     }
 }
+

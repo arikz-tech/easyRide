@@ -36,7 +36,7 @@ public class ProfileFragment extends Fragment {
     private static final String TAG = ".ProfileFragment";
     private static int EDIT_REQUEST_CODE = 4;
     private View view;
-    private MaterialTextView tvFirst, tvLast, tvMail, tvPhone;
+    private MaterialTextView tvFirst, tvLast, tvMail, tvPhone,tvAddress;
     private ImageView ivProfile;
     private ExtendedFloatingActionButton fabEdit;
     private User loggedInUser;
@@ -58,6 +58,7 @@ public class ProfileFragment extends Fragment {
         tvLast = view.findViewById(R.id.tvLastFill);
         tvMail = view.findViewById(R.id.tvMailFill);
         tvPhone = view.findViewById(R.id.tvPhoneFill);
+        tvAddress = view.findViewById(R.id.tvAddressFill);
         fabEdit = view.findViewById(R.id.fabEdit);
         ivProfile = view.findViewById(R.id.ivProfile);
 
@@ -68,6 +69,7 @@ public class ProfileFragment extends Fragment {
             tvLast.setText(loggedInUser.getLast());
             tvMail.setText(loggedInUser.getEmail());
             tvPhone.setText(loggedInUser.getPhone());
+            tvAddress.setText(loggedInUser.getAddress());
             setProfilePicture(loggedInUser.getPid());
         }
 
@@ -75,6 +77,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra("user", loggedInUser);
                 startActivityForResult(intent, EDIT_REQUEST_CODE);
             }
@@ -93,6 +96,7 @@ public class ProfileFragment extends Fragment {
                     tvLast.setText(loggedInUser.getLast());
                     tvMail.setText(loggedInUser.getEmail());
                     tvPhone.setText(loggedInUser.getPhone());
+                    tvAddress.setText(loggedInUser.getAddress());
                     setProfilePicture(loggedInUser.getPid());
                     Toast.makeText(getContext(), R.string.edit_success, Toast.LENGTH_SHORT).show();
                 } else if (resultCode == RESULT_CANCELED) {
