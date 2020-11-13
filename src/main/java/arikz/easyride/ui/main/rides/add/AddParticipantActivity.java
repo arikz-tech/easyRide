@@ -32,6 +32,7 @@ import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
+import arikz.easyride.ui.main.LoadContacts;
 import arikz.easyride.ui.main.rides.adapters.AddParticipantsAdapter;
 
 public class AddParticipantActivity extends AppCompatActivity implements AddParticipantsAdapter.AddParticipantListener {
@@ -78,17 +79,8 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
 
     private void fetchContact() {
         pbParticipants.setVisibility(View.VISIBLE);
-        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-        String[] projection = {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER};
-        ContentResolver resolver = getContentResolver();
-        Cursor cursor = resolver.query(uri, projection, null, null, null);
-
-        final ArrayList<String> phoneNumbers = new ArrayList<>();
-
-        while (Objects.requireNonNull(cursor).moveToNext()) {
-            String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            phoneNumbers.add(PhoneNumberUtils.normalizeNumber(phoneNumber));
-        }
+        LoadContacts loadContacts = new LoadContacts(getApplicationContext());
+        final List<String> phonesList = loadContacts.getContactsPhoneNumbers();
 
         FirebaseDatabase.getInstance().getReference().
                 child("users").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -96,7 +88,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
-                    if (phoneNumbers.contains(Objects.requireNonNull(friend).getPhone())) {
+                    if (phonesList.contains(Objects.requireNonNull(friend).getPhone())) {
                         if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
                             participants.add(friend);
                     }

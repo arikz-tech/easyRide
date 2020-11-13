@@ -48,8 +48,10 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         pbRides = view.findViewById(R.id.pbRides);
         ExtendedFloatingActionButton fabAddRide = view.findViewById(R.id.fabAddRide);
+
         RecyclerView rvRides = view.findViewById(R.id.rvRides);
         rvRides.setHasFixedSize(true);
         rvRides.setLayoutManager(new LinearLayoutManager(getContext()));

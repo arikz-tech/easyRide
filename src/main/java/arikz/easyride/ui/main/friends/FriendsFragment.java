@@ -1,9 +1,7 @@
 package arikz.easyride.ui.main.friends;
 
 import android.Manifest;
-import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -43,6 +41,10 @@ import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.objects.User;
+import arikz.easyride.ui.main.LoadContacts;
+import io.michaelrocks.libphonenumber.android.NumberParseException;
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
+import io.michaelrocks.libphonenumber.android.Phonenumber;
 
 public class FriendsFragment extends Fragment {
     private static final String TAG = ".FriendsFragment";
@@ -103,17 +105,8 @@ public class FriendsFragment extends Fragment {
 
     private void fetchContact() {
         pbFriends.setVisibility(View.VISIBLE);
-        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-        String[] projection = {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER};
-        ContentResolver resolver = Objects.requireNonNull(getActivity()).getContentResolver();
-        Cursor cursor = resolver.query(uri, projection, null, null, null);
-
-        final ArrayList<String> phoneNumbers = new ArrayList<>();
-
-        while (Objects.requireNonNull(cursor).moveToNext()) {
-            String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            phoneNumbers.add(PhoneNumberUtils.normalizeNumber(phoneNumber));
-        }
+        LoadContacts loadContacts = new LoadContacts(getContext());
+        final List<String> phonesList = loadContacts.getContactsPhoneNumbers();
 
         FirebaseDatabase.getInstance().getReference().
                 child("users").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -121,7 +114,7 @@ public class FriendsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
-                    if (phoneNumbers.contains(Objects.requireNonNull(friend).getPhone())) {
+                    if (phonesList.contains(Objects.requireNonNull(friend).getPhone())) {
                         if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
                             friends.add(friend);
                     }
