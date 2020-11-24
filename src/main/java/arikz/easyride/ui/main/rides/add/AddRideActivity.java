@@ -109,81 +109,76 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
 
     @Override
     public void onSubmit(String name, String src, String dest, String date, String pid, LatLng srcLatLng) {
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
-        } else {
-            rideParticipants.add(owner);
-            final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-            final Ride ride = new Ride();
-            ride.setName(name);
-            ride.setOwnerUID(owner.getUid());
-            ride.setSource(src);
-            ride.setDestination(dest);
-            ride.setDate(date);
-            ride.setPid(pid);
-            ride.setRid(dbRef.child("rides").push().getKey());
+        rideParticipants.add(owner);
+        final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        final Ride ride = new Ride();
+        ride.setName(name);
+        ride.setOwnerUID(owner.getUid());
+        ride.setSource(src);
+        ride.setDestination(dest);
+        ride.setDate(date);
+        ride.setPid(pid);
+        ride.setRid(dbRef.child("rides").push().getKey());
 
-            Intent data = new Intent();
-            data.putExtra("ride", ride);
-            setResult(RESULT_OK, data);
+        Intent data = new Intent();
+        data.putExtra("ride", ride);
+        setResult(RESULT_OK, data);
 
-            dbRef.child("rides").child(ride.getRid()).setValue(ride);
+        dbRef.child("rides").child(ride.getRid()).setValue(ride);
 
-            List<UserInRide> rideUsers = new ArrayList<>();
-            for (User participant : rideParticipants) {
-                UserInRide user = new UserInRide();
-                user.setUid(participant.getUid());
-                if (participant.getUid().equals(owner.getUid())) {
-                    user.setLatitude(srcLatLng.latitude);
-                    user.setLongitude(srcLatLng.longitude);
-                    user.setInRide(true);
-                } else
-                    user.setInRide(false);
-                rideUsers.add(user);
-            }
-            dbRef.child("rideUsers").child(ride.getRid()).setValue(rideUsers);
-
-            for (User participant : rideParticipants) {
-                dbRef.child("userRides").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        List<String> userRides = new ArrayList<>();
-                        if (snapshot.exists()) {
-                            for (DataSnapshot snap : snapshot.getChildren()) {
-                                userRides.add(snap.getValue(String.class));
-                            }
-                        }
-                        userRides.add(ride.getRid());
-                        snapshot.getRef().setValue(userRides);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e(TAG, error.getMessage());
-                    }
-                });
-            }
-
-            rideParticipants.remove(owner);
-            for (final User participant : rideParticipants) {
-                dbRef.child("tokens").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String token = snapshot.getValue(String.class);
-                        sendNotification(token, owner.displayName());
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e(TAG, error.getMessage());
-                    }
-                });
-            }
-
-            Toast.makeText(AddRideActivity.this, R.string.ride_added, Toast.LENGTH_SHORT).show();
-            finish();
+        List<UserInRide> rideUsers = new ArrayList<>();
+        for (User participant : rideParticipants) {
+            UserInRide user = new UserInRide();
+            user.setUid(participant.getUid());
+            if (participant.getUid().equals(owner.getUid())) {
+                user.setLatitude(srcLatLng.latitude);
+                user.setLongitude(srcLatLng.longitude);
+                user.setInRide(true);
+            } else
+                user.setInRide(false);
+            rideUsers.add(user);
         }
+        dbRef.child("rideUsers").child(ride.getRid()).setValue(rideUsers);
+
+        for (User participant : rideParticipants) {
+            dbRef.child("userRides").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    List<String> userRides = new ArrayList<>();
+                    if (snapshot.exists()) {
+                        for (DataSnapshot snap : snapshot.getChildren()) {
+                            userRides.add(snap.getValue(String.class));
+                        }
+                    }
+                    userRides.add(ride.getRid());
+                    snapshot.getRef().setValue(userRides);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, error.getMessage());
+                }
+            });
+        }
+
+        rideParticipants.remove(owner);
+        for (final User participant : rideParticipants) {
+            dbRef.child("tokens").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String token = snapshot.getValue(String.class);
+                    sendNotification(token, owner.displayName());
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, error.getMessage());
+                }
+            });
+        }
+
+        Toast.makeText(AddRideActivity.this, R.string.ride_added, Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     @Override

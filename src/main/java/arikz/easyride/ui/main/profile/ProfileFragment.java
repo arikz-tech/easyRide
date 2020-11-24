@@ -2,6 +2,8 @@ package arikz.easyride.ui.main.profile;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -19,11 +21,20 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import arikz.easyride.R;
@@ -34,9 +45,10 @@ import static android.app.Activity.RESULT_OK;
 
 public class ProfileFragment extends Fragment {
     private static final String TAG = ".ProfileFragment";
+
     private static int EDIT_REQUEST_CODE = 4;
     private View view;
-    private MaterialTextView tvFirst, tvLast, tvMail, tvPhone,tvAddress;
+    private MaterialTextView tvFirst, tvLast, tvMail, tvPhone, tvAddress;
     private ImageView ivProfile;
     private ExtendedFloatingActionButton fabEdit;
     private User loggedInUser;
@@ -60,8 +72,7 @@ public class ProfileFragment extends Fragment {
         tvPhone = view.findViewById(R.id.tvPhoneFill);
         tvAddress = view.findViewById(R.id.tvAddressFill);
         fabEdit = view.findViewById(R.id.fabEdit);
-        ivProfile = view.findViewById(R.id.ivProfile);
-
+        ivProfile = view.findViewById(R.id.ivProfilePic);
 
         loggedInUser = Objects.requireNonNull(getArguments()).getParcelable("user");
         if (loggedInUser != null) {
@@ -130,4 +141,5 @@ public class ProfileFragment extends Fragment {
             pbLoadingPic.setVisibility(View.INVISIBLE);
         }
     }
+
 }

@@ -43,14 +43,13 @@ import arikz.easyride.ui.main.rides.map.MapActivity;
 
 public class RideInfoActivity extends AppCompatActivity {
     private static final String TAG = ".RideInfoActivity";
-    private ProgressBar pbRideInfo, pbMap;
+    private ProgressBar pbRideInfo;
     private FloatingActionButton fabMap;
     private ImageView ivRidePic;
+    private MaterialButton btnDelete;
     private Ride ride;
     private ParticipantsAdapter participantsAdapter;
     private List<UserInRide> participants;
-    private Bundle imagesBundle;
-    private long imgCnt, totalParticipants;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,14 +60,11 @@ public class RideInfoActivity extends AppCompatActivity {
         MaterialTextView tvSrcFill = findViewById(R.id.tvSrcFill);
         MaterialTextView tvDestFill = findViewById(R.id.tvDestFill);
         MaterialTextView tvDateFill = findViewById(R.id.tvDateFill);
-        MaterialButton btnDelete = findViewById(R.id.btnDelete);
-
+        btnDelete = findViewById(R.id.btnDelete);
         ivRidePic = findViewById(R.id.ivRidePic);
         pbRideInfo = findViewById(R.id.pbRideInfo);
-        pbMap = findViewById(R.id.pbMap);
         fabMap = findViewById(R.id.fabMap);
 
-        imagesBundle = new Bundle();
         RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         participants = new ArrayList<>();
 
@@ -108,15 +104,14 @@ public class RideInfoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
                 intent.putParcelableArrayListExtra("users", (ArrayList<UserInRide>) participants);
-                intent.putExtra("images", imagesBundle);
                 startActivity(intent);
             }
         });
     }
 
-    //TODO FIX THIS FUNCTION!!
     private void exitRide() {
         pbRideInfo.setVisibility(View.VISIBLE);
+        btnDelete.setVisibility(View.GONE);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         final String uid = getCurrentUserId();
         dbRef.child("userRides").child(Objects.requireNonNull(uid)).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -162,9 +157,9 @@ public class RideInfoActivity extends AppCompatActivity {
         });
     }
 
-    //TODO FIX THIS FUNCTION!!
     private void deleteRideOwner() {
         pbRideInfo.setVisibility(View.VISIBLE);
+        btnDelete.setVisibility(View.GONE);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child("rides").child(ride.getRid()).removeValue();
         dbRef.child("rideUsers").child(ride.getRid()).removeValue();
@@ -226,18 +221,15 @@ public class RideInfoActivity extends AppCompatActivity {
         dbRef.child("rideUsers").child(ride.getRid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                setTotalParticipants(snapshot.getChildrenCount());
+
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     String key = snap.getKey();
                     UserInRide user = snap.getValue(UserInRide.class);
                     if (Objects.requireNonNull(user).isInRide()) {
                         participants.add(0, user); //Add participant into front of array list
-                        addParticipantImage(user.getUid());
                     } else {
-                        isImagesUploaded();
                         participants.add(user);
                     }
-
 
                     if (Integer.parseInt(Objects.requireNonNull(key)) == snapshot.getChildrenCount() - 1) {
                         try {
@@ -258,41 +250,6 @@ public class RideInfoActivity extends AppCompatActivity {
         });
     }
 
-    private void addParticipantImage(String uid) {
-        FirebaseDatabase.getInstance().getReference().
-                child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final User user = snapshot.getValue(User.class);
-                if (Objects.requireNonNull(user).getPid() != null) {
-                    Task<byte[]> task = FirebaseStorage.getInstance().getReference().
-                            child("images").child("users").child(user.getPid()).getBytes(Long.MAX_VALUE);
-                    task.addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                        @Override
-                        public void onSuccess(byte[] bytes) {
-                            imagesBundle.putByteArray(user.getPid(), bytes);
-                            if (isImagesUploaded()) {
-                                fabMap.setVisibility(View.VISIBLE);
-                                pbMap.setVisibility(View.INVISIBLE);
-                            }
-                        }
-                    });
-                } else {
-                    if (isImagesUploaded()) {
-                        fabMap.setVisibility(View.VISIBLE);
-                        pbMap.setVisibility(View.INVISIBLE);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, error.getMessage());
-            }
-        });
-
-    }
-
     private void setRideImage() {
         if (ride.getPid() != null) {
             StorageReference imageRef = FirebaseStorage.getInstance().getReference().
@@ -300,14 +257,6 @@ public class RideInfoActivity extends AppCompatActivity {
 
             Glide.with(this).load(imageRef).into(ivRidePic);
         }
-    }
-
-    public synchronized void setTotalParticipants(long total) {
-        imgCnt = total;
-    }
-
-    public synchronized boolean isImagesUploaded() {
-        return --imgCnt == 0;
     }
 
     private String getCurrentUserId() {

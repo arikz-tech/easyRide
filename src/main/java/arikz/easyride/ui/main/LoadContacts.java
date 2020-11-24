@@ -47,7 +47,7 @@ public class LoadContacts {
         return phonesList;
     }
 
-    private String formattedPhoneNumber(String phoneNumber, PhoneNumberUtil phoneUtil) {
+    public static String formattedPhoneNumber(String phoneNumber, PhoneNumberUtil phoneUtil) {
         String normalizedNumber = PhoneNumberUtils.normalizeNumber(phoneNumber);
         if (normalizedNumber.charAt(0) != '+')
             return normalizedNumber;

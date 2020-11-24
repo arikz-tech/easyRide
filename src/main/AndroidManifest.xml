@@ -17,9 +17,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.main.friends.FriendsInfoActivity"></activity>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+
         <activity
             android:name=".ui.main.rides.map.MapActivity"
             android:label="@string/title_activity_map" />
@@ -34,18 +37,21 @@
         <activity android:name=".ui.main.MainActivity">
             <intent-filter>
                 <action android:name="arikz.easyride.notification_handle" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
+
         <service
             android:name=".notificationServices.MyFirebaseMessagingService"
             android:permission="com.google.android.c2dm.permission.SEND">

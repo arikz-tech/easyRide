@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -64,27 +65,30 @@ public class RegisterActivity extends AppCompatActivity {
                     setResult(RESULT_OK,data);
 
                     // Register new user using firebase authorization
-                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                         @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Creating new user from the details the user entered in the text fields
-                                User user = new User();
-                                user.setEmail(etMail.getText().toString().trim());
-                                user.setFirst(etFirst.getText().toString().trim());
-                                user.setLast(etLast.getText().toString().trim());
-                                user.setPhone(etPhone.getText().toString().trim());
-                                user.setUid(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid());
+                        public void onSuccess(AuthResult authResult) {
+                            // Creating new user from the details the user entered in the text fields
+                            User user = new User();
+                            user.setEmail(etMail.getText().toString().trim());
+                            user.setFirst(etFirst.getText().toString().trim());
+                            user.setLast(etLast.getText().toString().trim());
+                            user.setPhone(etPhone.getText().toString().trim());
+                            user.setUid(Objects.requireNonNull(authResult.getUser()).getUid());
 
-                                // New access into firebase to store user information
-                                FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).setValue(user);
+                            // New access into firebase to store user information
+                            FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    //Sign out from user
+                                    FirebaseAuth.getInstance().signOut();
+                                    Toast.makeText(RegisterActivity.this, R.string.register_success, Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
+                            });
 
-                                //Sign out from user
-                                FirebaseAuth.getInstance().signOut();
-                                Toast.makeText(RegisterActivity.this, R.string.register_success, Toast.LENGTH_SHORT).show();
-                                finish();
-                            }
                         }
+
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {

@@ -36,6 +36,7 @@
                 <ImageView
                     android:id="@+id/ivAvatar"
                     android:layout_width="70dp"
+                    android:scaleType="centerCrop"
                     android:layout_gravity="center_horizontal|center_vertical"
                     android:layout_height="70dp"/>
 

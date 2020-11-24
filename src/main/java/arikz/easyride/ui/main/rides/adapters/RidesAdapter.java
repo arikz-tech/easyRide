@@ -69,20 +69,12 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    cvRide.setBackground(getRippleEffect());
-                    cvOwner.setBackground(getRippleEffect());
                     int index = rides.indexOf((Ride) itemView.getTag());
                     ridesFrag.onClick(index);
                 }
             });
         }
 
-        public RippleDrawable getRippleEffect() {
-            int pressColor = ContextCompat.getColor(context, R.color.colorPrimary);
-            ColorStateList csl = new ColorStateList(new int[][]{new int[]{}}, new int[]{pressColor});
-            ColorDrawable cd = new ColorDrawable(Color.WHITE);
-            return new RippleDrawable(csl, cd, null);
-        }
     }
 
     @NonNull

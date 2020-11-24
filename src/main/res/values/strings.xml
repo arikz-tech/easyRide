@@ -92,5 +92,6 @@
     <string name="start_point_not_found">Didn\'t found your starting point location</string>
     <string name="address_not_found">Didn\'t found your address</string>
     <string name="add_address_location">To use saved address you have to enter you address in profile section</string>
+    <string name="google_direction_api">AIzaSyAnvrgEunno_caWZuvAS9Qm5FKGJQ1MATU</string>
 
 </resources>

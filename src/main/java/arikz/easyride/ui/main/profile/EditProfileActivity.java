@@ -72,6 +72,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private String oldPID;
     private Uri filePath = null;
     private boolean saving;
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -301,7 +302,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
-            final LocationManager locationManager = (LocationManager) Objects.requireNonNull(getApplicationContext()).getSystemService(Context.LOCATION_SERVICE);
             class Listener implements LocationListener {
                 @Override
                 public void onLocationChanged(@NonNull Location location) {
@@ -310,7 +310,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     try {
                         addresses = geocoder.getFromLocation(Objects.requireNonNull(location).getLatitude(), location.getLongitude(), 1);
                         etAddress.setText(addresses.get(0).getAddressLine(0));
-                        Objects.requireNonNull(locationManager).removeUpdates(this);
+                        locationManager.removeUpdates(this);
                         pbAddress.setVisibility(View.INVISIBLE);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -318,7 +318,12 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             }
             Listener listener = new Listener();
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000L, 5, listener);
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
+            } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+            }
         }
     }
 

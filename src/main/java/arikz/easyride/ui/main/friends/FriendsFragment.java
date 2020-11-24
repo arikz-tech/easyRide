@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
@@ -46,7 +47,7 @@ import io.michaelrocks.libphonenumber.android.NumberParseException;
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
 import io.michaelrocks.libphonenumber.android.Phonenumber;
 
-public class FriendsFragment extends Fragment {
+public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriendClicked {
     private static final String TAG = ".FriendsFragment";
     private static final int CONTACT_REQUEST_CODE = 15;
     private View view;
@@ -76,7 +77,7 @@ public class FriendsFragment extends Fragment {
         rvFriends.setLayoutManager(new LinearLayoutManager(getContext()));
 
         friends = new ArrayList<>();
-        friendsAdapter = new FriendsAdapter(friends);
+        friendsAdapter = new FriendsAdapter(friends, this);
         rvFriends.setAdapter(friendsAdapter);
 
         collectContactFriends();
@@ -144,61 +145,12 @@ public class FriendsFragment extends Fragment {
         }
     }
 
-    public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
-        List<User> friends;
-
-        public FriendsAdapter(List<User> friends) {
-            this.friends = friends;
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-
-            ImageView ivAvatar, ivLogo;
-            MaterialTextView tvName;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                ivAvatar = itemView.findViewById(R.id.ivAvatar);
-                ivLogo = itemView.findViewById(R.id.ivLogo);
-                tvName = itemView.findViewById(R.id.tvName);
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getContext(), "Enter user profile", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.friends_row_layout, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            User friend = friends.get(position);
-            holder.tvName.setText(friend.displayName());
-
-            setProfileAvatar(holder.itemView, holder.ivAvatar, friend.getPid());
-        }
-
-        @Override
-        public int getItemCount() {
-            return friends.size();
-        }
-
-        private void setProfileAvatar(View view, ImageView ivAvatar, String pid) {
-            if (pid != null) {
-                StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                        child("images").child("users").child(pid);
-
-                Glide.with(view).load(imageRef).into(ivAvatar);
-            }
-        }
+    @Override
+    public void onClick(int index) {
+        Intent intent = new Intent(getContext(), FriendsInfoActivity.class);
+        intent.putExtra("userInfo",friends.get(index));
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
     }
 }
 

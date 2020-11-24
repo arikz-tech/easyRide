@@ -73,9 +73,10 @@ public class DetailsFragment extends Fragment {
     private TextInputEditText etName, etSrc, etDest, etDate;
     private ImageView ivRidePic;
     private MaterialButton btnAddRide, btnAddParticipants;
-    private DetailsEvents event;
+    private DetailsEvents event; //listener
     private ProgressBar pbAddRide, pbLocation;
     private Uri filePath = null;
+    private LocationManager locationManager;
 
     public DetailsFragment(Context context) {
         event = (DetailsEvents) context;
@@ -259,7 +260,6 @@ public class DetailsFragment extends Fragment {
                 ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
-            final LocationManager locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
             pbLocation.setVisibility(View.VISIBLE);
             class Listener implements LocationListener {
                 @Override
@@ -277,7 +277,12 @@ public class DetailsFragment extends Fragment {
                 }
             }
             Listener listener = new Listener();
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000L, 5, listener);
+            locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
+            } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+            }
         }
     }
 

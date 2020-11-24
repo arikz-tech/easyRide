@@ -5,37 +5,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
-    tools:context=".ui.main.profile.ProfileFragment">
+    tools:context=".ui.main.friends.FriendsInfoActivity">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/materialTextView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/profile"
-        android:textColor="@color/colorPrimary"
-        android:textSize="30sp"
-        android:textStyle="bold"
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mvAddress"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:elevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <RelativeLayout
         android:id="@+id/relativeLayout2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/materialTextView2">
+        app:layout_constraintTop_toBottomOf="@+id/mvAddress"
+        app:layout_constraintVertical_bias="1.0">
+
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardView"
             android:layout_width="match_parent"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
             android:layout_gravity="center_horizontal"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="20dp"
             app:cardElevation="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -46,10 +50,9 @@
                     android:id="@+id/ivProfile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
                     android:elevation="10dp"
                     app:cardCornerRadius="100dp"
-                    android:layout_marginTop="5dp"
-                    android:scaleType="centerCrop"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -199,19 +202,48 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/fabEdit"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cardView"
+            android:layout_alignEnd="@+id/cardView"
+            android:layout_marginTop="-25dp"
+            android:layout_marginEnd="30dp"
+            android:src="@drawable/ic_message_24"
+            app:backgroundTint="@color/colorAccent"
+            app:fabSize="normal"
+            app:tint="@color/colorWhite" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabCall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/cardView"
+            android:layout_below="@id/cardView"
+            android:layout_marginTop="-25dp"
+            android:layout_marginStart="30dp"
+            android:src="@drawable/ic_call_24"
+            app:backgroundTint="@color/colorAccent"
+            app:fabSize="normal"
+            app:tint="@color/colorWhite" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabWhatsApp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/cardView"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-25dp"
-            android:layout_marginBottom="5dp"
-            android:backgroundTint="@color/colorAccent"
-            android:text="@string/button_edit"
-            android:textColor="@color/colorWhite"
-            app:icon="@drawable/ic_edit_24"
-            app:iconTint="@color/colorWhite" />
+            android:layout_marginEnd="150dp"
+            android:src="@drawable/ic_whatapp_24"
+            android:scaleType="centerCrop"
+            app:backgroundTint="@color/colorAccent"
+            app:fabSize="normal"
+            app:tint="@color/colorWhite" />
+
     </RelativeLayout>
 
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+
