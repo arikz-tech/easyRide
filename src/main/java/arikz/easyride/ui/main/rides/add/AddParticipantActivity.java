@@ -7,14 +7,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -31,9 +26,9 @@ import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.User;
-import arikz.easyride.ui.main.LoadContacts;
-import arikz.easyride.ui.main.rides.adapters.AddParticipantsAdapter;
+import arikz.easyride.models.User;
+import arikz.easyride.util.LoadContacts;
+import arikz.easyride.adapters.AddParticipantsAdapter;
 
 public class AddParticipantActivity extends AppCompatActivity implements AddParticipantsAdapter.AddParticipantListener {
     private static String TAG = ".AddParticipantActivity";
@@ -64,6 +59,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
 
         participants = new ArrayList<>();
         addParticipantsAdapter = new AddParticipantsAdapter(participants, this);
+
         rvParticipants.setAdapter(addParticipantsAdapter);
 
         collectContactFriends();
@@ -89,8 +85,10 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
                     if (phonesList.contains(Objects.requireNonNull(friend).getPhone())) {
-                        if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
-                            participants.add(friend);
+                        if (friend.getEmail() != null) {
+                            if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
+                                participants.add(friend);
+                        }
                     }
 
                     addParticipantsAdapter.notifyDataSetChanged();

@@ -23,12 +23,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -50,7 +50,6 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -61,22 +60,21 @@ import arikz.easyride.ui.main.rides.add.interfaces.DetailsEvents;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 public class DetailsFragment extends Fragment {
     private static final String TAG = "DetailsFragment";
     private static final int LOCATION_REQUEST_CODE = 19;
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 79;
 
     private View view;
     private TextInputEditText etName, etSrc, etDest, etDate;
     private ImageView ivRidePic;
     private MaterialButton btnAddRide, btnAddParticipants;
     private DetailsEvents event; //listener
-    private ProgressBar pbAddRide, pbLocation;
+    private ProgressBar pbAddRide;
     private Uri filePath = null;
     private LocationManager locationManager;
+    private boolean progress = false;
 
     public DetailsFragment(Context context) {
         event = (DetailsEvents) context;
@@ -101,23 +99,31 @@ public class DetailsFragment extends Fragment {
         btnAddRide = view.findViewById(R.id.btnAddRide);
         FloatingActionButton fabPicEdit = view.findViewById(R.id.fabPicEdit);
         pbAddRide = view.findViewById(R.id.pbAddRide);
-        pbLocation = view.findViewById(R.id.pbLocation);
         btnAddParticipants = view.findViewById(R.id.btnAddParticipants);
 
         btnAddRide.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Objects.requireNonNull(etName.getText()).toString().isEmpty() || Objects.requireNonNull(etSrc.getText()).toString().isEmpty() ||
-                        Objects.requireNonNull(etDest.getText()).toString().isEmpty() || Objects.requireNonNull(etDate.getText()).toString().isEmpty())
-                    Toast.makeText(getContext(), getString(R.string.enter_fields), Toast.LENGTH_SHORT).show();
-                else {
-                    String rideName = etName.getText().toString();
-                    String source = etSrc.getText().toString();
-                    String destination = etDest.getText().toString();
-                    String date = etDate.getText().toString();
-                    LatLng srcLatLng = getLocationFromAddress(getContext(), source);
-                    if (srcLatLng != null)
-                        uploadImageAndSubmit(rideName, source, destination, date, srcLatLng);
+                if (!progress) {
+                    if (etName.getText() != null && etSrc.getText() != null && etDest.getText() != null && etDate.getText() != null) {
+                        if (etName.getText().toString().isEmpty() || etSrc.getText().toString().isEmpty() ||
+                                etDest.getText().toString().isEmpty() || etDate.getText().toString().isEmpty()) {
+                            Toast.makeText(getContext(), getString(R.string.enter_fields), Toast.LENGTH_SHORT).show();
+                        } else {
+                            String name = etName.getText().toString();
+                            String source = etSrc.getText().toString();
+                            String destination = etDest.getText().toString();
+                            String date = etDate.getText().toString();
+                            boolean pathValidation = isAddressValid(source) && isAddressValid(destination);
+                            if (pathValidation) {
+                                uploadImageAndSubmit(name, source, destination, date);
+                            } else {
+                                Toast.makeText(getContext(), R.string.could_not_find_location, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }else{
+                    Toast.makeText(getContext(),getString(R.string.loading), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -142,32 +148,37 @@ public class DetailsFragment extends Fragment {
         etSrc.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle(R.string.starting_point);
-                    builder.setMessage(R.string.wich_location);
-                    builder.setIcon(R.drawable.ic_start_flag_24);
-                    builder.setPositiveButton(R.string.current_location, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            takeUserCurrentPosition();
+                if (etSrc.getText() != null) {
+                    if (etSrc.getText().toString().isEmpty()) {
+                        if (hasFocus) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle(R.string.starting_point);
+                            builder.setMessage(R.string.wich_location);
+                            builder.setIcon(R.drawable.ic_start_flag_24);
+                            builder.setPositiveButton(R.string.current_location, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    takeUserCurrentPosition();
+                                }
+                            }).setNegativeButton(R.string.saved_location, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    takeSavedPosition();
+                                }
+                            }).setNeutralButton(R.string.type, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    showKeyboard();
+                                }
+                            }).show();
                         }
-                    }).setNegativeButton(R.string.my_address, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            takeSavedPosition();
-                        }
-                    }).setNeutralButton(R.string.type, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            etSrc.setShowSoftInputOnFocus(true);
-                        }
-                    }).show();
+                    } else {
+                        showKeyboard();
+                    }
                 }
             }
         });
 
-        etDate.setShowSoftInputOnFocus(false);
         etDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             private int hour;
             private int minutes;
@@ -231,8 +242,17 @@ public class DetailsFragment extends Fragment {
 
     }
 
+    private void showKeyboard() {
+        Context context = getContext();
+        if (context != null) {
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(etSrc, InputMethodManager.SHOW_IMPLICIT);
+        }
+
+    }
+
     private void takeSavedPosition() {
-        pbLocation.setVisibility(View.VISIBLE);
+        pbAddRide.setVisibility(View.VISIBLE);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         String uid = getCurrentUserId();
         class AddressListener implements ValueEventListener {
@@ -241,12 +261,12 @@ public class DetailsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String address = snapshot.getValue(String.class);
                 etSrc.setText(address);
-                pbLocation.setVisibility(View.INVISIBLE);
+                pbAddRide.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Log.e(TAG, error.getMessage());
             }
         }
 
@@ -260,7 +280,7 @@ public class DetailsFragment extends Fragment {
                 ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
-            pbLocation.setVisibility(View.VISIBLE);
+            pbAddRide.setVisibility(View.VISIBLE);
             class Listener implements LocationListener {
                 @Override
                 public void onLocationChanged(@NonNull Location location) {
@@ -270,7 +290,7 @@ public class DetailsFragment extends Fragment {
                         addresses = geocoder.getFromLocation(Objects.requireNonNull(location).getLatitude(), location.getLongitude(), 1);
                         etSrc.setText(addresses.get(0).getAddressLine(0));
                         locationManager.removeUpdates(this);
-                        pbLocation.setVisibility(View.INVISIBLE);
+                        pbAddRide.setVisibility(View.INVISIBLE);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -287,22 +307,21 @@ public class DetailsFragment extends Fragment {
     }
 
     private void uploadImageAndSubmit(final String rideName, final String source,
-                                      final String destination, final String date, final LatLng srcLatLng) {
+                                      final String destination, final String date) {
         event.onImageUpload();
-        btnAddRide.setVisibility(View.INVISIBLE);
-        btnAddParticipants.setVisibility(View.INVISIBLE);
         pbAddRide.setVisibility(View.VISIBLE);
+        progress = true;
         if (filePath != null) {
             final String pid = UUID.randomUUID().toString();
             FirebaseStorage.getInstance().getReference().
                     child("images").child("rides").child(pid).putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    event.onSubmit(rideName, source, destination, date, pid, srcLatLng);
+                    event.onSubmit(rideName, source, destination, date, pid);
                 }
             });
         } else
-            event.onSubmit(rideName, source, destination, date, null, srcLatLng);
+            event.onSubmit(rideName, source, destination, date, null);
     }
 
     @Override
@@ -312,7 +331,7 @@ public class DetailsFragment extends Fragment {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 filePath = result.getUri();
-
+                ivRidePic.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 Glide.with(this).load(filePath).into(ivRidePic);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -343,34 +362,16 @@ public class DetailsFragment extends Fragment {
             return null;
     }
 
-    public LatLng getLocationFromAddress(Context context, String strAddress) {
-
-        Geocoder coder = new Geocoder(context);
-        List<Address> address;
-        LatLng p1 = null;
-
+    private boolean isAddressValid(String address) {
+        List<Address> addresses;
+        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
         try {
-            // May throw an IOException
-            address = coder.getFromLocationName(strAddress, 5);
-
-            if (address == null) {
-                Toast.makeText(context, R.string.start_point_not_found, Toast.LENGTH_SHORT).show();
-                return null;
-            }
-
-            if (address.isEmpty()) {
-                Toast.makeText(context, R.string.start_point_not_found, Toast.LENGTH_SHORT).show();
-                return null;
-            } else {
-                Address location = address.get(0);
-                p1 = new LatLng(location.getLatitude(), location.getLongitude());
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            addresses = geocoder.getFromLocationName(address, 1);
+            return !addresses.isEmpty();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
-
-        return p1;
     }
 
 }

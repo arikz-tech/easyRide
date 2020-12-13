@@ -1,35 +1,24 @@
 package arikz.easyride.ui.main.requests;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -39,9 +28,8 @@ import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.Ride;
-import arikz.easyride.objects.User;
-import arikz.easyride.objects.UserInRide;
+import arikz.easyride.models.Ride;
+import arikz.easyride.models.User;
 
 public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHolder> {
     private final static String TAG = ".RequestsAdapter";
@@ -49,6 +37,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     private Activity activity;
     private OnRequestClicked requestFrag;
     public ViewHolder viewHolder;
+    private int lastPosition = -1;
 
     public interface OnRequestClicked {
         void onClick(int index, MaterialButton button, ProgressBar progressBar);
@@ -104,8 +93,8 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
         holder.tvSrc.setText(ride.getSource());
         holder.tvDest.setText(ride.getDestination());
         holder.tvDate.setText(ride.getDate());
-
         getOwnerInfo(holder, ride.getOwnerUID());
+        setAnimation(holder.itemView, position);
     }
 
     private void getOwnerInfo(final ViewHolder holder, String uid) {
@@ -137,6 +126,15 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     @Override
     public int getItemCount() {
         return rides.size();
+    }
+
+    private void setAnimation(View viewToAnimate, int position) {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(activity, android.R.anim.slide_in_left);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
 }

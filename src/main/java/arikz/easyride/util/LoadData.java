@@ -1,11 +1,13 @@
-package arikz.easyride.ui.main;
+package arikz.easyride.util;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -17,24 +19,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.List;
 import java.util.Objects;
 
-import arikz.easyride.objects.Ride;
-import arikz.easyride.objects.UserInRide;
+import arikz.easyride.models.Ride;
+import arikz.easyride.models.UserInRide;
 import arikz.easyride.ui.main.requests.RequestsAdapter;
-import arikz.easyride.ui.main.rides.adapters.RidesAdapter;
+import arikz.easyride.adapters.RidesAdapter;
 
 public class LoadData {
     private static String TAG = ".LoadData";
     private long numOfUsers;
-    private List<Ride> rides;
+    private List<Ride> itemsList;
     private RidesAdapter ridesAdapter;
     private RequestsAdapter requestsAdapter;
     private ProgressBar pb;
+    private ImageView ivNoData;
+    private MaterialTextView tvNoData;
 
-    public LoadData(List<Ride> rides, RidesAdapter ridesAdapter, RequestsAdapter requestsAdapter, ProgressBar pb) {
-        this.rides = rides;
-        this.ridesAdapter = ridesAdapter;
-        this.requestsAdapter = requestsAdapter;
-        this.pb = pb;
+    public LoadData() {
     }
 
     /*Load rides data from firebase, first get current user id and iterate throw his ride's id(RID) and for
@@ -47,7 +47,7 @@ public class LoadData {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Ride ride = snapshot.getValue(Ride.class);
-                rides.add(ride);
+                itemsList.add(ride);
                 decrement(); // Decrement the amount of running threads
 
                 /*Check if database finished load everything, numOfUser increment thread amount
@@ -58,9 +58,19 @@ public class LoadData {
                         ridesAdapter.notifyDataSetChanged(); // update recyclerView changes
                     } else
                         requestsAdapter.notifyDataSetChanged();
-
                     pb.setVisibility(View.INVISIBLE);
+
+                    if(itemsList.isEmpty()){
+                        ivNoData.setVisibility(View.VISIBLE);
+                        tvNoData.setVisibility(View.VISIBLE);
+                    }else{
+                        ivNoData.setVisibility(View.INVISIBLE);
+                        tvNoData.setVisibility(View.INVISIBLE);
+                    }
                 }
+
+
+
             }
 
             @Override
@@ -84,7 +94,6 @@ public class LoadData {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     UserInRide userInRide = snap.getValue(UserInRide.class);
 
@@ -92,20 +101,20 @@ public class LoadData {
                     boolean inRide = Objects.requireNonNull(userInRide).isInRide();
                     String uid = userInRide.getUid();
 
-
                     /*check if this particular user object from loop is equals to current user id
                      *and if the user approved ride, if its true then call "AddRide" listener*/
-                    if (uid.equals(currentUID) && inRide && requestsAdapter == null) {
-                        increment(); //Increment the amount of threads by 1
-                        /*Call "AddRide" listener, and user database reference to get all ride info from database*/
-                        AddRideListener addRide = new AddRideListener();
-                        db.child("rides").child(currentRid).addListenerForSingleValueEvent(addRide);
-                    } else if (uid.equals(currentUID) && !inRide && ridesAdapter == null) {
-                        increment(); //Increment the amount of threads by 1
-                        /*Call "AddRide" listener, and user database reference to get all ride info from database*/
-                        AddRideListener addRide = new AddRideListener();
-                        db.child("rides").child(currentRid).addListenerForSingleValueEvent(addRide);
-                    }
+                    if (uid != null)
+                        if (uid.equals(currentUID) && inRide && requestsAdapter == null) {
+                            increment(); //Increment the amount of threads by 1
+                            /*Call "AddRide" listener, and user database reference to get all ride info from database*/
+                            AddRideListener addRide = new AddRideListener();
+                            db.child("rides").child(currentRid).addListenerForSingleValueEvent(addRide);
+                        } else if (uid.equals(currentUID) && !inRide && ridesAdapter == null) {
+                            increment(); //Increment the amount of threads by 1
+                            /*Call "AddRide" listener, and user database reference to get all ride info from database*/
+                            AddRideListener addRide = new AddRideListener();
+                            db.child("rides").child(currentRid).addListenerForSingleValueEvent(addRide);
+                        }
 
                 }
 
@@ -116,6 +125,14 @@ public class LoadData {
                     } else
                         requestsAdapter.notifyDataSetChanged();
                     pb.setVisibility(View.INVISIBLE);
+
+                    if(itemsList.isEmpty()) {
+                        ivNoData.setVisibility(View.VISIBLE);
+                        tvNoData.setVisibility(View.VISIBLE);
+                    }else{
+                        ivNoData.setVisibility(View.INVISIBLE);
+                        tvNoData.setVisibility(View.INVISIBLE);
+                    }
                 }
 
             }
@@ -139,8 +156,12 @@ public class LoadData {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                if (snapshot.getChildrenCount() == 0)
+                if (snapshot.getChildrenCount() == 0){
                     pb.setVisibility(View.INVISIBLE);
+                    ivNoData.setVisibility(View.VISIBLE);
+                    tvNoData.setVisibility(View.VISIBLE);
+                }
+
 
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     String currentRID = snap.getValue(String.class);
@@ -165,7 +186,8 @@ public class LoadData {
 
         /*Creating UserRide listener to iterate all user's rides*/
         UserRidesListener userRides = new UserRidesListener(uid);
-        db.child("userRides").child(Objects.requireNonNull(uid)).addListenerForSingleValueEvent(userRides);
+        if (uid != null)
+            db.child("userRides").child(uid).addListenerForSingleValueEvent(userRides);
 
     }
 
@@ -187,5 +209,29 @@ public class LoadData {
             return user.getUid();
         else
             return null;
+    }
+
+    public void setItemsList(List<Ride> itemsList) {
+        this.itemsList = itemsList;
+    }
+
+    public void setRidesAdapter(RidesAdapter ridesAdapter) {
+        this.ridesAdapter = ridesAdapter;
+    }
+
+    public void setRequestsAdapter(RequestsAdapter requestsAdapter) {
+        this.requestsAdapter = requestsAdapter;
+    }
+
+    public void setProgressBar(ProgressBar pb) {
+        this.pb = pb;
+    }
+
+    public void setIvNoData(ImageView ivNoData) {
+        this.ivNoData = ivNoData;
+    }
+
+    public void setTvNoData(MaterialTextView tvNoData) {
+        this.tvNoData = tvNoData;
     }
 }

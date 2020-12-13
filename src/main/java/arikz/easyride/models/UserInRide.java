@@ -1,4 +1,4 @@
-package arikz.easyride.objects;
+package arikz.easyride.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -6,18 +6,18 @@ import android.os.Parcelable;
 public class UserInRide implements Parcelable {
 
     private String uid;
+    private String latitude;
+    private String longitude;
     private boolean inRide;
-    private double latitude;
-    private double longitude;
 
-    public UserInRide(){
+    public UserInRide() {
     }
 
     protected UserInRide(Parcel in) {
         uid = in.readString();
+        latitude = in.readString();
+        longitude = in.readString();
         inRide = in.readByte() != 0;
-        latitude = in.readDouble();
-        longitude = in.readDouble();
     }
 
     public static final Creator<UserInRide> CREATOR = new Creator<UserInRide>() {
@@ -40,28 +40,28 @@ public class UserInRide implements Parcelable {
         this.uid = uid;
     }
 
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
     public boolean isInRide() {
         return inRide;
     }
 
     public void setInRide(boolean inRide) {
         this.inRide = inRide;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 
     @Override
@@ -72,8 +72,9 @@ public class UserInRide implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(uid);
+        dest.writeString(latitude);
+        dest.writeString(longitude);
         dest.writeByte((byte) (inRide ? 1 : 0));
-        dest.writeDouble(latitude);
-        dest.writeDouble(longitude);
     }
+
 }

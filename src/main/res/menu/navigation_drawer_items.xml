@@ -22,7 +22,7 @@
 
     </group>
 
-    <item android:title="other">
+    <item android:title="@string/other">
         <menu>
             <item
                 android:id="@+id/share"

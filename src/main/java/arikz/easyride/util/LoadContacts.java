@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main;
+package arikz.easyride.util;
 
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -35,32 +35,21 @@ public class LoadContacts {
         ContentResolver resolver = Objects.requireNonNull(context).getContentResolver(); // check if activity needed
         Cursor cursor = resolver.query(uri, projection, null, null, null);
 
-
-        PhoneNumberUtil phoneUtil = PhoneNumberUtil.createInstance(Objects.requireNonNull(context));
-
         while (Objects.requireNonNull(cursor).moveToNext()) {
             String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            String number = formattedPhoneNumber(phoneNumber, phoneUtil);
+            String number = formattedPhoneNumber(phoneNumber);
             phonesList.add(number);
         }
 
         return phonesList;
     }
 
-    public static String formattedPhoneNumber(String phoneNumber, PhoneNumberUtil phoneUtil) {
+    public static String formattedPhoneNumber(String phoneNumber) {
         String normalizedNumber = PhoneNumberUtils.normalizeNumber(phoneNumber);
-        if (normalizedNumber.charAt(0) != '+')
-            return normalizedNumber;
 
-        try {
-            Phonenumber.PhoneNumber number = phoneUtil.parse(normalizedNumber, "");
-            long num = number.getNationalNumber();
-            String strNum = String.valueOf(num);
-            return "0" + strNum;
-        } catch (NumberParseException e) {
-            e.printStackTrace();
-            return normalizedNumber;
-        }
+        if (normalizedNumber.contains("+972"))
+            return "0" + normalizedNumber.substring(4);
 
+        return normalizedNumber;
     }
 }

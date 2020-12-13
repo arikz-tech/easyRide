@@ -30,7 +30,6 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
@@ -54,7 +53,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.User;
+import arikz.easyride.models.User;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -88,7 +87,7 @@ public class EditProfileActivity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         ivProfile = findViewById(R.id.ivProfile);
         pbEdit = findViewById(R.id.pbEdit);
-        MaterialButton btnSave = findViewById(R.id.btnSave);
+        final MaterialButton btnSave = findViewById(R.id.btnSave);
         FloatingActionButton fabPicEdit = findViewById(R.id.fabPicEdit);
 
         loggedInUser = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
@@ -109,12 +108,13 @@ public class EditProfileActivity extends AppCompatActivity {
                     Toast.makeText(EditProfileActivity.this, getText(R.string.enter_fields), Toast.LENGTH_SHORT).show();
                 else {
                     pbEdit.setVisibility(View.VISIBLE);
+                    btnSave.setVisibility(View.INVISIBLE);
                     String first = etFirst.getText().toString().trim();
                     String last = etLast.getText().toString().trim();
                     String phone = etPhone.getText().toString().trim();
                     String address = etAddress.getText().toString().trim();
 
-                    if (placeExist(address)) {
+                    if (isAddressValid(address)) {
                         Map<String, Object> editUser = new HashMap<>();
                         editUser.put("first", first);
                         editUser.put("last", last);
@@ -154,8 +154,12 @@ public class EditProfileActivity extends AppCompatActivity {
                                 }
                             });
                         }
-                    } else
+                    } else{
                         pbEdit.setVisibility(View.INVISIBLE);
+                        btnSave.setVisibility(View.VISIBLE);
+                        Toast.makeText(EditProfileActivity.this, R.string.address_not_found, Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             }
         });
@@ -194,31 +198,16 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
-    private boolean placeExist(String strAddress) {
-
-        Geocoder coder = new Geocoder(getApplicationContext());
-        List<Address> address;
-        LatLng p1 = null;
-
+    private boolean isAddressValid(String address) {
+        List<Address> addresses;
+        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         try {
-            // May throw an IOException
-            address = coder.getFromLocationName(strAddress, 5);
-
-            if (address == null) {
-                Toast.makeText(getApplicationContext(), R.string.address_not_found, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-
-            if (address.isEmpty()) {
-                Toast.makeText(getApplicationContext(), R.string.address_not_found, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            addresses = geocoder.getFromLocationName(address, 1);
+            return !addresses.isEmpty();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
-
-        return true;
     }
 
 

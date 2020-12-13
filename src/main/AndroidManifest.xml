@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -24,16 +25,16 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".ui.main.rides.map.MapActivity"
+            android:name=".ui.main.rides.info.MapActivity"
             android:label="@string/title_activity_map" />
-        <activity android:name=".ui.main.rides.RideInfoActivity" />
+        <activity android:name=".ui.main.rides.info.RideInfoActivity" />
         <activity android:name=".ui.main.rides.add.AddParticipantActivity" />
         <activity
             android:name=".ui.main.rides.add.AddRideActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ui.main.profile.EditProfileActivity" />
-        <activity android:name=".login.PasswordResetActivity" />
-        <activity android:name=".login.RegisterActivity" />
+        <activity android:name=".ui.login.PasswordResetActivity" />
+        <activity android:name=".ui.login.RegisterActivity" />
         <activity android:name=".ui.main.MainActivity">
             <intent-filter>
                 <action android:name="arikz.easyride.notification_handle" />
@@ -41,7 +42,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".login.LoginActivity">
+        <activity android:name=".ui.login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -53,7 +54,7 @@
             android:theme="@style/Base.Theme.AppCompat" />
 
         <service
-            android:name=".notificationServices.MyFirebaseMessagingService"
+            android:name=".services.MyFirebaseMessagingService"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

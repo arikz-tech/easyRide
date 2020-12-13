@@ -9,23 +9,25 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.Ride;
-import arikz.easyride.ui.main.LoadData;
+import arikz.easyride.models.Ride;
+import arikz.easyride.ui.main.rides.info.RideInfoActivity;
+import arikz.easyride.util.LoadData;
 import arikz.easyride.ui.main.rides.add.AddRideActivity;
-import arikz.easyride.ui.main.rides.adapters.RidesAdapter;
+import arikz.easyride.adapters.RidesAdapter;
 
 public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicked {
     private static String TAG = ".RidesFragment";
@@ -33,6 +35,8 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
     private static int LEAVE_REQUEST_CODE = 7;
 
     private View view;
+    private ImageView ivNoRides;
+    private MaterialTextView tvNoRides;
     private ProgressBar pbRides;
     private RidesAdapter ridesAdapter; //Adapter that holds ride items for recyclerview
     private List<Ride> rides; //Hold rides data
@@ -49,6 +53,8 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        ivNoRides = view.findViewById(R.id.ivNoRides);
+        tvNoRides = view.findViewById(R.id.tvNoRides);
         pbRides = view.findViewById(R.id.pbRides);
         ExtendedFloatingActionButton fabAddRide = view.findViewById(R.id.fabAddRide);
 
@@ -60,7 +66,12 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
         ridesAdapter = new RidesAdapter(getContext(), this, rides);
         rvRides.setAdapter(ridesAdapter);
 
-        LoadData loadRides = new LoadData(rides, ridesAdapter, null, pbRides);
+        LoadData loadRides = new LoadData();
+        loadRides.setItemsList(rides);
+        loadRides.setRidesAdapter(ridesAdapter);
+        loadRides.setProgressBar(pbRides);
+        loadRides.setIvNoData(ivNoRides);
+        loadRides.setTvNoData(tvNoRides);
         loadRides.load();
 
         fabAddRide.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +95,8 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                 Ride ride = Objects.requireNonNull(Objects.requireNonNull(data).getExtras()).getParcelable("ride");
                 rides.add(ride);
                 ridesAdapter.notifyDataSetChanged();
+                tvNoRides.setVisibility(View.INVISIBLE);
+                ivNoRides.setVisibility(View.INVISIBLE);
             }
         }
 
@@ -98,6 +111,11 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                             break;
                         }
                     }
+                }
+
+                if(rides.isEmpty()){
+                    ivNoRides.setVisibility(View.VISIBLE);
+                    tvNoRides.setVisibility(View.VISIBLE);
                 }
 
                 ridesAdapter.notifyDataSetChanged();

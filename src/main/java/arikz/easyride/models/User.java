@@ -1,4 +1,4 @@
-package arikz.easyride.objects;
+package arikz.easyride.models;
 
 
 import android.os.Parcel;

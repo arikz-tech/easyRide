@@ -92,4 +92,19 @@
     <string name="take_current_pos">תרצה להשתמש במיקום הנוכחי ככתובת ברירת מחדל ?</string>
     <string name="address_not_found">כתובת לא נמצאה</string>
     <string name="add_address_location">כדי להשתמש בכתובת שלך צריך להוסיף כתובת בלשונית \"פרופיל\"</string>
+    <string name="add_phone">הוסף טלפון</string>
+    <string name="add_friend">הוסף חבר</string>
+    <string name="name">שם</string>
+    <string name="add_phone_number">הוספת מספר טלפון</string>
+    <string name="sms_invite">שלום אני מזמין אותך לנסיעה חדשה לאישור הגעה לחץ כאן</string>
+    <string name="other">אחר</string>
+    <string name="title_password_reset">איפוס סיסמה</string>
+    <string name="new_ride">נסיעה חדשה</string>
+    <string name="participants_list">רשימת משתתפים:</string>
+    <string name="could_not_find_location">לא ניתן למצוא מסלול מנקודת התחלה ליעד המבוקש</string>
+    <string name="loading">טוען נא להמתין...</string>
+    <string name="ride">נסיעה</string>
+    <string name="no_rides_to_display_add_new_ride_by_click_on_ride_button">אין נסיעות להציג, בשביל להוסיף נסיעה חדש לחץ על \"נסיעה\"</string>
+    <string name="your_invitation_list_is_empty">רשימת ההזמנות שלך ריקה</string>
+    <string name="ride_invite">"לינק הזמנה לנסיעה: "</string>
 </resources>

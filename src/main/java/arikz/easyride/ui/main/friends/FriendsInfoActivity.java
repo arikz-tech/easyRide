@@ -27,10 +27,8 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
@@ -47,12 +45,10 @@ import java.util.Locale;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.User;
-import arikz.easyride.objects.UserInRide;
-import arikz.easyride.ui.main.LoadContacts;
-import arikz.easyride.ui.main.rides.map.ClusterMarker;
-import arikz.easyride.ui.main.rides.map.MyClusterManagerRenderer;
-import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
+import arikz.easyride.models.User;
+import arikz.easyride.util.LoadContacts;
+import arikz.easyride.util.ClusterMarker;
+import arikz.easyride.util.UserClusterManagerRenderer;
 
 public class FriendsInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String TAG = ".FriendsInfoActivity";
@@ -67,7 +63,7 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
     private ProgressBar pbLoadingPic;
     private CardView cardView;
     private ClusterManager<ClusterMarker> clusterManager;
-    private MyClusterManagerRenderer clusterManagerRenderer;
+    private UserClusterManagerRenderer clusterManagerRenderer;
 
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
 
@@ -81,7 +77,9 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
             mapViewBundle = savedInstanceState.getBundle(MAP_VIEW_BUNDLE_KEY);
         }
 
-        user = Objects.requireNonNull(getIntent().getExtras()).getParcelable("userInfo");
+        if(getIntent().getExtras()!=null){
+            user = getIntent().getExtras().getParcelable("userInfo");
+        }
         pbLoadingPic = findViewById(R.id.pbLoadingPic);
         tvFirst = findViewById(R.id.tvFirstFill);
         tvLast = findViewById(R.id.tvLastFill);
@@ -127,9 +125,7 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
         fabWhatsApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PhoneNumberUtil phoneUtil = PhoneNumberUtil.createInstance(Objects.requireNonNull(getApplicationContext()));
-                String contactPhone = LoadContacts.formattedPhoneNumber(user.getPhone(), phoneUtil);
-                //TODO Change to international
+                String contactPhone = LoadContacts.formattedPhoneNumber(user.getPhone());
                 String url = "https://api.whatsapp.com/send?phone=+972" + contactPhone;
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
@@ -221,11 +217,13 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
         List<Address> addresses;
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
-            addresses = geocoder.getFromLocationName(Objects.requireNonNull(user).getAddress(), 1);
-            LatLng latLng = new LatLng(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
-            googleMap.setMinZoomPreference(12);
-            addCluster(latLng);
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            if (user.getAddress() != null) {
+                addresses = geocoder.getFromLocationName(user.getAddress(), 1);
+                LatLng latLng = new LatLng(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
+                googleMap.setMinZoomPreference(12);
+                addCluster(latLng);
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -237,7 +235,7 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
             clusterManager = new ClusterManager<>(getApplicationContext(), mGoogleMap);
         }
         if (clusterManagerRenderer == null) {
-            clusterManagerRenderer = new MyClusterManagerRenderer(getApplicationContext(), mGoogleMap, clusterManager);
+            clusterManagerRenderer = new UserClusterManagerRenderer(getApplicationContext(), mGoogleMap, clusterManager);
             clusterManager.setRenderer(clusterManagerRenderer);
         }
 

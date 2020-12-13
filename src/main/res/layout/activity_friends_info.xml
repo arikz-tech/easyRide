@@ -61,6 +61,7 @@
                         android:id="@+id/ivProfilePic"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/avatar_logo" />
 
                     <ProgressBar

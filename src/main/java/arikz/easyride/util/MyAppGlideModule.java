@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main;
+package arikz.easyride.util;
 
 import android.content.Context;
 

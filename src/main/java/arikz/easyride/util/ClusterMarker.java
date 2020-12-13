@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main.rides.map;
+package arikz.easyride.util;
 
 
 import androidx.annotation.NonNull;
@@ -14,7 +14,6 @@ public class ClusterMarker implements ClusterItem {
     private byte[] image;
 
     public ClusterMarker(){
-
     }
 
     public ClusterMarker(LatLng position,String title,String snippet,byte[] image){

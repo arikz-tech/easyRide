@@ -12,13 +12,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -37,7 +35,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,8 +43,8 @@ import com.google.firebase.storage.StorageReference;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.User;
-import arikz.easyride.login.LoginActivity;
+import arikz.easyride.models.User;
+import arikz.easyride.ui.login.LoginActivity;
 import arikz.easyride.ui.main.friends.FriendsFragment;
 import arikz.easyride.ui.main.map.MapFragment;
 import arikz.easyride.ui.main.profile.ProfileFragment;
@@ -66,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private Bundle userBundle;
     private ProgressBar pbLoadingPic;
+    private MaterialToolbar toolbar;
 
     @Override
     protected void onStart() {
@@ -81,8 +79,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         navigationView = findViewById(R.id.nav_view);
         drawer = findViewById(R.id.drawer_layout);
-        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
-
+        toolbar = findViewById(R.id.topAppBar);
         setRidesDefaultFragment();
 
         //Set the bottom navigation view
@@ -92,12 +89,15 @@ public class MainActivity extends AppCompatActivity {
                 Fragment selectedFragment = null;
                 switch (item.getItemId()) {
                     case R.id.rides:
+                        toolbar.setTitle(getApplicationContext().getString(R.string.rides));
                         selectedFragment = ridesFragment;
                         break;
                     case R.id.requests:
+                        toolbar.setTitle(getApplicationContext().getString(R.string.rides_requests));
                         selectedFragment = new RequestsFragment();
                         break;
                     case R.id.map:
+                        toolbar.setTitle(getApplicationContext().getString(R.string.map));
                         selectedFragment = new MapFragment();
                         break;
                 }
@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.friends:
                         if (userBundle != null) {
                             itemCheckedSign = true;
+                            toolbar.setTitle(getApplicationContext().getString(R.string.friends));
                             FriendsFragment friendsFragment = new FriendsFragment();
                             friendsFragment.setArguments(userBundle);
                             getSupportFragmentManager().
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.profile:
                         if (userBundle != null) {
                             itemCheckedSign = true;
+                            toolbar.setTitle(getApplicationContext().getString(R.string.profile));
                             ProfileFragment profileFragment = new ProfileFragment();
                             profileFragment.setArguments(userBundle);
                             getSupportFragmentManager().
@@ -155,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.setting:
                         itemCheckedSign = true;
+                        toolbar.setTitle(getApplicationContext().getString(R.string.setting));
                         getSupportFragmentManager().
                                 beginTransaction().
                                 replace(R.id.fragment_container, new SettingFragment()).commit();
@@ -202,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setRidesDefaultFragment() {
+        toolbar.setTitle(getApplicationContext().getString(R.string.rides));
         ridesFragment = new RidesFragment();
         getSupportFragmentManager().
                 beginTransaction().
@@ -247,27 +251,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void setProfilePicture(String pid) {
         pbLoadingPic.setVisibility(View.VISIBLE);
-        if (pid != null) {
-            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child(pid);
+        StorageReference imageRef = FirebaseStorage.getInstance().getReference().
+                child("images").child("users").child(pid);
 
-            Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
-                @Override
-                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                    pbLoadingPic.setVisibility(View.INVISIBLE);
-                    return false;
-                }
+        Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                pbLoadingPic.setVisibility(View.INVISIBLE);
+                return false;
+            }
 
-                @Override
-                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                    pbLoadingPic.setVisibility(View.INVISIBLE);
-                    return false;
-                }
-            }).into(ivProfilePic);
-        } else {
-            ivProfilePic.setImageResource(R.drawable.avatar_logo);
-            pbLoadingPic.setVisibility(View.INVISIBLE);
-        }
+            @Override
+            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                pbLoadingPic.setVisibility(View.INVISIBLE);
+                return false;
+            }
+        }).into(ivProfilePic);
     }
 
     @Override

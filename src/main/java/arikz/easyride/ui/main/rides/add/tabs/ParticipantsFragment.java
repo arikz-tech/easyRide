@@ -1,17 +1,25 @@
 package arikz.easyride.ui.main.rides.add.tabs;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,19 +31,20 @@ import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.User;
+import arikz.easyride.models.User;
 import arikz.easyride.ui.main.rides.add.AddParticipantActivity;
-import arikz.easyride.ui.main.rides.adapters.AddedParticipantsAdapter;
+import arikz.easyride.adapters.AddedParticipantsAdapter;
 import arikz.easyride.ui.main.rides.add.interfaces.ParticipantsEvents;
 
 public class ParticipantsFragment extends Fragment {
     private static String TAG = ".ParticipantsFragment";
     private static final int ADD_REQUEST_CODE = 17;
+    private static final int SEND_SMS_REQUEST_CODE = 29;
     View view;
     List<User> participants;
     AddedParticipantsAdapter participantsAdapter;
     ProgressBar pbParticipants;
-    ExtendedFloatingActionButton fabAddParticipant;
+    ExtendedFloatingActionButton fabAddParticipant, fabAddPhone;
     ParticipantsEvents event;
 
     public ParticipantsFragment(Context context) {
@@ -59,15 +68,20 @@ public class ParticipantsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         pbParticipants = view.findViewById(R.id.pbParticipants);
-        fabAddParticipant = view.findViewById(R.id.fabAddParticipant);
+        fabAddParticipant = view.findViewById(R.id.fabAddFriend);
+        fabAddPhone = view.findViewById(R.id.fabAddPhone);
 
         RecyclerView rvParticipants = view.findViewById(R.id.rvParticipants);
         rvParticipants.setHasFixedSize(true);
         rvParticipants.setLayoutManager(new LinearLayoutManager(getContext()));
 
         participants = new ArrayList<>();
-        participantsAdapter = new AddedParticipantsAdapter(participants);
+        participantsAdapter = new AddedParticipantsAdapter(participants, getContext());
         rvParticipants.setAdapter(participantsAdapter);
+
+        ItemTouchControl touchControl = new ItemTouchControl(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchControl);
+        itemTouchHelper.attachToRecyclerView(rvParticipants);
 
         fabAddParticipant.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +91,72 @@ public class ParticipantsFragment extends Fragment {
                 startActivityForResult(intent, ADD_REQUEST_CODE);
             }
         });
+
+        fabAddPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.SEND_SMS}, SEND_SMS_REQUEST_CODE);
+                } else {
+                    addPhoneDialog();
+                }
+            }
+        });
+    }
+
+    private class ItemTouchControl extends ItemTouchHelper.SimpleCallback {
+
+        public ItemTouchControl(int dragDirs, int swipeDirs) {
+            super(dragDirs, swipeDirs);
+        }
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            participants.remove((User) viewHolder.itemView.getTag());
+            event.onRemove((User) viewHolder.itemView.getTag());
+            participantsAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+        }
+    }
+
+    private void addPhoneDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.add_phone_number);
+        View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.phone_dialog_layout, (ViewGroup) getView(), false);
+
+        final EditText NameInput = viewInflated.findViewById(R.id.etName);
+        final EditText PhoneInput = viewInflated.findViewById(R.id.etPhone);
+        builder.setView(viewInflated);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String name = NameInput.getText().toString().trim();
+                String phone = PhoneInput.getText().toString().trim();
+                if (!name.isEmpty() && !phone.isEmpty()) {
+                    User phoneUser = new User();
+                    phoneUser.setFirst(name);
+                    phoneUser.setLast("");
+                    phoneUser.setPhone(phone);
+                    phoneUser.setPid("no_image_avatar.png");
+                    participants.add(phoneUser);
+                    participantsAdapter.notifyDataSetChanged();
+                    event.onAdd(phoneUser);
+                } else
+                    Toast.makeText(getContext(), R.string.enter_fields, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     @Override
@@ -89,16 +169,21 @@ public class ParticipantsFragment extends Fragment {
 
                 //TODO Change this approach !@#
                 for (User user : participants)
-                    if (user.getUid().equals(Objects.requireNonNull(participant).getUid()))
-                        return;
-
+                    if (user.getUid() != null)
+                        if (user.getUid().equals(Objects.requireNonNull(participant).getUid()))
+                            return;
 
                 participants.add(participant);
                 participantsAdapter.notifyDataSetChanged();
                 event.onAdd(participant);
 
-
             }
+        }
+        if (requestCode == SEND_SMS_REQUEST_CODE) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
+                addPhoneDialog();
+            } else
+                Toast.makeText(getContext(), "you have to verify sms permission", Toast.LENGTH_SHORT).show();
         }
     }
 

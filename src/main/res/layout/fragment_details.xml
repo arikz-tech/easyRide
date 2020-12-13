@@ -9,50 +9,49 @@
 
     <RelativeLayout
         android:id="@+id/ivRidePicLayout"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginStart="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
-        android:padding="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cvPic"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:elevation="5dp"
-            app:strokeColor="@color/colorBlack"
-            app:strokeWidth="1dp">
-
-            <ImageView
-                android:id="@+id/ivRidePic"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:background="@color/colorBackground"
-                android:scaleType="center"
-                android:src="@drawable/ic_image_200"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabPicEdit"
             style="@style/Widget.MaterialComponents.FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:elevation="1dp"
+            android:layout_below="@id/cvPic"
+            android:layout_alignEnd="@id/cvPic"
+            android:layout_marginTop="-30dp"
+            android:layout_marginEnd="30dp"
             android:src="@drawable/ic_edit_24"
             app:backgroundTint="@color/colorAccent"
             app:fabSize="mini"
             app:tint="@color/colorWhite" />
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvPic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:elevation="2dp"
+            app:strokeColor="@color/colorGrey"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:id="@+id/ivRidePic"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:background="@color/colorBackground"
+                android:src="@drawable/ic_image_200"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </com.google.android.material.card.MaterialCardView>
     </RelativeLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -60,8 +59,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:hint="@string/ride_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,9 +80,9 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
         android:hint="@string/starting_point"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -104,9 +103,9 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
         android:hint="@string/destination"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -126,9 +125,9 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:hint="@string/date"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -148,7 +147,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="20dp"
         android:layout_marginStart="20dp"
         android:text="@string/add_participants"
         app:layout_constraintHorizontal_weight="1"
@@ -160,7 +159,7 @@
         android:id="@+id/btnAddRide"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:text="@string/add_ride"
         app:layout_constraintStart_toStartOf="parent"
@@ -168,26 +167,14 @@
 
     <ProgressBar
         android:id="@+id/pbAddRide"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etDateLayout" />
-
-    <ProgressBar
-        android:id="@+id/pbLocation"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
-        android:visibility="invisible"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:indeterminate="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etSrcLayout" />
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@+id/etDateLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

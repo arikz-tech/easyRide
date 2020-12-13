@@ -1,11 +1,8 @@
 package arikz.easyride.ui.main.friends;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,37 +12,26 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Parcelable;
-import android.provider.ContactsContract;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.User;
-import arikz.easyride.ui.main.LoadContacts;
-import io.michaelrocks.libphonenumber.android.NumberParseException;
-import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
-import io.michaelrocks.libphonenumber.android.Phonenumber;
+import arikz.easyride.adapters.FriendsAdapter;
+import arikz.easyride.models.User;
+import arikz.easyride.util.LoadContacts;
 
 public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriendClicked {
     private static final String TAG = ".FriendsFragment";
@@ -53,7 +39,6 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     private View view;
     private List<User> friends;
     private FriendsAdapter friendsAdapter;
-    private ProgressBar pbFriends;
     private User loggedInUser;
     private ExtendedFloatingActionButton fabInviteFriends;
 
@@ -68,7 +53,6 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         fabInviteFriends = view.findViewById(R.id.fabInviteFriends);
-        pbFriends = view.findViewById(R.id.pbFriends);
 
         loggedInUser = Objects.requireNonNull(getArguments()).getParcelable("user");
 
@@ -77,7 +61,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
         rvFriends.setLayoutManager(new LinearLayoutManager(getContext()));
 
         friends = new ArrayList<>();
-        friendsAdapter = new FriendsAdapter(friends, this);
+        friendsAdapter = new FriendsAdapter(friends, this, getContext());
         rvFriends.setAdapter(friendsAdapter);
 
         collectContactFriends();
@@ -105,7 +89,6 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     }
 
     private void fetchContact() {
-        pbFriends.setVisibility(View.VISIBLE);
         LoadContacts loadContacts = new LoadContacts(getContext());
         final List<String> phonesList = loadContacts.getContactsPhoneNumbers();
 
@@ -116,12 +99,13 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
                     if (phonesList.contains(Objects.requireNonNull(friend).getPhone())) {
-                        if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
-                            friends.add(friend);
+                        if (friend.getEmail() != null) {
+                            if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
+                                friends.add(friend);
+                        }
                     }
 
                     friendsAdapter.notifyDataSetChanged();
-                    pbFriends.setVisibility(View.GONE);
                 }
 
             }
@@ -148,7 +132,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     @Override
     public void onClick(int index) {
         Intent intent = new Intent(getContext(), FriendsInfoActivity.class);
-        intent.putExtra("userInfo",friends.get(index));
+        intent.putExtra("userInfo", friends.get(index));
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }

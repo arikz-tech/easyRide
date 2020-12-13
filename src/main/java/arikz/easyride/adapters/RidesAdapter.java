@@ -1,19 +1,16 @@
-package arikz.easyride.ui.main.rides.adapters;
+package arikz.easyride.adapters;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.RippleDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,14 +27,15 @@ import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.Ride;
-import arikz.easyride.objects.User;
+import arikz.easyride.models.Ride;
+import arikz.easyride.models.User;
 
 public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> {
     private final static String TAG = ".RidesAdapter";
     private List<Ride> rides;
     private OnRideClicked ridesFrag;
     private Context context;
+    private int lastPosition = -1;
 
     public interface OnRideClicked {
         void onClick(int index);
@@ -66,7 +64,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
             cvRide = itemView.findViewById(R.id.cvRide);
             cvOwner = itemView.findViewById(R.id.cvOwner);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            cvRide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int index = rides.indexOf((Ride) itemView.getTag());
@@ -93,8 +91,8 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
         holder.tvDest.setText(ride.getDestination());
         holder.tvDate.setText(ride.getDate());
         setRideImage(holder.itemView, holder.ivRidePic, ride.getPid());
-
         getOwnerInfo(holder, ride.getOwnerUID());
+        setAnimation(holder.itemView, position);
     }
 
     private void getOwnerInfo(final ViewHolder holder, String uid) {
@@ -135,6 +133,15 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
 
             Glide.with(itemView).load(imageRef).into(ivRidePic);
         } else ivRidePic.setImageResource(R.drawable.card_view_sample);
+    }
+
+    private void setAnimation(View viewToAnimate, int position) {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
 }

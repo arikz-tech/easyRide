@@ -2,8 +2,6 @@ package arikz.easyride.ui.main.profile;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -21,24 +19,15 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.User;
+import arikz.easyride.models.User;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;

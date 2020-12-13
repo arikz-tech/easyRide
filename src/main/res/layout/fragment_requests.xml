@@ -7,18 +7,6 @@
     android:background="@color/colorBackground"
     tools:context=".ui.main.requests.RequestsFragment">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/titleRequest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/rides_requests"
-        android:textColor="@color/colorPrimary"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ProgressBar
         android:id="@+id/pbRequests"
         android:layout_width="wrap_content"
@@ -37,6 +25,31 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleRequest" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivNoRequests"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_no_rides_24"
+        android:visibility="invisible"
+        app:tint="@color/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tvNoRequests" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvNoRequests"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:textColor="@color/colorBlack"
+        android:textAlignment="center"
+        android:text="@string/your_invitation_list_is_empty"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

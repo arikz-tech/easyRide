@@ -7,35 +7,22 @@
     android:background="@color/colorBackground"
     tools:context=".ui.main.profile.ProfileFragment">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/materialTextView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/profile"
-        android:textColor="@color/colorPrimary"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <RelativeLayout
         android:id="@+id/relativeLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/materialTextView2">
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardView"
             android:layout_width="match_parent"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             app:cardElevation="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -46,10 +33,10 @@
                     android:id="@+id/ivProfile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
                     android:elevation="10dp"
-                    app:cardCornerRadius="100dp"
-                    android:layout_marginTop="5dp"
                     android:scaleType="centerCrop"
+                    app:cardCornerRadius="100dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">

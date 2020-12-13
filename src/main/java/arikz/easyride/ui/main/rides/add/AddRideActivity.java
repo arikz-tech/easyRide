@@ -2,26 +2,17 @@ package arikz.easyride.ui.main.rides.add;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -49,18 +40,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.Ride;
-import arikz.easyride.objects.User;
-import arikz.easyride.objects.UserInRide;
+import arikz.easyride.models.Ride;
+import arikz.easyride.models.User;
+import arikz.easyride.models.UserInRide;
 import arikz.easyride.ui.main.rides.add.interfaces.ParticipantsEvents;
 import arikz.easyride.ui.main.rides.add.interfaces.DetailsEvents;
 import arikz.easyride.ui.main.rides.add.tabs.DetailsFragment;
 import arikz.easyride.ui.main.rides.add.tabs.ParticipantsFragment;
-
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class AddRideActivity extends AppCompatActivity implements ParticipantsEvents, DetailsEvents {
     private static final String TAG = ".AddRideActivity";
@@ -78,7 +67,6 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
 
         rideParticipants = new ArrayList<>();
         owner = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
-
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
@@ -98,6 +86,11 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     }
 
     @Override
+    public void onRemove(User participant) {
+        rideParticipants.remove(participant);
+    }
+
+    @Override
     public void onImageUpload() {
         saving = true;
     }
@@ -108,7 +101,8 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     }
 
     @Override
-    public void onSubmit(String name, String src, String dest, String date, String pid, LatLng srcLatLng) {
+    public void onSubmit(String name, String src, String dest, String date, String pid) {
+
         rideParticipants.add(owner);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         final Ride ride = new Ride();
@@ -127,58 +121,87 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         dbRef.child("rides").child(ride.getRid()).setValue(ride);
 
         List<UserInRide> rideUsers = new ArrayList<>();
+        int index = 0;
         for (User participant : rideParticipants) {
+            if (participant.getUid() == null) {
+                String uid = UUID.randomUUID().toString();
+                participant.setUid(uid);
+                dbRef.child("users").child(uid).setValue(participant);
+                //SEND VERIFICATION CODE TO PHONE USERS!!
+                sendVerificationCode(ride.getRid(), index + "", participant.getPhone());
+            }
             UserInRide user = new UserInRide();
             user.setUid(participant.getUid());
             if (participant.getUid().equals(owner.getUid())) {
-                user.setLatitude(srcLatLng.latitude);
-                user.setLongitude(srcLatLng.longitude);
-                user.setInRide(true);
+                LatLng latLng = getAddressLatLng(src);
+                if (latLng != null) {
+                    user.setLatitude(latLng.latitude + "");
+                    user.setLongitude(latLng.longitude + "");
+                    user.setInRide(true);
+                }
             } else
                 user.setInRide(false);
+
             rideUsers.add(user);
+            index++;
         }
+
         dbRef.child("rideUsers").child(ride.getRid()).setValue(rideUsers);
 
         for (User participant : rideParticipants) {
-            dbRef.child("userRides").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    List<String> userRides = new ArrayList<>();
-                    if (snapshot.exists()) {
-                        for (DataSnapshot snap : snapshot.getChildren()) {
-                            userRides.add(snap.getValue(String.class));
+            if (participant.getUid() != null && participant.getEmail() != null) {
+                dbRef.child("userRides").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<String> userRides = new ArrayList<>();
+                        if (snapshot.exists()) {
+                            for (DataSnapshot snap : snapshot.getChildren()) {
+                                userRides.add(snap.getValue(String.class));
+                            }
                         }
+                        userRides.add(ride.getRid());
+                        snapshot.getRef().setValue(userRides);
                     }
-                    userRides.add(ride.getRid());
-                    snapshot.getRef().setValue(userRides);
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, error.getMessage());
-                }
-            });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG, error.getMessage());
+                    }
+                });
+            }
         }
 
         rideParticipants.remove(owner);
         for (final User participant : rideParticipants) {
-            dbRef.child("tokens").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String token = snapshot.getValue(String.class);
-                    sendNotification(token, owner.displayName());
-                }
+            if (participant.getUid() != null) {
+                dbRef.child("tokens").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            String token = snapshot.getValue(String.class);
+                            sendNotification(token, owner.displayName());
+                        }
+                    }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, error.getMessage());
-                }
-            });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG, error.getMessage());
+                    }
+                });
+            }
         }
 
         Toast.makeText(AddRideActivity.this, R.string.ride_added, Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    private void sendVerificationCode(String rid, String index, String phone) {
+        String message = getString(R.string.ride_invite);
+        String url = "https://arikz-tech.github.io/easyrideconfirm?"
+                + "rid=" + rid
+                + "&index=" + index;
+        SmsManager sms = SmsManager.getDefault();
+        sms.sendTextMessage(phone, null, message + url, null, null);
     }
 
     @Override
@@ -272,4 +295,19 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         mRequestQueue.add(request);
     }
 
+    private LatLng getAddressLatLng(String address) {
+        List<Address> addresses;
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocationName(address, 1);
+            if (addresses.isEmpty())
+                return null;
+            double lat = addresses.get(0).getLatitude();
+            double lng = addresses.get(0).getLongitude();
+            return new LatLng(lat, lng);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

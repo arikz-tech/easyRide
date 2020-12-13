@@ -1,4 +1,4 @@
-package arikz.easyride.notificationServices;
+package arikz.easyride.services;
 
 import android.util.Log;
 

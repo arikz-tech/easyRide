@@ -1,4 +1,4 @@
-package arikz.easyride.login;
+package arikz.easyride.ui.login;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

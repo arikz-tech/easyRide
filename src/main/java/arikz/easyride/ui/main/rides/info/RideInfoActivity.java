@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main.rides;
+package arikz.easyride.ui.main.rides.info;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -6,15 +6,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -30,21 +34,25 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.Ride;
-import arikz.easyride.objects.User;
-import arikz.easyride.objects.UserInRide;
-import arikz.easyride.ui.main.rides.adapters.ParticipantsAdapter;
-import arikz.easyride.ui.main.rides.map.MapActivity;
+import arikz.easyride.models.DistanceComparator;
+import arikz.easyride.models.Ride;
+import arikz.easyride.models.User;
+import arikz.easyride.models.UserInRide;
+import arikz.easyride.ui.main.friends.FriendsInfoActivity;
+import arikz.easyride.adapters.ParticipantsAdapter;
 
-public class RideInfoActivity extends AppCompatActivity {
+public class RideInfoActivity extends AppCompatActivity implements ParticipantsAdapter.OnParticipantClick {
     private static final String TAG = ".RideInfoActivity";
     private ProgressBar pbRideInfo;
-    private FloatingActionButton fabMap;
+    private FloatingActionButton fabMap, fabRoute;
     private ImageView ivRidePic;
     private MaterialButton btnDelete;
     private Ride ride;
@@ -64,6 +72,7 @@ public class RideInfoActivity extends AppCompatActivity {
         ivRidePic = findViewById(R.id.ivRidePic);
         pbRideInfo = findViewById(R.id.pbRideInfo);
         fabMap = findViewById(R.id.fabMap);
+        fabRoute = findViewById(R.id.fabRoute);
 
         RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         participants = new ArrayList<>();
@@ -99,14 +108,86 @@ public class RideInfoActivity extends AppCompatActivity {
             }
         });
 
+        fabRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String source = ride.getSource();
+                String destination = ride.getDestination();
+                LatLng src = getAddressLatLng(source);
+                LatLng dest = getAddressLatLng(destination);
+                if (src != null && dest != null) {
+                    DistanceComparator comparator = new DistanceComparator(src);
+                    Collections.sort(participants, comparator);
+
+                    String url = "https://maps.google.com/maps?";
+                    StringBuilder sb = new StringBuilder(url);
+                    sb.append("saddr=");
+                    sb.append(src.latitude);
+                    sb.append(",");
+                    sb.append(src.longitude);
+
+                    boolean flag = false;
+                    for (UserInRide participant : participants) {
+                        if (participant.isInRide()) {
+                            if (!flag) {
+                                sb.append("&daddr=");
+                                sb.append(participant.getLatitude());
+                                sb.append(",");
+                                sb.append(participant.getLongitude());
+                                flag = true;
+                            } else {
+                                sb.append("+to:");
+                                sb.append(participant.getLatitude());
+                                sb.append(",");
+                                sb.append(participant.getLongitude());
+                            }
+                        }
+                    }
+
+                    sb.append("+to:");
+                    sb.append(dest.latitude);
+                    sb.append(",");
+                    sb.append(dest.longitude);
+
+                    Uri uri = Uri.parse(sb.toString());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    intent.setPackage("com.google.android.apps.maps");
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
+                } else {
+                    Toast.makeText(RideInfoActivity.this, R.string.could_not_find_location, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
         fabMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
                 intent.putParcelableArrayListExtra("users", (ArrayList<UserInRide>) participants);
                 startActivity(intent);
+
             }
         });
+    }
+
+    private LatLng getAddressLatLng(String address) {
+        List<Address> addresses;
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocationName(address, 1);
+            if (addresses.isEmpty())
+                return null;
+            double lat = addresses.get(0).getLatitude();
+            double lng = addresses.get(0).getLongitude();
+            return new LatLng(lat, lng);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void exitRide() {
@@ -161,6 +242,30 @@ public class RideInfoActivity extends AppCompatActivity {
         pbRideInfo.setVisibility(View.VISIBLE);
         btnDelete.setVisibility(View.GONE);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+
+        for (UserInRide participant : participants) {
+            dbRef.child("users").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User user = snapshot.getValue(User.class);
+                    if (user != null) {
+                        if (user.getEmail() == null) {
+                            String key = snapshot.getKey();
+                            if (key != null) {
+                                dbRef.child("users").child(key).removeValue();
+                            }
+                        }
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, error.getMessage());
+                }
+            });
+        }
+
         dbRef.child("rides").child(ride.getRid()).removeValue();
         dbRef.child("rideUsers").child(ride.getRid()).removeValue();
         dbRef.child("userRides").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -221,26 +326,16 @@ public class RideInfoActivity extends AppCompatActivity {
         dbRef.child("rideUsers").child(ride.getRid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
                 for (DataSnapshot snap : snapshot.getChildren()) {
-                    String key = snap.getKey();
                     UserInRide user = snap.getValue(UserInRide.class);
                     if (Objects.requireNonNull(user).isInRide()) {
                         participants.add(0, user); //Add participant into front of array list
                     } else {
                         participants.add(user);
                     }
-
-                    if (Integer.parseInt(Objects.requireNonNull(key)) == snapshot.getChildrenCount() - 1) {
-                        try {
-                            Thread.sleep((long) 0.1);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        participantsAdapter.notifyDataSetChanged();
-                        pbRideInfo.setVisibility(View.INVISIBLE);
-                    }
+                    participantsAdapter.notifyDataSetChanged();
                 }
+                pbRideInfo.setVisibility(View.GONE);
             }
 
             @Override
@@ -266,4 +361,31 @@ public class RideInfoActivity extends AppCompatActivity {
         else
             return null;
     }
+
+    @Override
+    public void onClick(int index) {
+        final UserInRide userInRide = participants.get(index);
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.child("users").child(userInRide.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                if (user != null) {
+                    if (user.getEmail() != null) {
+                        Intent intent = new Intent(getApplicationContext(), FriendsInfoActivity.class);
+                        intent.putExtra("userInfo", user);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(intent);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
+
+    }
+
 }

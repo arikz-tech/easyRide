@@ -2,14 +2,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:background="@drawable/custom_ripple"
-    android:layout_height="320dp">
+    android:layout_height="388dp">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvRide"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_margin="8dp"
+        android:layout_width="344dp"
+        android:layout_height="382dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
         app:cardElevation="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,8 +22,8 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvOwner"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
+                android:layout_width="344dp"
+                android:layout_height="72dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -70,12 +71,12 @@
 
             <ImageView
                 android:id="@+id/ivRidePic"
-                android:layout_width="380dp"
-                android:layout_height="200dp"
+                android:layout_width="344dp"
+                android:layout_height="194dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/cvOwner"
+                app:layout_constraintTop_toBottomOf="@+id/cvOwner"
                 app:srcCompat="@drawable/card_view_sample" />
 
             <com.google.android.material.textview.MaterialTextView

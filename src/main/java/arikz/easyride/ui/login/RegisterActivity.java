@@ -1,4 +1,4 @@
-package arikz.easyride.login;
+package arikz.easyride.ui.login;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,10 +9,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
@@ -22,7 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.objects.User;
+import arikz.easyride.models.User;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = ".RegisterActivity";
@@ -60,9 +58,9 @@ public class RegisterActivity extends AppCompatActivity {
                     String email = etMail.getText().toString().trim();
                     String password = etPassword.getText().toString().trim();
                     Intent data = new Intent();
-                    data.putExtra("email",email);
-                    data.putExtra("password",password);
-                    setResult(RESULT_OK,data);
+                    data.putExtra("email", email);
+                    data.putExtra("password", password);
+                    setResult(RESULT_OK, data);
 
                     // Register new user using firebase authorization
                     FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
@@ -74,6 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
                             user.setFirst(etFirst.getText().toString().trim());
                             user.setLast(etLast.getText().toString().trim());
                             user.setPhone(etPhone.getText().toString().trim());
+                            user.setPid("no_image_avatar.png");
                             user.setUid(Objects.requireNonNull(authResult.getUser()).getUid());
 
                             // New access into firebase to store user information
