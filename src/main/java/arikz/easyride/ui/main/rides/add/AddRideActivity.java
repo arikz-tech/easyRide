@@ -201,7 +201,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 + "rid=" + rid
                 + "&index=" + index;
         SmsManager sms = SmsManager.getDefault();
-        sms.sendTextMessage(phone, null, message + url, null, null);
+        sms.sendTextMessage(phone, null, url, null, null);
     }
 
     @Override

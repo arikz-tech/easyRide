@@ -1,4 +1,4 @@
-package arikz.easyride.ui.main.requests;
+package arikz.easyride.adapters;
 
 import android.app.Activity;
 import android.util.Log;

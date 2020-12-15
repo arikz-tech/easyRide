@@ -15,6 +15,14 @@ public class DistanceComparator implements Comparator<UserInRide> {
 
     @Override
     public int compare(UserInRide first, UserInRide second) {
+        if(first.isInRide() && !second.isInRide()){
+            return -1;
+        }
+
+        if(!first.isInRide() && second.isInRide()){
+            return 1;
+        }
+
         if (first.isInRide() && second.isInRide()) {
             if (first.getLongitude() != null && first.getLatitude() != null && second.getLatitude() != null && second.getLongitude() != null) {
                 double firstLat = Double.parseDouble(first.getLatitude());

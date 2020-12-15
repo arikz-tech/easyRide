@@ -45,6 +45,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import arikz.easyride.R;
+import arikz.easyride.adapters.RequestsAdapter;
 import arikz.easyride.models.Ride;
 import arikz.easyride.models.UserInRide;
 import arikz.easyride.util.LoadData;

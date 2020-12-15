@@ -63,7 +63,11 @@ public class ProfileFragment extends Fragment {
         fabEdit = view.findViewById(R.id.fabEdit);
         ivProfile = view.findViewById(R.id.ivProfilePic);
 
-        loggedInUser = Objects.requireNonNull(getArguments()).getParcelable("user");
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            loggedInUser = bundle.getParcelable("user");
+        }
+
         if (loggedInUser != null) {
             tvFirst.setText(loggedInUser.getFirst());
             tvLast.setText(loggedInUser.getLast());

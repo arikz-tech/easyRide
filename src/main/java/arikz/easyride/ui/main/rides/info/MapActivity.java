@@ -65,9 +65,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             ClusterManager<ClusterMarker> clusterManager = new ClusterManager<>(getApplicationContext(), googleMap);
             UserClusterManagerRenderer clusterManagerRenderer = new UserClusterManagerRenderer(getApplicationContext(), googleMap, clusterManager);
             clusterManager.setRenderer(clusterManagerRenderer);
-            UserMarkerManager userMarkerManager = new UserMarkerManager(clusterManager);
-            LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
+            UserMarkerManager userMarkerManager = new UserMarkerManager(getApplicationContext(), clusterManager);
             if (users != null) {
+                LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
                 for (UserInRide user : users) {
                     if (user.isInRide()) {
                         double lat = Double.parseDouble(user.getLatitude());
