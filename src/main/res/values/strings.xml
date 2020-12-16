@@ -93,8 +93,8 @@
     <string name="address_not_found">Didn\'t found your address</string>
     <string name="add_address_location">To use saved address you have to enter you address in profile section</string>
     <string name="google_direction_api">AIzaSyAnvrgEunno_caWZuvAS9Qm5FKGJQ1MATU</string>
-    <string name="add_phone">Add Phone</string>
-    <string name="add_friend">Add Friend</string>
+    <string name="add_phone">Phone number</string>
+    <string name="add_friend">Friends list</string>
     <string name="name">Name</string>
     <string name="add_phone_number">Add Phone Number</string>
     <string name="sms_invite">Hello, I invite you to new ride to accept the ride please click here: </string>
@@ -107,5 +107,6 @@
     <string name="no_rides_to_display_add_new_ride_by_click_on_ride_button">no rides to display, add new ride by click on "ride" button</string>
     <string name="your_invitation_list_is_empty">Your invitation list is empty</string>
     <string name="ride_invite">Ride Invitation link: </string>
+    <string name="add_contact">Contact list</string>
 
 </resources>

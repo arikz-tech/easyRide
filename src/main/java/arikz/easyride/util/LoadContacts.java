@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import arikz.easyride.models.ContactPerson;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
 import io.michaelrocks.libphonenumber.android.Phonenumber;
@@ -26,22 +27,23 @@ public class LoadContacts {
 
     }
 
-    public List<String> getContactsPhoneNumbers() {
-
-        List<String> phonesList = new ArrayList<>();
+    public List<ContactPerson> getContactsPhoneNumbers() {
+        List<ContactPerson> contactList = new ArrayList<>();
 
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
         String[] projection = {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER};
-        ContentResolver resolver = Objects.requireNonNull(context).getContentResolver(); // check if activity needed
+        ContentResolver resolver = context.getContentResolver();
         Cursor cursor = resolver.query(uri, projection, null, null, null);
 
-        while (Objects.requireNonNull(cursor).moveToNext()) {
-            String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            String number = formattedPhoneNumber(phoneNumber);
-            phonesList.add(number);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                String number = formattedPhoneNumber(phoneNumber);
+                String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                contactList.add(new ContactPerson(name, number));
+            }
         }
-
-        return phonesList;
+        return contactList;
     }
 
     public static String formattedPhoneNumber(String phoneNumber) {

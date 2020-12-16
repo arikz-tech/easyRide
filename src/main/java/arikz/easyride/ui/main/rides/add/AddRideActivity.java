@@ -3,9 +3,13 @@ package arikz.easyride.ui.main.rides.add;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.adapter.FragmentViewHolder;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
 import android.location.Address;
@@ -24,6 +28,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -55,7 +60,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     private static final String TAG = ".AddRideActivity";
     private static final int LOCATION_REQUEST_CODE = 14;
 
-    private ViewPager viewPager;
+    private ViewPager2 viewPager;
     private List<User> rideParticipants;
     private User owner;
     private boolean saving;
@@ -69,15 +74,30 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         owner = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
+
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), 0);
-        viewPagerAdapter.setFirstTabTitle(getText(R.string.ride_details));
-        viewPagerAdapter.setSecondTabTitle(getText(R.string.participants));
-        viewPager.setAdapter(viewPagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
-        Objects.requireNonNull(tabLayout.getTabAt(0)).setIcon(R.drawable.ic_rides_24);
-        Objects.requireNonNull(tabLayout.getTabAt(1)).setIcon(R.drawable.ic_friends_24);
+        ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
+        viewPager.setAdapter(viewPager2Adapter);
+        new TabLayoutMediator(tabLayout,viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
+            @Override
+            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                switch (position){
+                    case 0:
+                        tab.setText(getText(R.string.ride_details));
+                        tab.setIcon(R.drawable.ic_rides_24);
+                        break;
+                    case 1:
+                        tab.setText(getText(R.string.participants));
+                        tab.setIcon(R.drawable.ic_friends_24);
+                        break;
+                }
+            }
+        }).attach();
+
+
+
+
     }
 
     @Override
@@ -212,50 +232,35 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
             super.onBackPressed();
     }
 
-    private class ViewPagerAdapter extends FragmentPagerAdapter {
-        CharSequence firstTabTitle, secondTabTitle;
+    private class ViewPager2Adapter extends FragmentStateAdapter {
 
-        public ViewPagerAdapter(@NonNull FragmentManager fm, int behavior) {
-            super(fm, behavior);
+        public ViewPager2Adapter(@NonNull FragmentActivity fragmentActivity) {
+            super(fragmentActivity);
         }
 
         @NonNull
         @Override
-        public Fragment getItem(int position) {
+        public Fragment createFragment(int position) {
             switch (position) {
                 case 0:
                     return new DetailsFragment(AddRideActivity.this);
                 case 1:
                     return new ParticipantsFragment(AddRideActivity.this);
                 default:
-                    //?
                     return new Fragment();
             }
         }
 
         @Override
-        public int getCount() {
-            return 2;
+        public void onBindViewHolder(@NonNull FragmentViewHolder holder, int position, @NonNull List<Object> payloads) {
+            super.onBindViewHolder(holder, position, payloads);
+
+
         }
 
         @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return firstTabTitle;
-                case 1:
-                    return secondTabTitle;
-                default:
-                    return null;
-            }
-        }
-
-        public void setFirstTabTitle(CharSequence firstTabTitle) {
-            this.firstTabTitle = firstTabTitle;
-        }
-
-        public void setSecondTabTitle(CharSequence secondTabTitle) {
-            this.secondTabTitle = secondTabTitle;
+        public int getItemCount() {
+            return 2;
         }
     }
 

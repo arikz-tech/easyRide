@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
+import arikz.easyride.models.ContactPerson;
 import arikz.easyride.models.User;
 import arikz.easyride.util.LoadContacts;
 import arikz.easyride.adapters.AddParticipantsAdapter;
@@ -51,7 +52,10 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
         toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
 
-        loggedInUser = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            loggedInUser = bundle.getParcelable("user");
+        }
 
         RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         rvParticipants.setHasFixedSize(true);
@@ -76,7 +80,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
     private void fetchContact() {
         pbParticipants.setVisibility(View.VISIBLE);
         LoadContacts loadContacts = new LoadContacts(getApplicationContext());
-        final List<String> phonesList = loadContacts.getContactsPhoneNumbers();
+        final List<ContactPerson> contactList = loadContacts.getContactsPhoneNumbers();
 
         FirebaseDatabase.getInstance().getReference().
                 child("users").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -84,10 +88,13 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
-                    if (phonesList.contains(Objects.requireNonNull(friend).getPhone())) {
-                        if (friend.getEmail() != null) {
-                            if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
-                                participants.add(friend);
+                    if (friend != null) {
+                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone());
+                        if (contactList.contains(contactFriend)) {
+                            if (friend.getEmail() != null) {
+                                if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
+                                    participants.add(friend);
+                            }
                         }
                     }
 

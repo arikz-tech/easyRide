@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -24,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
 import java.util.ArrayList;
@@ -40,12 +43,15 @@ public class ParticipantsFragment extends Fragment {
     private static String TAG = ".ParticipantsFragment";
     private static final int ADD_REQUEST_CODE = 17;
     private static final int SEND_SMS_REQUEST_CODE = 29;
-    View view;
-    List<User> participants;
-    AddedParticipantsAdapter participantsAdapter;
-    ProgressBar pbParticipants;
-    ExtendedFloatingActionButton fabAddParticipant, fabAddPhone;
-    ParticipantsEvents event;
+    private View view;
+    private List<User> participants;
+    private AddedParticipantsAdapter participantsAdapter;
+    private ProgressBar pbParticipants;
+    private ExtendedFloatingActionButton fabAddParticipant, fabAddPhone,fabAddContact;
+    private FloatingActionButton fabAdd;
+    private ParticipantsEvents event;
+    private Animation fabOpen, fabClose, fabOpenRotate, fabCloseRotate;
+    private boolean isOpen = false;
 
     public ParticipantsFragment(Context context) {
         event = (ParticipantsEvents) context;
@@ -68,8 +74,20 @@ public class ParticipantsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         pbParticipants = view.findViewById(R.id.pbParticipants);
+        fabAdd = view.findViewById(R.id.fabAdd);
         fabAddParticipant = view.findViewById(R.id.fabAddFriend);
         fabAddPhone = view.findViewById(R.id.fabAddPhone);
+        fabAddContact = view.findViewById(R.id.fabAddContact);
+
+        fabOpen = AnimationUtils.loadAnimation(getContext(), R.anim.from_bottom_anim);
+        fabClose = AnimationUtils.loadAnimation(getContext(), R.anim.to_bottom_anim);
+        fabOpenRotate = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_open_anim);
+        fabCloseRotate = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_close_anim);
+
+        fabOpen.setDuration(200);
+        fabClose.setDuration(200);
+        fabOpenRotate.setDuration(200);
+        fabCloseRotate.setDuration(200);
 
         RecyclerView rvParticipants = view.findViewById(R.id.rvParticipants);
         rvParticipants.setHasFixedSize(true);
@@ -83,7 +101,43 @@ public class ParticipantsFragment extends Fragment {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchControl);
         itemTouchHelper.attachToRecyclerView(rvParticipants);
 
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isOpen) {
+                    fabAddParticipant.startAnimation(fabClose);
+                    fabAddPhone.startAnimation(fabClose);
+                    fabAddContact.startAnimation(fabClose);
+                    fabAdd.startAnimation(fabCloseRotate);
+
+                    fabAddPhone.setClickable(false);
+                    fabAddParticipant.setClickable(false);
+                    fabAddContact.setClickable(false);
+                    isOpen = false;
+                } else {
+                    fabAddParticipant.startAnimation(fabOpen);
+                    fabAddPhone.startAnimation(fabOpen);
+                    fabAddContact.startAnimation(fabOpen);
+                    fabAdd.startAnimation(fabOpenRotate);
+
+                    fabAddPhone.setClickable(true);
+                    fabAddParticipant.setClickable(true);
+                    fabAddContact.setClickable(true);
+                    isOpen = true;
+                }
+            }
+        });
+
         fabAddParticipant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), AddParticipantActivity.class);
+                intent.putExtra("user", Objects.requireNonNull(Objects.requireNonNull(getActivity()).getIntent().getExtras()).getParcelable("user"));
+                startActivityForResult(intent, ADD_REQUEST_CODE);
+            }
+        });
+
+        fabAddContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddParticipantActivity.class);

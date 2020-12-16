@@ -30,6 +30,7 @@ import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.adapters.FriendsAdapter;
+import arikz.easyride.models.ContactPerson;
 import arikz.easyride.models.User;
 import arikz.easyride.util.LoadContacts;
 
@@ -90,7 +91,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
 
     private void fetchContact() {
         LoadContacts loadContacts = new LoadContacts(getContext());
-        final List<String> phonesList = loadContacts.getContactsPhoneNumbers();
+        final List<ContactPerson> contactList = loadContacts.getContactsPhoneNumbers();
 
         FirebaseDatabase.getInstance().getReference().
                 child("users").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -98,16 +99,17 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
-                    if (phonesList.contains(Objects.requireNonNull(friend).getPhone())) {
-                        if (friend.getEmail() != null) {
-                            if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
-                                friends.add(friend);
+                    if (friend != null) {
+                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone());
+                        if (contactList.contains(contactFriend)) {
+                            if (friend.getEmail() != null) {
+                                if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
+                                    friends.add(friend);
+                            }
                         }
                     }
-
                     friendsAdapter.notifyDataSetChanged();
                 }
-
             }
 
             @Override

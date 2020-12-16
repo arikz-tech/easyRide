@@ -229,10 +229,11 @@ public class MainActivity extends AppCompatActivity {
                     userBundle.putParcelable("user", loggedInUser);
                     ridesFragment.setArguments(userBundle);
 
-                    tvName.setText(Objects.requireNonNull(loggedInUser).displayName());
-                    tvMail.setText(loggedInUser.getEmail());
-                    setProfilePicture(loggedInUser.getPid());
-
+                    if (loggedInUser != null) {
+                        tvName.setText(Objects.requireNonNull(loggedInUser).displayName());
+                        tvMail.setText(loggedInUser.getEmail());
+                        setProfilePicture(loggedInUser.getPid());
+                    }
                 }
 
                 @Override
@@ -250,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setProfilePicture(String pid) {
         pbLoadingPic.setVisibility(View.VISIBLE);
+
         StorageReference imageRef = FirebaseStorage.getInstance().getReference().
                 child("images").child("users").child(pid);
 

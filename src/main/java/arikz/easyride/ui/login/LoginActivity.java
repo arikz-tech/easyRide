@@ -35,6 +35,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -205,8 +206,8 @@ public class LoginActivity extends AppCompatActivity {
                 // ...
             }
         }
-        if(requestCode == REGISTER_INFO){
-            if(resultCode==RESULT_OK){
+        if (requestCode == REGISTER_INFO) {
+            if (resultCode == RESULT_OK) {
                 String email = data.getStringExtra("email");
                 String password = data.getStringExtra("password");
                 etMail.setText(email);
@@ -241,7 +242,7 @@ public class LoginActivity extends AppCompatActivity {
         final String uid = FirebaseAuth.getInstance().getUid();
         if (uid != null) {
             FirebaseDatabase.getInstance().getReference().
-                    child("users").child(uid).addValueEventListener(new ValueEventListener() {
+                    child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (!snapshot.exists()) {
@@ -251,12 +252,13 @@ public class LoginActivity extends AppCompatActivity {
                             user.setLast(googleUser.getFamilyName());
                             user.setEmail(googleUser.getEmail());
                             user.setUid(uid);
-                            user.setPhone(null);
+                            String pid = UUID.randomUUID().toString();
+                            user.setPid(pid);
                             snapshot.getRef().setValue(user);
 
                             //Upload google image to firebase storage
                             String photoURL = googleUser.getPhotoUrl().toString();
-                            uploadGooglePhotoAndLogin(photoURL, uid);
+                            uploadGooglePhotoAndLogin(photoURL, uid, pid);
                         }
                     } else login();
                 }
@@ -269,7 +271,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadGooglePhotoAndLogin(String photoUrl, final String uid) {
+    private void uploadGooglePhotoAndLogin(String photoUrl, final String uid, final String pid) {
         Glide.with(this).load(photoUrl).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
@@ -278,31 +280,12 @@ public class LoginActivity extends AppCompatActivity {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] data = baos.toByteArray();
 
-                pid = UUID.randomUUID().toString();
-
                 //Upload Google picture and then login
                 FirebaseStorage.getInstance().getReference().
                         child("images").child("users").child(pid).putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        FirebaseDatabase.getInstance().getReference().
-                                child("users").child(uid).child("pid").setValue(pid).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                login();
-                            }
-                        });
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        FirebaseDatabase.getInstance().getReference().
-                                child("users").child(uid).child("pid").setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                login();
-                            }
-                        });
+                        login();
                     }
                 });
             }
@@ -314,19 +297,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void saveUserToken(final String uid) {
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
-                        }
-                        String token = Objects.requireNonNull(task.getResult()).getToken();
-                        FirebaseDatabase.getInstance().getReference().
-                                child("tokens").child(uid).setValue(token);
-                    }
-                });
+        FirebaseAuth.getInstance().getAccessToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+            @Override
+            public void onSuccess(GetTokenResult getTokenResult) {
+                String token = getTokenResult.getToken();
+                FirebaseDatabase.getInstance().getReference().
+                        child("tokens").child(uid).setValue(token);
+            }
+        });
     }
 
 }

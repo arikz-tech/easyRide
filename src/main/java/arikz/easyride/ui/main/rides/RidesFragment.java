@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -57,6 +59,9 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
         tvNoRides = view.findViewById(R.id.tvNoRides);
         pbRides = view.findViewById(R.id.pbRides);
         ExtendedFloatingActionButton fabAddRide = view.findViewById(R.id.fabAddRide);
+        Animation fabDisplay = AnimationUtils.loadAnimation(getActivity(),R.anim.from_bottom_anim);
+        fabDisplay.setDuration(500);
+        fabAddRide.startAnimation(fabDisplay);
 
         RecyclerView rvRides = view.findViewById(R.id.rvRides);
         rvRides.setHasFixedSize(true);
