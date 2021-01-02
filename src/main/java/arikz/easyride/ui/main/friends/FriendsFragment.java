@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -34,7 +35,7 @@ import arikz.easyride.models.ContactPerson;
 import arikz.easyride.models.User;
 import arikz.easyride.util.LoadContacts;
 
-public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriendClicked {
+public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriendClicked, LoadContacts.CompleteListener {
     private static final String TAG = ".FriendsFragment";
     private static final int CONTACT_REQUEST_CODE = 15;
     private View view;
@@ -42,6 +43,8 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     private FriendsAdapter friendsAdapter;
     private User loggedInUser;
     private ExtendedFloatingActionButton fabInviteFriends;
+    private ProgressBar pbFriend;
+    private ArrayList<ContactPerson> contactList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,8 +57,12 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         fabInviteFriends = view.findViewById(R.id.fabInviteFriends);
+        pbFriend = view.findViewById(R.id.pbFriend);
 
-        loggedInUser = Objects.requireNonNull(getArguments()).getParcelable("user");
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            loggedInUser = bundle.getParcelable("user");
+        }
 
         RecyclerView rvFriends = view.findViewById(R.id.rvFriends);
         rvFriends.setHasFixedSize(true);
@@ -64,6 +71,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
         friends = new ArrayList<>();
         friendsAdapter = new FriendsAdapter(friends, this, getContext());
         rvFriends.setAdapter(friendsAdapter);
+
 
         collectContactFriends();
 
@@ -90,33 +98,9 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     }
 
     private void fetchContact() {
-        LoadContacts loadContacts = new LoadContacts(getContext());
-        final List<ContactPerson> contactList = loadContacts.getContactsPhoneNumbers();
-
-        FirebaseDatabase.getInstance().getReference().
-                child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    User friend = snap.getValue(User.class);
-                    if (friend != null) {
-                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone());
-                        if (contactList.contains(contactFriend)) {
-                            if (friend.getEmail() != null) {
-                                if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
-                                    friends.add(friend);
-                            }
-                        }
-                    }
-                    friendsAdapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, error.getMessage());
-            }
-        });
+        contactList = new ArrayList<>();
+        LoadContacts loadContacts = new LoadContacts(getContext(), contactList, this);
+        loadContacts.start();
     }
 
     @Override
@@ -137,6 +121,35 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
         intent.putExtra("userInfo", friends.get(index));
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
+    }
+
+    @Override
+    public void finishedCallback() {
+        FirebaseDatabase.getInstance().getReference().
+                child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    User friend = snap.getValue(User.class);
+                    if (friend != null) {
+                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone());
+                        if (contactList.contains(contactFriend)) {
+                            if (friend.getEmail() != null) {
+                                if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
+                                    friends.add(friend);
+                            }
+                        }
+                    }
+                }
+                friendsAdapter.notifyDataSetChanged();
+                pbFriend.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
     }
 }
 

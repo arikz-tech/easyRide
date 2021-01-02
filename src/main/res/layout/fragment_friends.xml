@@ -7,6 +7,15 @@
     android:background="@color/colorBackground"
     tools:context=".ui.main.friends.FriendsFragment">
 
+    <ProgressBar
+        android:id="@+id/pbFriend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/rvFriends"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/rvFriends"
+        app:layout_constraintTop_toTopOf="@+id/rvFriends" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvFriends"
         android:layout_width="match_parent"

@@ -50,20 +50,16 @@ import arikz.easyride.util.LoadContacts;
 import arikz.easyride.util.ClusterMarker;
 import arikz.easyride.util.UserClusterManagerRenderer;
 
-public class FriendsInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class FriendsInfoActivity extends AppCompatActivity {
     private static final String TAG = ".FriendsInfoActivity";
 
     private MapView mapView;
-    private GoogleMap mGoogleMap;
-    private LatLngBounds mapBounds;
-    private User user;
+    private User currentUser;
     private MaterialTextView tvFirst, tvLast, tvMail, tvPhone, tvAddress;
     private FloatingActionButton fabCall, fabMessage, fabWhatsApp;
     private ImageView ivProfile;
     private ProgressBar pbLoadingPic;
-    private CardView cardView;
-    private ClusterManager<ClusterMarker> clusterManager;
-    private UserClusterManagerRenderer clusterManagerRenderer;
+
 
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
 
@@ -77,8 +73,8 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
             mapViewBundle = savedInstanceState.getBundle(MAP_VIEW_BUNDLE_KEY);
         }
 
-        if(getIntent().getExtras()!=null){
-            user = getIntent().getExtras().getParcelable("userInfo");
+        if (getIntent().getExtras() != null) {
+            currentUser = getIntent().getExtras().getParcelable("userInfo");
         }
         pbLoadingPic = findViewById(R.id.pbLoadingPic);
         tvFirst = findViewById(R.id.tvFirstFill);
@@ -93,22 +89,23 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
 
         mapView = findViewById(R.id.mvAddress);
         mapView.onCreate(mapViewBundle);
-        mapView.getMapAsync(this);
+        MapLoaded mapReady = new MapLoaded(this, currentUser);
+        mapView.getMapAsync(mapReady);
 
-        if (user != null) {
-            tvFirst.setText(user.getFirst());
-            tvLast.setText(user.getLast());
-            tvMail.setText(user.getEmail());
-            tvPhone.setText(user.getPhone());
-            tvAddress.setText(user.getAddress());
-            setProfilePicture(user.getPid());
+        if (currentUser != null) {
+            tvFirst.setText(currentUser.getFirst());
+            tvLast.setText(currentUser.getLast());
+            tvMail.setText(currentUser.getEmail());
+            tvPhone.setText(currentUser.getPhone());
+            tvAddress.setText(currentUser.getAddress());
+            setProfilePicture(currentUser.getPid());
         }
 
         fabCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (user.getPhone() != null) {
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + user.getPhone()));
+                if (currentUser.getPhone() != null) {
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + currentUser.getPhone()));
                     startActivity(intent);
                 }
             }
@@ -117,7 +114,7 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
         fabMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:" + user.getPhone()));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:" + currentUser.getPhone()));
                 startActivity(intent);
             }
         });
@@ -125,7 +122,7 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
         fabWhatsApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String contactPhone = LoadContacts.formattedPhoneNumber(user.getPhone());
+                String contactPhone = LoadContacts.formattedPhoneNumber(currentUser.getPhone());
                 String url = "https://api.whatsapp.com/send?phone=+972" + contactPhone;
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
@@ -139,7 +136,7 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
         pbLoadingPic.setVisibility(View.VISIBLE);
         if (pid != null) {
             StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child(user.getPid());
+                    child("images").child("users").child(currentUser.getPid());
 
             Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
                 @Override
@@ -161,7 +158,7 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         Bundle mapViewBundle = outState.getBundle(MAP_VIEW_BUNDLE_KEY);
@@ -210,58 +207,4 @@ public class FriendsInfoActivity extends AppCompatActivity implements OnMapReady
         mapView.onLowMemory();
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mGoogleMap = googleMap;
-
-        List<Address> addresses;
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-            if (user.getAddress() != null) {
-                addresses = geocoder.getFromLocationName(user.getAddress(), 1);
-                LatLng latLng = new LatLng(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
-                googleMap.setMinZoomPreference(12);
-                addCluster(latLng);
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void addCluster(final LatLng clusterLatLng) {
-        if (clusterManager == null) {
-            clusterManager = new ClusterManager<>(getApplicationContext(), mGoogleMap);
-        }
-        if (clusterManagerRenderer == null) {
-            clusterManagerRenderer = new UserClusterManagerRenderer(getApplicationContext(), mGoogleMap, clusterManager);
-            clusterManager.setRenderer(clusterManagerRenderer);
-        }
-
-        Task<byte[]> task = FirebaseStorage.getInstance().getReference().
-                child("images").child("users").child(user.getPid()).getBytes(Long.MAX_VALUE);
-        task.addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(final byte[] bytes) {
-                FirebaseDatabase.getInstance().getReference().
-                        child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        User userInfo = snapshot.getValue(User.class);
-                        String markerName = Objects.requireNonNull(userInfo).displayName();
-                        ClusterMarker check = new ClusterMarker(clusterLatLng, markerName, user.getAddress(), bytes);
-                        clusterManager.addItem(check);
-                        clusterManager.cluster();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e(TAG, error.getMessage());
-                    }
-
-                });
-            }
-        });
-    }
 }

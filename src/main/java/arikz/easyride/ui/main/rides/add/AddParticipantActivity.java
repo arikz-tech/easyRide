@@ -31,7 +31,7 @@ import arikz.easyride.models.User;
 import arikz.easyride.util.LoadContacts;
 import arikz.easyride.adapters.AddParticipantsAdapter;
 
-public class AddParticipantActivity extends AppCompatActivity implements AddParticipantsAdapter.AddParticipantListener {
+public class AddParticipantActivity extends AppCompatActivity implements AddParticipantsAdapter.AddParticipantListener, LoadContacts.CompleteListener {
     private static String TAG = ".AddParticipantActivity";
     private static final int CONTACT_REQUEST_CODE = 11;
 
@@ -40,6 +40,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
     private ProgressBar pbParticipants;
     private User loggedInUser;
     private MaterialToolbar toolbar;
+    private ArrayList<ContactPerson> contactList;
 
     //TODO ADD THE ABILITY TO ADD PARTICIPANTS VIA PHONE NUMBER
 
@@ -78,37 +79,9 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
     }
 
     private void fetchContact() {
-        pbParticipants.setVisibility(View.VISIBLE);
-        LoadContacts loadContacts = new LoadContacts(getApplicationContext());
-        final List<ContactPerson> contactList = loadContacts.getContactsPhoneNumbers();
-
-        FirebaseDatabase.getInstance().getReference().
-                child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    User friend = snap.getValue(User.class);
-                    if (friend != null) {
-                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone());
-                        if (contactList.contains(contactFriend)) {
-                            if (friend.getEmail() != null) {
-                                if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
-                                    participants.add(friend);
-                            }
-                        }
-                    }
-
-                    addParticipantsAdapter.notifyDataSetChanged();
-                    pbParticipants.setVisibility(View.GONE);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, error.getMessage());
-            }
-        });
+        contactList = new ArrayList<>();
+        LoadContacts loadContacts = new LoadContacts(getApplicationContext(),contactList,this);
+        loadContacts.start();
     }
 
     @Override
@@ -129,5 +102,35 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
             } else
                 Toast.makeText(this, R.string.permission_importance, Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    @Override
+    public void finishedCallback() {
+        FirebaseDatabase.getInstance().getReference().
+                child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    User friend = snap.getValue(User.class);
+                    if (friend != null) {
+                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone());
+                        if (contactList.contains(contactFriend)) {
+                            if (friend.getEmail() != null) {
+                                if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
+                                    participants.add(friend);
+                            }
+                        }
+                    }
+                }
+                addParticipantsAdapter.notifyDataSetChanged();
+                pbParticipants.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
     }
 }

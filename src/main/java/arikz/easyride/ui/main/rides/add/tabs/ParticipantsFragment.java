@@ -35,6 +35,7 @@ import java.util.Objects;
 
 import arikz.easyride.R;
 import arikz.easyride.models.User;
+import arikz.easyride.ui.main.rides.add.AddContactActivity;
 import arikz.easyride.ui.main.rides.add.AddParticipantActivity;
 import arikz.easyride.adapters.AddedParticipantsAdapter;
 import arikz.easyride.ui.main.rides.add.interfaces.ParticipantsEvents;
@@ -140,7 +141,7 @@ public class ParticipantsFragment extends Fragment {
         fabAddContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AddParticipantActivity.class);
+                Intent intent = new Intent(getActivity(), AddContactActivity.class);
                 intent.putExtra("user", Objects.requireNonNull(Objects.requireNonNull(getActivity()).getIntent().getExtras()).getParcelable("user"));
                 startActivityForResult(intent, ADD_REQUEST_CODE);
             }

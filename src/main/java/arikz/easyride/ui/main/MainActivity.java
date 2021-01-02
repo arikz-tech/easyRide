@@ -4,12 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,9 +46,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
+import arikz.easyride.models.ContactPerson;
 import arikz.easyride.models.User;
 import arikz.easyride.ui.login.LoginActivity;
 import arikz.easyride.ui.main.friends.FriendsFragment;
@@ -53,9 +60,11 @@ import arikz.easyride.ui.main.profile.ProfileFragment;
 import arikz.easyride.ui.main.requests.RequestsFragment;
 import arikz.easyride.ui.main.rides.RidesFragment;
 import arikz.easyride.ui.main.setting.SettingFragment;
+import arikz.easyride.util.LoadContacts;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = ".MainActivity";
+    private static final int CONTACT_REQUEST_CODE = 15;
 
     private DrawerLayout drawer;
     private NavigationView navigationView;
@@ -63,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivProfilePic;
     private RidesFragment ridesFragment;
     private BottomNavigationView bottomNavigationView;
-    private Bundle userBundle;
     private ProgressBar pbLoadingPic;
     private MaterialToolbar toolbar;
+    private Bundle bundle;
 
     @Override
     protected void onStart() {
@@ -82,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         drawer = findViewById(R.id.drawer_layout);
         toolbar = findViewById(R.id.topAppBar);
         setRidesDefaultFragment();
+
 
         //Set the bottom navigation view
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -110,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                     navigationView.getMenu().getItem(i).setChecked(false);
 
                 if (selectedFragment != null) {
-                    selectedFragment.setArguments(userBundle);
+                    selectedFragment.setArguments(bundle);
                     getSupportFragmentManager().
                             beginTransaction().
                             replace(R.id.fragment_container, selectedFragment).
@@ -135,22 +145,22 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.friends:
-                        if (userBundle != null) {
+                        if (bundle != null) {
                             itemCheckedSign = true;
                             toolbar.setTitle(getApplicationContext().getString(R.string.friends));
                             FriendsFragment friendsFragment = new FriendsFragment();
-                            friendsFragment.setArguments(userBundle);
+                            friendsFragment.setArguments(bundle);
                             getSupportFragmentManager().
                                     beginTransaction().
                                     replace(R.id.fragment_container, friendsFragment).commit();
                         }
                         break;
                     case R.id.profile:
-                        if (userBundle != null) {
+                        if (bundle != null) {
                             itemCheckedSign = true;
                             toolbar.setTitle(getApplicationContext().getString(R.string.profile));
                             ProfileFragment profileFragment = new ProfileFragment();
-                            profileFragment.setArguments(userBundle);
+                            profileFragment.setArguments(bundle);
                             getSupportFragmentManager().
                                     beginTransaction().
                                     replace(R.id.fragment_container, profileFragment).commit();
@@ -225,9 +235,9 @@ public class MainActivity extends AppCompatActivity {
 
                     User loggedInUser = snapshot.getValue(User.class);
 
-                    userBundle = new Bundle();
-                    userBundle.putParcelable("user", loggedInUser);
-                    ridesFragment.setArguments(userBundle);
+                    bundle = new Bundle();
+                    bundle.putParcelable("user", loggedInUser);
+                    ridesFragment.setArguments(bundle);
 
                     if (loggedInUser != null) {
                         tvName.setText(Objects.requireNonNull(loggedInUser).displayName());
@@ -276,41 +286,6 @@ public class MainActivity extends AppCompatActivity {
             drawer.closeDrawer(GravityCompat.START);
         else
             super.onBackPressed();
-    }
-
-    private void showPhoneAlertDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        CharSequence title = getText(R.string.alert_dialog_title_phone);
-        CharSequence body = getText(R.string.alert_dialog_body_phone);
-
-        builder.setTitle(title).setMessage(body).setIcon(R.drawable.ic_phone_24).setPositiveButton(R.string.alert_dialog_confirm, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ProfileFragment profileFragment = new ProfileFragment();
-                profileFragment.setArguments(userBundle);
-                getSupportFragmentManager().
-                        beginTransaction().
-                        replace(R.id.fragment_container, profileFragment).
-                        commit();
-                navigationView.setCheckedItem(R.id.profile);
-                //TODO MARK Phone Edit on profile
-            }
-        }).setNegativeButton(R.string.alert_dialog_no_thanks, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                FirebaseDatabase.getInstance().getReference().
-                        child("users").child(Objects.requireNonNull(getCurrentUserId())).child("phone").setValue("-");
-                dialog.dismiss();
-            }
-        }).show();
-    }
-
-    private String getCurrentUserId() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null)
-            return user.getUid();
-        else
-            return null;
     }
 
 }

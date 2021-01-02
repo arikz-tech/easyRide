@@ -37,7 +37,6 @@ public class AddParticipantsAdapter extends RecyclerView.Adapter<AddParticipants
     private AddParticipantListener clickHandle;
     private int lastPosition = -1;
 
-
     public interface AddParticipantListener {
         void onClick(int index);
     }

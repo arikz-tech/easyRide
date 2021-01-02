@@ -58,6 +58,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
         ivNoRides = view.findViewById(R.id.ivNoRides);
         tvNoRides = view.findViewById(R.id.tvNoRides);
         pbRides = view.findViewById(R.id.pbRides);
+
         ExtendedFloatingActionButton fabAddRide = view.findViewById(R.id.fabAddRide);
         Animation fabDisplay = AnimationUtils.loadAnimation(getActivity(),R.anim.from_bottom_anim);
         fabDisplay.setDuration(500);

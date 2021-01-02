@@ -94,10 +94,6 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 }
             }
         }).attach();
-
-
-
-
     }
 
     @Override
