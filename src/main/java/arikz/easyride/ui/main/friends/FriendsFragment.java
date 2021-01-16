@@ -35,7 +35,7 @@ import arikz.easyride.models.ContactPerson;
 import arikz.easyride.models.User;
 import arikz.easyride.util.LoadContacts;
 
-public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriendClicked, LoadContacts.CompleteListener {
+public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriendClicked {
     private static final String TAG = ".FriendsFragment";
     private static final int CONTACT_REQUEST_CODE = 15;
     private View view;
@@ -44,7 +44,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     private User loggedInUser;
     private ExtendedFloatingActionButton fabInviteFriends;
     private ProgressBar pbFriend;
-    private ArrayList<ContactPerson> contactList;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,33 +98,9 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     }
 
     private void fetchContact() {
-        contactList = new ArrayList<>();
-        LoadContacts loadContacts = new LoadContacts(getContext(), contactList, this);
-        loadContacts.start();
-    }
+        LoadContacts loadContacts = new LoadContacts(getContext());
+        final ArrayList<ContactPerson> contactList = loadContacts.getContactList();
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == CONTACT_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                fetchContact();
-            } else
-                Toast.makeText(getContext(), R.string.permission_importance, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onClick(int index) {
-        Intent intent = new Intent(getContext(), FriendsInfoActivity.class);
-        intent.putExtra("userInfo", friends.get(index));
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
-    }
-
-    @Override
-    public void finishedCallback() {
         FirebaseDatabase.getInstance().getReference().
                 child("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -132,7 +108,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
                     if (friend != null) {
-                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone());
+                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone(), null);
                         if (contactList.contains(contactFriend)) {
                             if (friend.getEmail() != null) {
                                 if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
@@ -151,5 +127,26 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
             }
         });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CONTACT_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                fetchContact();
+            } else
+                Toast.makeText(getContext(), R.string.friends_permission_importance, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onClick(int index) {
+        Intent intent = new Intent(getContext(), FriendsInfoActivity.class);
+        intent.putExtra("userInfo", friends.get(index));
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
+
 }
 

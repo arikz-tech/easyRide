@@ -61,7 +61,7 @@
     <string name="login_failed">Login has failed</string>
     <string name="please_enter_mail">Please Enter Your Mail Address</string>
     <string name="verification_email_sent">Verification email has sent</string>
-    <string name="permission_importance">The permission is really important to see who in your friend list is already registered</string>
+    <string name="friends_permission_importance">The permission is really important to see who in your friend list is already registered to the application</string>
     <string name="confirmed">confirmed</string>
     <string name="new_ride_request_title">New ride request</string>
     <string name="new_ride_request_body">You received new ride request from</string>
@@ -108,5 +108,24 @@
     <string name="your_invitation_list_is_empty">Your invitation list is empty</string>
     <string name="ride_invite">Ride Invitation link: </string>
     <string name="add_contact">Contact list</string>
+    <string name="search">Search</string>
+    <string name="contact_permission__importance">The permission is really important to see your contacts list</string>
+    <string name="sms_permission_importance">" To add participant from contact list you have to grant permission, In order to send message via SMS"</string>
+    <string name="application_version">Application Version</string>
+    <string name="general_setting">General Setting</string>
+    <string name="notifications">Notifications</string>
+    <string name="enable_invitation_notifications">Enable/Disable ride invitation notifications</string>
+    <string name="night_mode">Night mode</string>
+    <string name="enable_disable_night_mode">Enable/Disable Night mode</string>
+    <string name="personal_setting">Personal Setting</string>
+    <string name="email_address">Email Address</string>
+    <string name="change_account_email_address">Change account email address</string>
+    <string name="password">Password</string>
+    <string name="change_login_password">Change login password</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="remove_account_with_all_saved_data">Remove account with all saved data</string>
+    <string name="new_email_address">New email address</string>
+    <string name="new_password">New password</string>
+    <string name="sure_delete_acount">Are you sure you want to delete your account?</string>
 
 </resources>

@@ -29,25 +29,16 @@ import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
 import io.michaelrocks.libphonenumber.android.Phonenumber;
 
 
-public class LoadContacts extends Thread {
+public class LoadContacts {
 
-    Context context;
-    ArrayList<ContactPerson> contactList;
-    CompleteListener listener;
+    private Context context;
 
-    public interface CompleteListener {
-        void finishedCallback();
-    }
-
-    public LoadContacts(Context context, ArrayList<ContactPerson> contactList, CompleteListener listener) {
+    public LoadContacts(Context context) {
         this.context = context;
-        this.contactList = contactList;
-        this.listener = listener;
     }
 
-    @Override
-    public void run() {
-        super.run();
+    public ArrayList<ContactPerson> getContactList() {
+        ArrayList<ContactPerson> contactList = new ArrayList<>();
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
         String[] projection = {ContactsContract.CommonDataKinds.Phone._ID,
                 ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
@@ -61,23 +52,21 @@ public class LoadContacts extends Thread {
                 String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 String number = formattedPhoneNumber(phoneNumber);
                 String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                String photoUri = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
-                if (photoUri != null) {
-                    Bitmap bitmap = null;
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.parse(photoUri));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    contactList.add(new ContactPerson(name, number, bitmap));
+                String photoAddress = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
+                if (photoAddress != null) {
+                    Uri photoUri = Uri.parse(photoAddress);
+                    ContactPerson contactPerson = new ContactPerson(name, number, photoUri);
+                    if (!contactList.contains(contactPerson))
+                        contactList.add(contactPerson);
                 } else {
-                    contactList.add(new ContactPerson(name, number));
+                    ContactPerson contactPerson = new ContactPerson(name, number, null);
+                    if (!contactList.contains(contactPerson))
+                        contactList.add(contactPerson);
                 }
             }
             cursor.close();
-            listener.finishedCallback();
         }
-
+        return contactList;
     }
 
     public static String formattedPhoneNumber(String phoneNumber) {

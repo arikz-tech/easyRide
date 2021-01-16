@@ -1,7 +1,10 @@
 package arikz.easyride.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +27,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.List;
 
 import arikz.easyride.R;
@@ -83,7 +87,12 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         User friend = friends.get(position);
         holder.itemView.setTag(friend);
         holder.tvName.setText(friend.displayName());
-        setProfileAvatar(holder, friend.getPid());
+        if (friend.getEmail() != null) {
+            setProfileAvatarFriend(holder, friend.getPid());
+        } else {
+            setProfileAvatarContact(holder, friend.getPid());
+        }
+
         setAnimation(holder.itemView, position);
     }
 
@@ -92,7 +101,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         return friends.size();
     }
 
-    private void setProfileAvatar(ViewHolder holder, String pid) {
+    private void setProfileAvatarFriend(ViewHolder holder, String pid) {
 
         View view = holder.itemView;
         final ProgressBar pb = holder.pbFriend;
@@ -115,6 +124,20 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         }).into(ivAvatar);
 
     }
+
+    private void setProfileAvatarContact(ViewHolder holder, String pid) {
+        ProgressBar pb = holder.pbFriend;
+        if (pid != null) {
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.parse(pid));
+                Glide.with(context).load(bitmap).into(holder.ivAvatar);
+                pb.setVisibility(View.INVISIBLE);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private void setAnimation(View viewToAnimate, int position) {
         // If the bound view wasn't previously displayed on screen, it's animated

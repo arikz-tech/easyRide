@@ -42,7 +42,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.models.DistanceComparator;
+import arikz.easyride.util.DistanceComparator;
 import arikz.easyride.models.Ride;
 import arikz.easyride.models.User;
 import arikz.easyride.models.UserInRide;
@@ -254,9 +254,13 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
                             if (key != null) {
                                 dbRef.child("users").child(key).removeValue();
                             }
+                            String pid = user.getPid();
+                            if (!pid.equals("no_image_avatar.png")) {
+                                FirebaseStorage.getInstance().getReference().
+                                        child("images").child("users").child(user.getPid()).delete();
+                            }
                         }
                     }
-
                 }
 
                 @Override

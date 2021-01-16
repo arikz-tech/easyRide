@@ -1,8 +1,11 @@
 package arikz.easyride.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,7 +43,7 @@ import arikz.easyride.models.UserInRide;
 public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapter.ViewHolder> {
     private static final String TAG = ".ParticipantsAdapter";
     private List<UserInRide> participants;
-    private Context activity;
+    private Context context;
     private OnParticipantClick listener;
     private int lastPosition = -1;
 
@@ -47,10 +51,10 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
         void onClick(int index);
     }
 
-    public ParticipantsAdapter(List<UserInRide> participants, Context activity) {
+    public ParticipantsAdapter(List<UserInRide> participants, Context context) {
         this.participants = participants;
-        this.activity = activity;
-        listener = (OnParticipantClick) activity;
+        this.context = context;
+        listener = (OnParticipantClick) context;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -100,11 +104,11 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     private void collectUserInfo(final ViewHolder holder, String uid, boolean inRide, final int position) {
 
         if (inRide) {
-            holder.cvParticipant.setCardBackgroundColor(activity.getColor(R.color.colorConfirm));
-            holder.tvArrive.setText(activity.getText(R.string.arrival_confirmed));
+            holder.cvParticipant.setCardBackgroundColor(context.getColor(R.color.colorConfirm));
+            holder.tvArrive.setText(context.getText(R.string.arrival_confirmed));
         } else {
-            holder.cvParticipant.setCardBackgroundColor(activity.getColor(R.color.colorCancel));
-            holder.tvArrive.setText(activity.getText(R.string.arrival_not_confirmed));
+            holder.cvParticipant.setCardBackgroundColor(context.getColor(R.color.colorCancel));
+            holder.tvArrive.setText(context.getText(R.string.arrival_not_confirmed));
         }
 
         if (uid != null) {
@@ -115,7 +119,8 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
                     User user = snapshot.getValue(User.class);
                     holder.tvName.setText(Objects.requireNonNull(user).displayName());
                     holder.tvName.setTextColor(Color.WHITE);
-                    setProfileAvatar(holder, user.getPid());
+                    setProfileAvatarFriend(holder, user.getPid());
+
                 }
 
                 @Override
@@ -131,7 +136,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
         return participants.size();
     }
 
-    private void setProfileAvatar(ViewHolder holder, String pid) {
+    private void setProfileAvatarFriend(ViewHolder holder, String pid) {
         View view = holder.itemView;
         final ProgressBar pb = holder.pbParticipant;
         ImageView ivAvatar = holder.ivAvatar;
@@ -154,5 +159,6 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
         }).into(ivAvatar);
 
     }
+
 
 }

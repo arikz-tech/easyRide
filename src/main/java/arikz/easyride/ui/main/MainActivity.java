@@ -4,16 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -33,8 +27,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,12 +38,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.models.ContactPerson;
 import arikz.easyride.models.User;
 import arikz.easyride.ui.login.LoginActivity;
 import arikz.easyride.ui.main.friends.FriendsFragment;
@@ -60,7 +49,6 @@ import arikz.easyride.ui.main.profile.ProfileFragment;
 import arikz.easyride.ui.main.requests.RequestsFragment;
 import arikz.easyride.ui.main.rides.RidesFragment;
 import arikz.easyride.ui.main.setting.SettingFragment;
-import arikz.easyride.util.LoadContacts;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = ".MainActivity";
@@ -91,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         drawer = findViewById(R.id.drawer_layout);
         toolbar = findViewById(R.id.topAppBar);
         setRidesDefaultFragment();
-
 
         //Set the bottom navigation view
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -169,9 +156,11 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.setting:
                         itemCheckedSign = true;
                         toolbar.setTitle(getApplicationContext().getString(R.string.setting));
+                        SettingFragment settingFragment = new SettingFragment();
+                        settingFragment.setArguments(bundle);
                         getSupportFragmentManager().
                                 beginTransaction().
-                                replace(R.id.fragment_container, new SettingFragment()).commit();
+                                replace(R.id.fragment_container, settingFragment).commit();
                         break;
                     case R.id.share:
                         Intent sendIntent = new Intent();

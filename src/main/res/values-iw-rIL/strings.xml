@@ -62,7 +62,7 @@
     <string name="please_enter_mail">בבקשה הכנס כתובת דוא\"ל</string>
     <string name="verification_email_sent">הודעת דואר לאימות נשלח לכתובת הדוא\"ל</string>
     <string name="confirmed">מאושר</string>
-    <string name="permission_importance">ההרשאה חשובה כדי לראות את החברים הרשומים</string>
+    <string name="friends_permission_importance">ההרשאה הינה חשובה על מנת לראות חברים הרשומים ליישום</string>
     <string name="new_ride_request_title">נסיעה חדשה</string>
     <string name="new_ride_request_body">קיבלת בקשת נסיעה חדשה מ</string>
     <string name="add_participants">הוסף משתתפים</string>
@@ -108,4 +108,23 @@
     <string name="your_invitation_list_is_empty">רשימת ההזמנות שלך ריקה</string>
     <string name="ride_invite">"לינק הזמנה לנסיעה: "</string>
     <string name="add_contact">אנשי קשר</string>
+    <string name="search">חיפוש</string>
+    <string name="contact_permission__importance">ההרשאה הינה חשובה על מנת לראות את רשימת אנשי הקשר</string>
+    <string name="sms_permission_importance">בשביל להוסיף משתתף מרשימת אנשי הקשר יש לתת הרשאה על מנת לשלוח הזמנה באמצעות SMS</string>
+    <string name="application_version">גרסת היישום</string>
+    <string name="general_setting">הגדרות כלליות</string>
+    <string name="notifications">התראות</string>
+    <string name="enable_invitation_notifications">אפשר/בטל  התראות הזמנה לנסיעה</string>
+    <string name="night_mode">מצב לילה</string>
+    <string name="enable_disable_night_mode">אפשר/בטל מצב לילה</string>
+    <string name="personal_setting">הגדרות אישיות</string>
+    <string name="email_address">כתובת דוא\"ל</string>
+    <string name="change_account_email_address">שינוי כתובת דואר אלקטרוני</string>
+    <string name="password">סיסמה</string>
+    <string name="change_login_password">שינוי סיסמת התחברות</string>
+    <string name="delete_account">מחיקת משתמש</string>
+    <string name="remove_account_with_all_saved_data">הסרת משתמש וכל הנתונים הקיימים</string>
+    <string name="new_email_address">כתובת דו\"אל חדשה</string>
+    <string name="new_password">סיסמה חדשה</string>
+    <string name="sure_delete_acount">האם את/ה בטוח שברצונך למחוק את המשתמש</string>
 </resources>

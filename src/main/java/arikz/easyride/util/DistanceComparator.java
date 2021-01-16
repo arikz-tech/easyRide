@@ -1,8 +1,10 @@
-package arikz.easyride.models;
+package arikz.easyride.util;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Comparator;
+
+import arikz.easyride.models.UserInRide;
 
 public class DistanceComparator implements Comparator<UserInRide> {
     private double currentLat;

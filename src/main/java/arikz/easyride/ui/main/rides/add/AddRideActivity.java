@@ -12,9 +12,12 @@ import androidx.viewpager2.adapter.FragmentViewHolder;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -25,7 +28,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -34,6 +39,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,10 +86,10 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         viewPager = findViewById(R.id.viewPager);
         ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
         viewPager.setAdapter(viewPager2Adapter);
-        new TabLayoutMediator(tabLayout,viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
+        new TabLayoutMediator(tabLayout, viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                switch (position){
+                switch (position) {
                     case 0:
                         tab.setText(getText(R.string.ride_details));
                         tab.setIcon(R.drawable.ic_rides_24);
@@ -99,6 +106,17 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     @Override
     public void onAdd(User participant) {
         rideParticipants.add(participant);
+    }
+
+    private void uploadImageDatabase(User participant) {
+        String pid = UUID.randomUUID().toString();
+        if (participant.getPid() != null) {
+            FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child(pid).putFile(Uri.parse(participant.getPid()));
+            participant.setPid(pid);
+        } else {
+            participant.setPid("no_image_avatar.png");
+        }
     }
 
     @Override
@@ -135,6 +153,13 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         setResult(RESULT_OK, data);
 
         dbRef.child("rides").child(ride.getRid()).setValue(ride);
+
+        //Upload contact pictures
+        for (User participant : rideParticipants) {
+            if (participant.getEmail() == null) {
+                uploadImageDatabase(participant);
+            }
+        }
 
         List<UserInRide> rideUsers = new ArrayList<>();
         int index = 0;

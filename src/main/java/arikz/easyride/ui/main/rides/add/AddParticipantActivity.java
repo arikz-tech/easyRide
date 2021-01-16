@@ -23,24 +23,22 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import arikz.easyride.R;
+import arikz.easyride.adapters.AddFriendAdapter;
 import arikz.easyride.models.ContactPerson;
 import arikz.easyride.models.User;
 import arikz.easyride.util.LoadContacts;
-import arikz.easyride.adapters.AddParticipantsAdapter;
 
-public class AddParticipantActivity extends AppCompatActivity implements AddParticipantsAdapter.AddParticipantListener, LoadContacts.CompleteListener {
+public class AddParticipantActivity extends AppCompatActivity implements AddFriendAdapter.AddParticipantListener {
     private static String TAG = ".AddParticipantActivity";
     private static final int CONTACT_REQUEST_CODE = 11;
 
     private List<User> participants;
-    private AddParticipantsAdapter addParticipantsAdapter;
+    private AddFriendAdapter addParticipantsAdapter;
     private ProgressBar pbParticipants;
     private User loggedInUser;
     private MaterialToolbar toolbar;
-    private ArrayList<ContactPerson> contactList;
 
     //TODO ADD THE ABILITY TO ADD PARTICIPANTS VIA PHONE NUMBER
 
@@ -63,7 +61,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
         rvParticipants.setLayoutManager(new LinearLayoutManager(this));
 
         participants = new ArrayList<>();
-        addParticipantsAdapter = new AddParticipantsAdapter(participants, this);
+        addParticipantsAdapter = new AddFriendAdapter(participants, this);
 
         rvParticipants.setAdapter(addParticipantsAdapter);
 
@@ -79,9 +77,34 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
     }
 
     private void fetchContact() {
-        contactList = new ArrayList<>();
-        LoadContacts loadContacts = new LoadContacts(getApplicationContext(),contactList,this);
-        loadContacts.start();
+        LoadContacts loadContacts = new LoadContacts(getApplicationContext());
+        final ArrayList<ContactPerson> contactList = loadContacts.getContactList();
+        FirebaseDatabase.getInstance().getReference().
+                child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    User friend = snap.getValue(User.class);
+                    if (friend != null) {
+                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone(),null);
+                        if (contactList.contains(contactFriend)) {
+                            if (friend.getEmail() != null) {
+                                if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
+                                    participants.add(friend);
+                            }
+                        }
+                    }
+                }
+                addParticipantsAdapter.notifyDataSetChanged();
+                pbParticipants.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
+
     }
 
     @Override
@@ -100,37 +123,8 @@ public class AddParticipantActivity extends AppCompatActivity implements AddPart
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 fetchContact();
             } else
-                Toast.makeText(this, R.string.permission_importance, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.friends_permission_importance, Toast.LENGTH_SHORT).show();
         }
     }
 
-
-    @Override
-    public void finishedCallback() {
-        FirebaseDatabase.getInstance().getReference().
-                child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    User friend = snap.getValue(User.class);
-                    if (friend != null) {
-                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone());
-                        if (contactList.contains(contactFriend)) {
-                            if (friend.getEmail() != null) {
-                                if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
-                                    participants.add(friend);
-                            }
-                        }
-                    }
-                }
-                addParticipantsAdapter.notifyDataSetChanged();
-                pbParticipants.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, error.getMessage());
-            }
-        });
-    }
 }

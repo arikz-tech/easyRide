@@ -43,12 +43,14 @@ import arikz.easyride.ui.main.rides.add.interfaces.ParticipantsEvents;
 public class ParticipantsFragment extends Fragment {
     private static String TAG = ".ParticipantsFragment";
     private static final int ADD_REQUEST_CODE = 17;
-    private static final int SEND_SMS_REQUEST_CODE = 29;
+    private static final int DIALOG_SMS_REQUEST_CODE = 29;
+    private static final int CONTACT_SMS_REQUEST_CODE = 34;
+
     private View view;
     private List<User> participants;
     private AddedParticipantsAdapter participantsAdapter;
     private ProgressBar pbParticipants;
-    private ExtendedFloatingActionButton fabAddParticipant, fabAddPhone,fabAddContact;
+    private ExtendedFloatingActionButton fabAddParticipant, fabAddPhone, fabAddContact;
     private FloatingActionButton fabAdd;
     private ParticipantsEvents event;
     private Animation fabOpen, fabClose, fabOpenRotate, fabCloseRotate;
@@ -141,9 +143,11 @@ public class ParticipantsFragment extends Fragment {
         fabAddContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AddContactActivity.class);
-                intent.putExtra("user", Objects.requireNonNull(Objects.requireNonNull(getActivity()).getIntent().getExtras()).getParcelable("user"));
-                startActivityForResult(intent, ADD_REQUEST_CODE);
+                if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.SEND_SMS}, CONTACT_SMS_REQUEST_CODE);
+                } else {
+                    addContact();
+                }
             }
         });
 
@@ -151,12 +155,18 @@ public class ParticipantsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.SEND_SMS}, SEND_SMS_REQUEST_CODE);
+                    requestPermissions(new String[]{Manifest.permission.SEND_SMS}, DIALOG_SMS_REQUEST_CODE);
                 } else {
                     addPhoneDialog();
                 }
             }
         });
+    }
+
+    private void addContact() {
+        Intent intent = new Intent(getActivity(), AddContactActivity.class);
+        intent.putExtra("user", Objects.requireNonNull(Objects.requireNonNull(getActivity()).getIntent().getExtras()).getParcelable("user"));
+        startActivityForResult(intent, ADD_REQUEST_CODE);
     }
 
     private class ItemTouchControl extends ItemTouchHelper.SimpleCallback {
@@ -216,10 +226,9 @@ public class ParticipantsFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        //super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ADD_REQUEST_CODE) {
             if (resultCode == AppCompatActivity.RESULT_OK) {
-
                 User participant = Objects.requireNonNull(Objects.requireNonNull(data).getExtras()).getParcelable("user");
 
                 //TODO Change this approach !@#
@@ -231,15 +240,27 @@ public class ParticipantsFragment extends Fragment {
                 participants.add(participant);
                 participantsAdapter.notifyDataSetChanged();
                 event.onAdd(participant);
-
             }
-        }
-        if (requestCode == SEND_SMS_REQUEST_CODE) {
-            if (resultCode == AppCompatActivity.RESULT_OK) {
-                addPhoneDialog();
-            } else
-                Toast.makeText(getContext(), "you have to verify sms permission", Toast.LENGTH_SHORT).show();
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == DIALOG_SMS_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                addPhoneDialog();
+            } else
+                Toast.makeText(getContext(), R.string.sms_permission_importance, Toast.LENGTH_SHORT).show();
+        }
+
+        if (requestCode == CONTACT_SMS_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                addContact();
+            } else
+                Toast.makeText(getContext(), R.string.sms_permission_importance, Toast.LENGTH_SHORT).show();
+        }
+
+    }
 }

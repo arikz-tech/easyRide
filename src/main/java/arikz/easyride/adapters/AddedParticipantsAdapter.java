@@ -1,7 +1,10 @@
 package arikz.easyride.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.List;
 
 import arikz.easyride.R;
@@ -31,7 +35,7 @@ import arikz.easyride.models.User;
 //TODO Ripple Effect Accent
 public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticipantsAdapter.ViewHolder> {
     private static final String TAG = ".ParticipantsAdapter";
-    private Context activity;
+    private Context context;
     private List<User> participants;
     private int lastPosition = -1;
 
@@ -39,9 +43,9 @@ public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticip
         void onClick(int index);
     }
 
-    public AddedParticipantsAdapter(List<User> participants, Context activity) {
+    public AddedParticipantsAdapter(List<User> participants, Context context) {
         this.participants = participants;
-        this.activity = activity;
+        this.context = context;
 
     }
 
@@ -73,8 +77,11 @@ public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticip
         User friend = participants.get(position);
         holder.itemView.setTag(friend);
         holder.tvName.setText(friend.displayName());
-
-        setProfileAvatar(holder ,friend.getPid());
+        if (friend.getEmail() != null) {
+            setProfileAvatarFriend(holder, friend.getPid());
+        } else {
+            setProfileAvatarContact(holder, friend.getPid());
+        }
         setAnimation(holder.itemView, position);
     }
 
@@ -83,7 +90,7 @@ public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticip
         return participants.size();
     }
 
-    private void setProfileAvatar(ViewHolder holder, String pid) {
+    private void setProfileAvatarFriend(ViewHolder holder, String pid) {
         View view = holder.itemView;
         final ProgressBar pb = holder.pbParticipant;
         ImageView ivAvatar = holder.ivAvatar;
@@ -106,10 +113,26 @@ public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticip
         }).into(ivAvatar);
     }
 
+    private void setProfileAvatarContact(AddedParticipantsAdapter.ViewHolder holder, String pid) {
+        if (pid != null) {
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.parse(pid));
+                Glide.with(context).load(bitmap).into(holder.ivAvatar);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else{
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child("no_image_avatar.png");
+            Glide.with(holder.itemView).load(imageRef).into(holder.ivAvatar);
+        }
+        holder.pbParticipant.setVisibility(View.INVISIBLE);
+    }
+
     private void setAnimation(View viewToAnimate, int position) {
         // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition) {
-            Animation animation = AnimationUtils.loadAnimation(activity, android.R.anim.slide_in_left);
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         }

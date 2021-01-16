@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -61,7 +60,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import arikz.easyride.R;
-import arikz.easyride.models.DistanceComparator;
+import arikz.easyride.util.DistanceComparator;
 import arikz.easyride.models.Ride;
 import arikz.easyride.models.User;
 import arikz.easyride.models.UserInRide;
