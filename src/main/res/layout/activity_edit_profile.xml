@@ -83,7 +83,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="40dp"
         app:boxBackgroundColor="@color/colorPrimarySuperLight"
         app:layout_constraintEnd_toEndOf="parent"
@@ -105,7 +105,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="40dp"
         app:boxBackgroundColor="@color/colorPrimarySuperLight"
         app:layout_constraintEnd_toEndOf="parent"
@@ -126,7 +126,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="40dp"
         app:boxBackgroundColor="@color/colorPrimarySuperLight"
         app:layout_constraintEnd_toEndOf="parent"
@@ -147,7 +147,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="40dp"
         app:boxBackgroundColor="@color/colorPrimarySuperLight"
         app:layout_constraintEnd_toEndOf="parent"
@@ -168,7 +168,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="40dp"
         android:elevation="10dp"
         android:text="@string/save_changes"
@@ -179,25 +179,15 @@
 
     <ProgressBar
         android:id="@+id/pbEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/btnSave"
-        app:layout_constraintEnd_toEndOf="@+id/btnSave"
-        app:layout_constraintStart_toStartOf="@+id/btnSave"
-        app:layout_constraintTop_toTopOf="@+id/btnSave" />
-
-    <ProgressBar
-        android:id="@+id/pbAddress"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
-        android:visibility="invisible"
         android:indeterminate="true"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etAddressLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/etPhoneLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

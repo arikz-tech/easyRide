@@ -95,22 +95,28 @@ public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticip
         final ProgressBar pb = holder.pbParticipant;
         ImageView ivAvatar = holder.ivAvatar;
 
-        StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                child("images").child("users").child(pid);
+        if (pid != null) {
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child(pid);
 
-        Glide.with(view).load(imageRef).listener(new RequestListener<Drawable>() {
-            @Override
-            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                pb.setVisibility(View.INVISIBLE);
-                return false;
-            }
+            Glide.with(view).load(imageRef).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    pb.setVisibility(View.INVISIBLE);
+                    return false;
+                }
 
-            @Override
-            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                pb.setVisibility(View.INVISIBLE);
-                return false;
-            }
-        }).into(ivAvatar);
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    pb.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+            }).into(ivAvatar);
+        } else {
+            ivAvatar.setImageResource(R.drawable.avatar_logo);
+            pb.setVisibility(View.INVISIBLE);
+        }
+
     }
 
     private void setProfileAvatarContact(AddedParticipantsAdapter.ViewHolder holder, String pid) {
@@ -121,10 +127,8 @@ public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticip
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else{
-            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child("no_image_avatar.png");
-            Glide.with(holder.itemView).load(imageRef).into(holder.ivAvatar);
+        } else {
+            holder.ivAvatar.setImageResource(R.drawable.avatar_logo);
         }
         holder.pbParticipant.setVisibility(View.INVISIBLE);
     }

@@ -37,7 +37,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -66,11 +69,9 @@ public class EditProfileActivity extends AppCompatActivity {
     private TextInputEditText etFirst, etLast, etPhone, etAddress;
     private ImageView ivProfile;
     private ProgressBar pbEdit, pbLoadingPic, pbAddress;
-
-    private User loggedInUser;
-    private String oldPID;
+    private String pid;
     private Uri filePath = null;
-    private boolean saving;
+    private boolean saving, changeImage, addressClicked;
     private LocationManager locationManager;
 
     @Override
@@ -80,89 +81,64 @@ public class EditProfileActivity extends AppCompatActivity {
 
         //Attach layout component
         pbLoadingPic = findViewById(R.id.pbLoadingPic);
-        pbAddress = findViewById(R.id.pbAddress);
+        pbEdit = findViewById(R.id.pbEdit);
         etFirst = findViewById(R.id.etFirst);
         etLast = findViewById(R.id.etLast);
         etAddress = findViewById(R.id.etAddress);
         etPhone = findViewById(R.id.etPhone);
         ivProfile = findViewById(R.id.ivProfile);
-        pbEdit = findViewById(R.id.pbEdit);
-        final MaterialButton btnSave = findViewById(R.id.btnSave);
+
+
+        MaterialButton btnSave = findViewById(R.id.btnSave);
         FloatingActionButton fabPicEdit = findViewById(R.id.fabPicEdit);
 
-        loggedInUser = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
-        assert loggedInUser != null;
-        etFirst.setText(loggedInUser.getFirst());
-        etLast.setText(loggedInUser.getLast());
-        etPhone.setText(loggedInUser.getPhone());
-        etAddress.setText(loggedInUser.getAddress());
-        oldPID = loggedInUser.getPid();
-        setProfilePicture();
+        displayUserInfo();
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saving = true;
-                if (Objects.requireNonNull(etFirst.getText()).toString().isEmpty() || Objects.requireNonNull(etLast.getText()).toString().isEmpty()
-                        || Objects.requireNonNull(etPhone.getText()).toString().isEmpty() || Objects.requireNonNull(etAddress.getText()).toString().isEmpty())
-                    Toast.makeText(EditProfileActivity.this, getText(R.string.enter_fields), Toast.LENGTH_SHORT).show();
-                else {
-                    pbEdit.setVisibility(View.VISIBLE);
-                    btnSave.setVisibility(View.INVISIBLE);
-                    String first = etFirst.getText().toString().trim();
-                    String last = etLast.getText().toString().trim();
-                    String phone = etPhone.getText().toString().trim();
-                    String address = etAddress.getText().toString().trim();
+                if (!saving) {
+                    saving = true;
+                    boolean noEmptyFields = !etFirst.getText().toString().isEmpty() || !etLast.getText().toString().isEmpty();
 
-                    if (isAddressValid(address)) {
-                        Map<String, Object> editUser = new HashMap<>();
-                        editUser.put("first", first);
-                        editUser.put("last", last);
-                        editUser.put("phone", phone);
-                        editUser.put("address", address);
+                    if (noEmptyFields) {
+                        pbEdit.setVisibility(View.VISIBLE);
+                        String first = etFirst.getText().toString().trim();
+                        String last = etLast.getText().toString().trim();
+                        String phone = etPhone.getText().toString().trim();
+                        String address = etAddress.getText().toString().trim();
 
-                        loggedInUser.setFirst(first);
-                        loggedInUser.setLast(last);
-                        loggedInUser.setPhone(phone);
-                        loggedInUser.setAddress(address);
-
-                        String uid = getCurrentUserId();
-                        if (uid != null) {
+                        if (isAddressValid(address)) {
+                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                            assert currentUser != null;
+                            String uid = currentUser.getUid();
+                            User user = new User();
+                            user.setUid(uid);
+                            user.setEmail(currentUser.getEmail());
+                            user.setFirst(first);
+                            user.setLast(last);
+                            user.setPhone(phone);
+                            user.setAddress(address);
+                            user.setPid(pid);
                             FirebaseDatabase.getInstance().getReference().
-                                    child("users").child(uid).updateChildren(editUser).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Intent data = new Intent();
-                                    data.putExtra("user", loggedInUser);
-                                    if (filePath != null) {
-                                        loggedInUser.setPid(UUID.randomUUID().toString());
-                                        uploadImage();
-                                        setResult(RESULT_OK, data);
-                                    } else {
-                                        setResult(RESULT_OK, data);
-                                        finish();
-                                    }
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.e(TAG, Objects.requireNonNull(e.getMessage()));
-                                    Intent data = new Intent();
-                                    data.putExtra("exception", e.getMessage());
-                                    setResult(RESULT_CANCELED);
-                                    finish();
-                                }
-                            });
-                        }
-                    } else{
-                        pbEdit.setVisibility(View.INVISIBLE);
-                        btnSave.setVisibility(View.VISIBLE);
-                        Toast.makeText(EditProfileActivity.this, R.string.address_not_found, Toast.LENGTH_SHORT).show();
-                    }
+                                    child("users").child(user.getUid()).setValue(user);
 
+                            if (changeImage) {
+                                uploadImage();
+                            } else {
+                                finish();
+                            }
+                        } else {
+                            pbEdit.setVisibility(View.INVISIBLE);
+                            Toast.makeText(EditProfileActivity.this, R.string.address_not_found, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), R.string.enter_fields, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
+
 
         fabPicEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,95 +154,61 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
-                    builder.setTitle(R.string.address);
-                    builder.setMessage(R.string.take_current_pos);
-                    builder.setIcon(R.drawable.ic_address_24);
-                    builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            takeUserCurrentPosition();
-                        }
-                    }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            etAddress.setShowSoftInputOnFocus(true);
-                        }
-                    }).show();
+                    if (!addressClicked) {
+                        addressClicked = true;
+                        AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
+                        builder.setTitle(R.string.address);
+                        builder.setMessage(R.string.take_current_pos);
+                        builder.setIcon(R.drawable.ic_address_24);
+                        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                takeUserCurrentPosition();
+                            }
+                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                etAddress.setShowSoftInputOnFocus(true);
+                            }
+                        }).show();
+                    }
                 }
             }
         });
     }
 
-    private boolean isAddressValid(String address) {
-        List<Address> addresses;
-        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-        try {
-            addresses = geocoder.getFromLocationName(address, 1);
-            return !addresses.isEmpty();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                filePath = result.getUri();
-                Glide.with(this).load(filePath).into(ivProfile);
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-                Log.d(TAG, error + "");
+    private void displayUserInfo() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
+        FirebaseDatabase.getInstance().getReference().
+                child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User currentUser = snapshot.getValue(User.class);
+                assert currentUser != null;
+                updateUI(currentUser);
             }
-        }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
     }
 
-    private void uploadImage() {
-        if (filePath != null) {
-            FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child(loggedInUser.getPid()).putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    if (oldPID != null) {
-                        Objects.requireNonNull(taskSnapshot.getStorage().getParent()).child(oldPID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                savePictureID();
-                            }
-                        });
-                    } else {
-                        savePictureID();
-                    }
-                }
-            });
-        }
-    }
-
-    private void savePictureID() {
-        final String uid = getCurrentUserId();
-        if (uid != null) {
-            FirebaseDatabase.getInstance().getReference().
-                    child("users").child(uid).child("pid").setValue(loggedInUser.getPid()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    finish();
-                }
-            });
-        }
-    }
-
-    private void setProfilePicture() {
+    private void updateUI(User user) {
         pbLoadingPic.setVisibility(View.VISIBLE);
-        if (oldPID != null) {
-            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child(oldPID);
+        etFirst.setText(user.getFirst());
+        etLast.setText(user.getLast());
+        etLast.setText(user.getLast());
+        etAddress.setText(user.getAddress());
+        etPhone.setText(user.getPhone());
 
-            Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
+        pid = user.getPid();
+        if (pid != null) {
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child(pid);
+            Glide.with(getApplicationContext()).load(imageRef).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                     pbLoadingPic.setVisibility(View.INVISIBLE);
@@ -282,6 +224,50 @@ public class EditProfileActivity extends AppCompatActivity {
         } else {
             ivProfile.setImageResource(R.drawable.avatar_logo);
             pbLoadingPic.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    private boolean isAddressValid(String address) {
+        List<Address> addresses;
+        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocationName(address, 1);
+            return !addresses.isEmpty();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                filePath = result.getUri();
+                Glide.with(EditProfileActivity.this).load(filePath).into(ivProfile);
+                pid = UUID.randomUUID().toString();
+                changeImage = true;
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+                Log.d(TAG, error + "");
+            }
+        }
+    }
+
+    private void uploadImage() {
+        if (filePath != null) {
+            FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child(pid).putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    finish();
+                }
+            });
+        } else {
+            finish();
         }
     }
 
@@ -314,14 +300,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
             }
         }
-    }
-
-    private String getCurrentUserId() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null)
-            return user.getUid();
-        else
-            return null;
     }
 
     @Override

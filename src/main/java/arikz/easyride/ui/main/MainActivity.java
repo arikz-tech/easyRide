@@ -52,7 +52,6 @@ import arikz.easyride.ui.main.setting.SettingFragment;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = ".MainActivity";
-    private static final int CONTACT_REQUEST_CODE = 15;
 
     private DrawerLayout drawer;
     private NavigationView navigationView;
@@ -62,12 +61,11 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private ProgressBar pbLoadingPic;
     private MaterialToolbar toolbar;
-    private Bundle bundle;
 
     @Override
     protected void onStart() {
         super.onStart();
-        getUserAndDisplayInfo();
+        updateNavigationBarUserInfo();
     }
 
     @Override
@@ -107,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
                     navigationView.getMenu().getItem(i).setChecked(false);
 
                 if (selectedFragment != null) {
-                    selectedFragment.setArguments(bundle);
                     getSupportFragmentManager().
                             beginTransaction().
                             replace(R.id.fragment_container, selectedFragment).
@@ -132,35 +129,27 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.friends:
-                        if (bundle != null) {
-                            itemCheckedSign = true;
-                            toolbar.setTitle(getApplicationContext().getString(R.string.friends));
-                            FriendsFragment friendsFragment = new FriendsFragment();
-                            friendsFragment.setArguments(bundle);
-                            getSupportFragmentManager().
-                                    beginTransaction().
-                                    replace(R.id.fragment_container, friendsFragment).commit();
-                        }
+                        itemCheckedSign = true;
+                        toolbar.setTitle(getApplicationContext().getString(R.string.friends));
+                        getSupportFragmentManager().
+                                beginTransaction().
+                                replace(R.id.fragment_container, new FriendsFragment()).commit();
+
                         break;
                     case R.id.profile:
-                        if (bundle != null) {
-                            itemCheckedSign = true;
-                            toolbar.setTitle(getApplicationContext().getString(R.string.profile));
-                            ProfileFragment profileFragment = new ProfileFragment();
-                            profileFragment.setArguments(bundle);
-                            getSupportFragmentManager().
-                                    beginTransaction().
-                                    replace(R.id.fragment_container, profileFragment).commit();
-                        }
+                        itemCheckedSign = true;
+                        toolbar.setTitle(getApplicationContext().getString(R.string.profile));
+                        getSupportFragmentManager().
+                                beginTransaction().
+                                replace(R.id.fragment_container, new ProfileFragment()).commit();
+
                         break;
                     case R.id.setting:
                         itemCheckedSign = true;
                         toolbar.setTitle(getApplicationContext().getString(R.string.setting));
-                        SettingFragment settingFragment = new SettingFragment();
-                        settingFragment.setArguments(bundle);
                         getSupportFragmentManager().
                                 beginTransaction().
-                                replace(R.id.fragment_container, settingFragment).commit();
+                                replace(R.id.fragment_container, new SettingFragment()).commit();
                         break;
                     case R.id.share:
                         Intent sendIntent = new Intent();
@@ -171,12 +160,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(shareIntent);
                         break;
                     case R.id.logout:
-                        GoogleSignInClient googleClient = GoogleSignIn.getClient(MainActivity.this, GoogleSignInOptions.DEFAULT_SIGN_IN);
-                        googleClient.signOut();
-                        FirebaseAuth.getInstance().signOut();
-                        Intent signOutIntent = new Intent(MainActivity.this, LoginActivity.class);
-                        startActivity(signOutIntent);
-                        finish();
+                        signOut();
                         break;
                     case R.id.exit:
                         finish();
@@ -200,9 +184,16 @@ public class MainActivity extends AppCompatActivity {
         tvMail = navHeader.findViewById(R.id.tvMail);
         ivProfilePic = navHeader.findViewById(R.id.ivProfilePic);
         pbLoadingPic = navHeader.findViewById(R.id.pbLoadingPic);
-
     }
 
+    public void signOut() {
+        GoogleSignInClient googleClient = GoogleSignIn.getClient(MainActivity.this, GoogleSignInOptions.DEFAULT_SIGN_IN);
+        googleClient.signOut();
+        FirebaseAuth.getInstance().signOut();
+        Intent signOutIntent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(signOutIntent);
+        finish();
+    }
 
     private void setRidesDefaultFragment() {
         toolbar.setTitle(getApplicationContext().getString(R.string.rides));
@@ -214,59 +205,51 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.getMenu().getItem(1).setChecked(true);
     }
 
-    private void getUserAndDisplayInfo() {
+    public void updateNavigationBarUserInfo() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            FirebaseDatabase.getInstance().getReference().
-                    child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
+        assert user != null;
+        FirebaseDatabase.getInstance().getReference().
+                child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User currentUser = snapshot.getValue(User.class);
+                assert currentUser != null;
+                updateUI(currentUser);
+            }
 
-                    User loggedInUser = snapshot.getValue(User.class);
-
-                    bundle = new Bundle();
-                    bundle.putParcelable("user", loggedInUser);
-                    ridesFragment.setArguments(bundle);
-
-                    if (loggedInUser != null) {
-                        tvName.setText(Objects.requireNonNull(loggedInUser).displayName());
-                        tvMail.setText(loggedInUser.getEmail());
-                        setProfilePicture(loggedInUser.getPid());
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, error.getMessage());
-                }
-            });
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
     }
 
-    @Override
-    public void onAttachFragment(@NonNull Fragment fragment) {
-        super.onAttachFragment(fragment);
-    }
-
-    private void setProfilePicture(String pid) {
+    private void updateUI(User user) {
         pbLoadingPic.setVisibility(View.VISIBLE);
+        tvName.setText(user.displayName());
+        tvMail.setText(user.getEmail());
 
-        StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                child("images").child("users").child(pid);
+        String pid = user.getPid();
+        if (pid != null) {
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child(pid);
+            Glide.with(getApplicationContext()).load(imageRef).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    pbLoadingPic.setVisibility(View.INVISIBLE);
+                    return false;
+                }
 
-        Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
-            @Override
-            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                pbLoadingPic.setVisibility(View.INVISIBLE);
-                return false;
-            }
-
-            @Override
-            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                pbLoadingPic.setVisibility(View.INVISIBLE);
-                return false;
-            }
-        }).into(ivProfilePic);
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    pbLoadingPic.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+            }).into(ivProfilePic);
+        } else {
+            ivProfilePic.setImageResource(R.drawable.avatar_logo);
+            pbLoadingPic.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override

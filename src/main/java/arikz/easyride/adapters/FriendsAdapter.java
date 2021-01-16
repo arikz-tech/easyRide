@@ -106,23 +106,27 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         View view = holder.itemView;
         final ProgressBar pb = holder.pbFriend;
         ImageView ivAvatar = holder.ivAvatar;
-        StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                child("images").child("users").child(pid);
+        if (pid != null) {
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child(pid);
 
-        Glide.with(view).load(imageRef).addListener(new RequestListener<Drawable>() {
-            @Override
-            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                pb.setVisibility(View.INVISIBLE);
-                return false;
-            }
+            Glide.with(view).load(imageRef).addListener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    pb.setVisibility(View.INVISIBLE);
+                    return false;
+                }
 
-            @Override
-            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                pb.setVisibility(View.INVISIBLE);
-                return false;
-            }
-        }).into(ivAvatar);
-
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    pb.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+            }).into(ivAvatar);
+        } else {
+            ivAvatar.setImageResource(R.drawable.avatar_logo);
+            pb.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void setProfileAvatarContact(ViewHolder holder, String pid) {

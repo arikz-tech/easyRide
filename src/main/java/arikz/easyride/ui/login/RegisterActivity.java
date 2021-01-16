@@ -72,7 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
                             user.setFirst(etFirst.getText().toString().trim());
                             user.setLast(etLast.getText().toString().trim());
                             user.setPhone(etPhone.getText().toString().trim());
-                            user.setPid("no_image_avatar.png");
+                            user.setPid("avatar_logo.png");
                             user.setUid(Objects.requireNonNull(authResult.getUser()).getUid());
 
                             // New access into firebase to store user information

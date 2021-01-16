@@ -94,10 +94,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
                 e.printStackTrace();
             }
         } else {
-            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child("no_image_avatar.png");
-
-            Glide.with(holder.itemView).load(imageRef).into(holder.ivAvatar);
+            holder.ivAvatar.setImageResource(R.drawable.avatar_logo);
         }
         holder.pbParticipant.setVisibility(View.INVISIBLE);
 

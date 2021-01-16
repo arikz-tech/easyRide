@@ -60,7 +60,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
         pbRides = view.findViewById(R.id.pbRides);
 
         ExtendedFloatingActionButton fabAddRide = view.findViewById(R.id.fabAddRide);
-        Animation fabDisplay = AnimationUtils.loadAnimation(getActivity(),R.anim.from_bottom_anim);
+        Animation fabDisplay = AnimationUtils.loadAnimation(getActivity(), R.anim.from_bottom_anim);
         fabDisplay.setDuration(500);
         fabAddRide.startAnimation(fabDisplay);
 
@@ -83,11 +83,8 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
         fabAddRide.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getArguments() != null) {
-                    Intent intent = new Intent(getActivity(), AddRideActivity.class);
-                    intent.putExtra("user", getArguments().getParcelable("user"));
-                    startActivityForResult(intent, ADD_REQUEST_CODE);
-                }
+                Intent intent = new Intent(getActivity(), AddRideActivity.class);
+                startActivityForResult(intent, ADD_REQUEST_CODE);
             }
         });
 
@@ -119,7 +116,7 @@ public class RidesFragment extends Fragment implements RidesAdapter.OnRideClicke
                     }
                 }
 
-                if(rides.isEmpty()){
+                if (rides.isEmpty()) {
                     ivNoRides.setVisibility(View.VISIBLE);
                     tvNoRides.setVisibility(View.VISIBLE);
                 }

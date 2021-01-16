@@ -64,6 +64,10 @@ public class MapLoaded implements OnMapReadyCallback {
             e.printStackTrace();
         }
 
+
+
+
+
     }
 
     private void addCluster(final LatLng clusterLatLng) {
@@ -75,29 +79,51 @@ public class MapLoaded implements OnMapReadyCallback {
             clusterManager.setRenderer(clusterManagerRenderer);
         }
 
-        Task<byte[]> task = FirebaseStorage.getInstance().getReference().
-                child("images").child("users").child(currentUser.getPid()).getBytes(Long.MAX_VALUE);
-        task.addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(final byte[] bytes) {
-                FirebaseDatabase.getInstance().getReference().
-                        child("users").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        User userInfo = snapshot.getValue(User.class);
-                        String markerName = Objects.requireNonNull(userInfo).displayName();
-                        ClusterMarker check = new ClusterMarker(clusterLatLng, markerName, currentUser.getAddress(), bytes);
-                        clusterManager.addItem(check);
-                        clusterManager.cluster();
-                    }
+        String pid = currentUser.getPid();
+        if (pid != null) {
+            Task<byte[]> task = FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child(pid).getBytes(Long.MAX_VALUE);
+            task.addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(final byte[] bytes) {
+                    FirebaseDatabase.getInstance().getReference().
+                            child("users").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            User userInfo = snapshot.getValue(User.class);
+                            String markerName = Objects.requireNonNull(userInfo).displayName();
+                            ClusterMarker check = new ClusterMarker(clusterLatLng, markerName, currentUser.getAddress(), bytes);
+                            clusterManager.addItem(check);
+                            clusterManager.cluster();
+                        }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e(TAG, error.getMessage());
-                    }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e(TAG, error.getMessage());
+                        }
 
-                });
-            }
-        });
+                    });
+                }
+            });
+        } else {
+            FirebaseDatabase.getInstance().getReference().
+                    child("users").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User userInfo = snapshot.getValue(User.class);
+                    String markerName = Objects.requireNonNull(userInfo).displayName();
+                    ClusterMarker check = new ClusterMarker(clusterLatLng, markerName, currentUser.getAddress(), null);
+                    clusterManager.addItem(check);
+                    clusterManager.cluster();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, error.getMessage());
+                }
+
+            });
+        }
+
     }
 }

@@ -255,9 +255,11 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
                                 dbRef.child("users").child(key).removeValue();
                             }
                             String pid = user.getPid();
-                            if (!pid.equals("no_image_avatar.png")) {
-                                FirebaseStorage.getInstance().getReference().
-                                        child("images").child("users").child(user.getPid()).delete();
+                            if (pid != null) {
+                                if (!pid.equals("avatar_logo.png")) {
+                                    FirebaseStorage.getInstance().getReference().
+                                            child("images").child("users").child(user.getPid()).delete();
+                                }
                             }
                         }
                     }

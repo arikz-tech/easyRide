@@ -135,7 +135,6 @@ public class ParticipantsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddParticipantActivity.class);
-                intent.putExtra("user", Objects.requireNonNull(Objects.requireNonNull(getActivity()).getIntent().getExtras()).getParcelable("user"));
                 startActivityForResult(intent, ADD_REQUEST_CODE);
             }
         });
@@ -165,7 +164,6 @@ public class ParticipantsFragment extends Fragment {
 
     private void addContact() {
         Intent intent = new Intent(getActivity(), AddContactActivity.class);
-        intent.putExtra("user", Objects.requireNonNull(Objects.requireNonNull(getActivity()).getIntent().getExtras()).getParcelable("user"));
         startActivityForResult(intent, ADD_REQUEST_CODE);
     }
 
@@ -206,7 +204,7 @@ public class ParticipantsFragment extends Fragment {
                     phoneUser.setFirst(name);
                     phoneUser.setLast("");
                     phoneUser.setPhone(phone);
-                    phoneUser.setPid("no_image_avatar.png");
+                    phoneUser.setPid("avatar_logo.png");
                     participants.add(phoneUser);
                     participantsAdapter.notifyDataSetChanged();
                     event.onAdd(phoneUser);

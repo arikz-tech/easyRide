@@ -80,17 +80,11 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
     private HashMap<String, Marker> pathInfo;
     private HashMap<String, List<LatLng>> pathBounds;
     private List<LatLng> srcPoints;
-    private User loggedInUser;
     private int numOfRides = 0;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            loggedInUser = bundle.getParcelable("user");
-        }
 
         //Initialize view
         View view = inflater.inflate(R.layout.fragment_map, container, false);
@@ -113,7 +107,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                         requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
                     } else {
                         LocationManager locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
-                        GPSMarker tracker = new GPSMarker(context, mGoogleMap, loggedInUser.displayName());
+                        GPSMarker tracker = new GPSMarker(context, mGoogleMap);
                         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, tracker);
                         } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {

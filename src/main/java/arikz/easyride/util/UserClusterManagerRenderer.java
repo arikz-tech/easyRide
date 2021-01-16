@@ -27,22 +27,22 @@ public class UserClusterManagerRenderer extends DefaultClusterRenderer<ClusterMa
     public UserClusterManagerRenderer(Context context, GoogleMap map, ClusterManager<ClusterMarker> clusterManager) {
         super(context, map, clusterManager);
 
-        iconGenerator =  new IconGenerator(context.getApplicationContext());
+        iconGenerator = new IconGenerator(context.getApplicationContext());
         imageView = new ImageView(context.getApplicationContext());
         imageView.setImageResource(R.drawable.avatar_logo);
         int markWidth = (int) context.getResources().getDimension(R.dimen.custom_marker_image);
         int markHeight = (int) context.getResources().getDimension(R.dimen.custom_marker_image);
         imageView.setLayoutParams(new ViewGroup.LayoutParams(markWidth, markHeight));
         int padding = (int) context.getResources().getDimension(R.dimen.custom_marker_padding);
-        imageView.setPadding(padding,padding,padding,padding);
+        imageView.setPadding(padding, padding, padding, padding);
         iconGenerator.setContentView(imageView);
     }
 
     @Override
     protected void onBeforeClusterItemRendered(@NonNull ClusterMarker item, @NonNull MarkerOptions markerOptions) {
 
-        if(item.getImage()!=null)
-            imageView.setImageBitmap(BitmapFactory.decodeByteArray(item.getImage(),0,item.getImage().length));
+        if (item.getImage() != null)
+            imageView.setImageBitmap(BitmapFactory.decodeByteArray(item.getImage(), 0, item.getImage().length));
         else
             imageView.setImageResource(R.drawable.avatar_logo);
 

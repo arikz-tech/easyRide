@@ -34,6 +34,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -69,7 +71,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
 
     private ViewPager2 viewPager;
     private List<User> rideParticipants;
-    private User owner;
+    private User currentUser;
     private boolean saving;
 
     @Override
@@ -78,9 +80,10 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         setContentView(R.layout.activity_add_ride);
 
         rideParticipants = new ArrayList<>();
-        owner = Objects.requireNonNull(getIntent().getExtras()).getParcelable("user");
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
+
+        getCurrentUser();
 
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
@@ -103,6 +106,23 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         }).attach();
     }
 
+    private void getCurrentUser() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        assert user != null;
+        dbRef.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentUser = snapshot.getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
+    }
+
     @Override
     public void onAdd(User participant) {
         rideParticipants.add(participant);
@@ -115,7 +135,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                     child("images").child("users").child(pid).putFile(Uri.parse(participant.getPid()));
             participant.setPid(pid);
         } else {
-            participant.setPid("no_image_avatar.png");
+            participant.setPid("avatar_logo.png");
         }
     }
 
@@ -137,11 +157,11 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     @Override
     public void onSubmit(String name, String src, String dest, String date, String pid) {
 
-        rideParticipants.add(owner);
+        rideParticipants.add(currentUser);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         final Ride ride = new Ride();
         ride.setName(name);
-        ride.setOwnerUID(owner.getUid());
+        ride.setOwnerUID(currentUser.getUid());
         ride.setSource(src);
         ride.setDestination(dest);
         ride.setDate(date);
@@ -173,7 +193,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
             }
             UserInRide user = new UserInRide();
             user.setUid(participant.getUid());
-            if (participant.getUid().equals(owner.getUid())) {
+            if (participant.getUid().equals(currentUser.getUid())) {
                 LatLng latLng = getAddressLatLng(src);
                 if (latLng != null) {
                     user.setLatitude(latLng.latitude + "");
@@ -212,7 +232,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
             }
         }
 
-        rideParticipants.remove(owner);
+        rideParticipants.remove(currentUser);
         for (final User participant : rideParticipants) {
             if (participant.getUid() != null) {
                 dbRef.child("tokens").child(participant.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -220,7 +240,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
                             String token = snapshot.getValue(String.class);
-                            sendNotification(token, owner.displayName());
+                            sendNotification(token, currentUser.displayName());
                         }
                     }
 

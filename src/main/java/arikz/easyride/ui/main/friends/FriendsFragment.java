@@ -20,8 +20,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -41,9 +44,9 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     private View view;
     private List<User> friends;
     private FriendsAdapter friendsAdapter;
-    private User loggedInUser;
     private ExtendedFloatingActionButton fabInviteFriends;
     private ProgressBar pbFriend;
+    private User currentUser;
 
 
     @Override
@@ -59,11 +62,6 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
         fabInviteFriends = view.findViewById(R.id.fabInviteFriends);
         pbFriend = view.findViewById(R.id.pbFriend);
 
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            loggedInUser = bundle.getParcelable("user");
-        }
-
         RecyclerView rvFriends = view.findViewById(R.id.rvFriends);
         rvFriends.setHasFixedSize(true);
         rvFriends.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -72,7 +70,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
         friendsAdapter = new FriendsAdapter(friends, this, getContext());
         rvFriends.setAdapter(friendsAdapter);
 
-
+        getCurrentUser();
         collectContactFriends();
 
         fabInviteFriends.setOnClickListener(new View.OnClickListener() {
@@ -111,14 +109,33 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
                         ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone(), null);
                         if (contactList.contains(contactFriend)) {
                             if (friend.getEmail() != null) {
-                                if (!friends.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
-                                    friends.add(friend);
+                                if (currentUser != null) {
+                                    if (!friends.contains(friend) && !friend.getPhone().equals(currentUser.getPhone()))
+                                        friends.add(friend);
+                                }
                             }
                         }
                     }
                 }
                 friendsAdapter.notifyDataSetChanged();
                 pbFriend.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
+    }
+
+    private void getCurrentUser() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        assert user != null;
+        dbRef.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentUser = snapshot.getValue(User.class);
             }
 
             @Override

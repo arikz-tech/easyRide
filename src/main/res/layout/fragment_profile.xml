@@ -35,7 +35,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
                     android:elevation="10dp"
-                    android:scaleType="centerCrop"
                     app:cardCornerRadius="100dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -45,6 +44,7 @@
                         android:id="@+id/ivProfilePic"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/avatar_logo" />
 
                     <ProgressBar

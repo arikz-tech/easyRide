@@ -68,10 +68,12 @@ public class FriendsInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends_info);
 
+
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAP_VIEW_BUNDLE_KEY);
         }
+
 
         if (getIntent().getExtras() != null) {
             currentUser = getIntent().getExtras().getParcelable("userInfo");
@@ -87,10 +89,12 @@ public class FriendsInfoActivity extends AppCompatActivity {
         fabMessage = findViewById(R.id.fabMessage);
         fabWhatsApp = findViewById(R.id.fabWhatsApp);
 
+
         mapView = findViewById(R.id.mvAddress);
         mapView.onCreate(mapViewBundle);
         MapLoaded mapReady = new MapLoaded(this, currentUser);
         mapView.getMapAsync(mapReady);
+
 
         if (currentUser != null) {
             tvFirst.setText(currentUser.getFirst());
@@ -98,16 +102,14 @@ public class FriendsInfoActivity extends AppCompatActivity {
             tvMail.setText(currentUser.getEmail());
             tvPhone.setText(currentUser.getPhone());
             tvAddress.setText(currentUser.getAddress());
-            setProfilePicture(currentUser.getPid());
+            setProfilePicture();
         }
 
         fabCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentUser.getPhone() != null) {
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + currentUser.getPhone()));
-                    startActivity(intent);
-                }
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + currentUser.getPhone()));
+                startActivity(intent);
             }
         });
 
@@ -116,6 +118,7 @@ public class FriendsInfoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:" + currentUser.getPhone()));
                 startActivity(intent);
+
             }
         });
 
@@ -127,16 +130,19 @@ public class FriendsInfoActivity extends AppCompatActivity {
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
                 startActivity(i);
+
             }
         });
 
     }
 
-    private void setProfilePicture(String pid) {
+    private void setProfilePicture() {
         pbLoadingPic.setVisibility(View.VISIBLE);
+
+        String pid = currentUser.getPid();
         if (pid != null) {
             StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child(currentUser.getPid());
+                    child("images").child("users").child(pid);
 
             Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
                 @Override
@@ -156,6 +162,7 @@ public class FriendsInfoActivity extends AppCompatActivity {
             pbLoadingPic.setVisibility(View.INVISIBLE);
         }
     }
+
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {

@@ -1,12 +1,15 @@
 package arikz.easyride.ui.main.profile;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,12 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -35,12 +44,10 @@ import static android.app.Activity.RESULT_OK;
 public class ProfileFragment extends Fragment {
     private static final String TAG = ".ProfileFragment";
 
-    private static int EDIT_REQUEST_CODE = 4;
     private View view;
     private MaterialTextView tvFirst, tvLast, tvMail, tvPhone, tvAddress;
     private ImageView ivProfile;
     private ExtendedFloatingActionButton fabEdit;
-    private User loggedInUser;
     private ProgressBar pbLoadingPic;
 
     @Override
@@ -48,6 +55,13 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_profile, container, false);
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        displayUserInfo();
     }
 
     @Override
@@ -63,60 +77,51 @@ public class ProfileFragment extends Fragment {
         fabEdit = view.findViewById(R.id.fabEdit);
         ivProfile = view.findViewById(R.id.ivProfilePic);
 
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            loggedInUser = bundle.getParcelable("user");
-        }
-
-        if (loggedInUser != null) {
-            tvFirst.setText(loggedInUser.getFirst());
-            tvLast.setText(loggedInUser.getLast());
-            tvMail.setText(loggedInUser.getEmail());
-            tvPhone.setText(loggedInUser.getPhone());
-            tvAddress.setText(loggedInUser.getAddress());
-            setProfilePicture(loggedInUser.getPid());
-        }
-
         fabEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), EditProfileActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                intent.putExtra("user", loggedInUser);
-                startActivityForResult(intent, EDIT_REQUEST_CODE);
+                startActivity(intent);
             }
         });
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public void displayUserInfo() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
+        FirebaseDatabase.getInstance().getReference().
+                child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User currentUser = snapshot.getValue(User.class);
+                assert currentUser != null;
+                updateUI(currentUser);
 
-        if (requestCode == EDIT_REQUEST_CODE) {
-            if (data != null && data.getExtras() != null) {
-                if (resultCode == RESULT_OK) {
-                    loggedInUser = data.getExtras().getParcelable("user");
-                    tvFirst.setText(Objects.requireNonNull(loggedInUser).getFirst());
-                    tvLast.setText(loggedInUser.getLast());
-                    tvMail.setText(loggedInUser.getEmail());
-                    tvPhone.setText(loggedInUser.getPhone());
-                    tvAddress.setText(loggedInUser.getAddress());
-                    setProfilePicture(loggedInUser.getPid());
-                    Toast.makeText(getContext(), R.string.edit_success, Toast.LENGTH_SHORT).show();
-                } else if (resultCode == RESULT_CANCELED) {
-                    Toast.makeText(getContext(), data.getExtras().getString("exception"), Toast.LENGTH_SHORT).show();
-                }
             }
-        }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
     }
 
-    private void setProfilePicture(String pid) {
+    private void updateUI(User user) {
         pbLoadingPic.setVisibility(View.VISIBLE);
+        tvFirst.setText(user.getFirst());
+        tvLast.setText(user.getLast());
+        tvMail.setText(user.getEmail());
+        tvPhone.setText(user.getPhone());
+        tvAddress.setText(user.getAddress());
+
+        String pid = user.getPid();
         if (pid != null) {
             StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                    child("images").child("users").child(loggedInUser.getPid());
-
-            Glide.with(this).load(imageRef).listener(new RequestListener<Drawable>() {
+                    child("images").child("users").child(pid);
+            Context context = getContext();
+            assert context != null;
+            Glide.with(context).load(imageRef).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                     pbLoadingPic.setVisibility(View.INVISIBLE);

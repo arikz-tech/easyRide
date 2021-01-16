@@ -103,23 +103,29 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.View
         final ProgressBar pb = holder.pbParticipant;
         ImageView ivAvatar = holder.ivAvatar;
 
-        StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                child("images").child("users").child(pid);
+        if (pid != null) {
 
-        Glide.with(view).load(imageRef).listener(new RequestListener<Drawable>() {
-            @Override
-            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                pb.setVisibility(View.INVISIBLE);
-                return false;
-            }
 
-            @Override
-            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                pb.setVisibility(View.INVISIBLE);
-                return false;
-            }
-        }).into(ivAvatar);
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
+                    child("images").child("users").child(pid);
 
+            Glide.with(view).load(imageRef).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    pb.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    pb.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+            }).into(ivAvatar);
+        } else {
+            ivAvatar.setImageResource(R.drawable.avatar_logo);
+            pb.setVisibility(View.INVISIBLE);
+        }
     }
 
 

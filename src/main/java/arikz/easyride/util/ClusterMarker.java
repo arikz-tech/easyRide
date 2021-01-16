@@ -13,10 +13,10 @@ public class ClusterMarker implements ClusterItem {
     private String snippet;
     private byte[] image;
 
-    public ClusterMarker(){
+    public ClusterMarker() {
     }
 
-    public ClusterMarker(LatLng position,String title,String snippet,byte[] image){
+    public ClusterMarker(LatLng position, String title, String snippet, byte[] image) {
         this.position = position;
         this.title = title;
         this.snippet = snippet;

@@ -16,8 +16,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -37,10 +40,8 @@ public class AddParticipantActivity extends AppCompatActivity implements AddFrie
     private List<User> participants;
     private AddFriendAdapter addParticipantsAdapter;
     private ProgressBar pbParticipants;
-    private User loggedInUser;
     private MaterialToolbar toolbar;
-
-    //TODO ADD THE ABILITY TO ADD PARTICIPANTS VIA PHONE NUMBER
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +51,7 @@ public class AddParticipantActivity extends AppCompatActivity implements AddFrie
         pbParticipants = findViewById(R.id.pbParticipants);
         toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
-
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            loggedInUser = bundle.getParcelable("user");
-        }
+        getCurrentUser();
 
         RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         rvParticipants.setHasFixedSize(true);
@@ -66,6 +63,23 @@ public class AddParticipantActivity extends AppCompatActivity implements AddFrie
         rvParticipants.setAdapter(addParticipantsAdapter);
 
         collectContactFriends();
+    }
+
+    private void getCurrentUser() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        assert user != null;
+        dbRef.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentUser = snapshot.getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
     }
 
     private void collectContactFriends() {
@@ -86,10 +100,10 @@ public class AddParticipantActivity extends AppCompatActivity implements AddFrie
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     User friend = snap.getValue(User.class);
                     if (friend != null) {
-                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone(),null);
+                        ContactPerson contactFriend = new ContactPerson(friend.displayName(), friend.getPhone(), null);
                         if (contactList.contains(contactFriend)) {
                             if (friend.getEmail() != null) {
-                                if (!participants.contains(friend) && !friend.getPhone().equals(loggedInUser.getPhone()))
+                                if (!participants.contains(friend) && !friend.getPhone().equals(currentUser.getPhone()))
                                     participants.add(friend);
                             }
                         }
