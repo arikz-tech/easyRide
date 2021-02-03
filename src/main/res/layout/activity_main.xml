@@ -9,11 +9,6 @@
     tools:context=".ui.main.MainActivity"
     tools:openDrawer="end">
 
-    <ProgressBar
-        android:id="@+id/pbMain"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
     <include
         android:id="@+id/includeMain"
         layout="@layout/app_bar_layout"

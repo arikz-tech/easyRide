@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -102,21 +103,25 @@ public class SettingFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    Toast.makeText(getContext(), "ON", Toast.LENGTH_SHORT).show();
+
                 } else {
-                    Toast.makeText(getContext(), "OFF", Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
-
 
         sNightMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    Toast.makeText(getContext(), "ON", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG,"Before");
+                    //getActivity().setTheme(R.style.);
+                    Log.e(TAG,"After");
+
                 } else {
-                    Toast.makeText(getContext(), "OFF", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG,"Before");
+
+                    Log.e(TAG,"After");
                 }
             }
         });

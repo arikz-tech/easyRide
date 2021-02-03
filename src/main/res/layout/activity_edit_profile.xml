@@ -55,11 +55,9 @@
             android:id="@+id/fabPicEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:elevation="1dp"
             android:src="@drawable/ic_edit_24"
-            app:backgroundTint="@color/colorAccent"
             app:fabSize="mini"
-            app:tint="@color/colorWhite" />
+            style="@style/FloatingButton"/>
 
         <ProgressBar
             android:id="@+id/pbLoadingPic"

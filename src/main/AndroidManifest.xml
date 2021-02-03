@@ -39,7 +39,6 @@
         <activity android:name=".ui.main.MainActivity">
             <intent-filter>
                 <action android:name="arikz.easyride.notification_handle" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

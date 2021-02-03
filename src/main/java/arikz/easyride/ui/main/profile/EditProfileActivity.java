@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -68,7 +69,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private TextInputEditText etFirst, etLast, etPhone, etAddress;
     private ImageView ivProfile;
-    private ProgressBar pbEdit, pbLoadingPic, pbAddress;
+    private ProgressBar pbEdit, pbLoadingPic;
     private String pid;
     private Uri filePath = null;
     private boolean saving, changeImage, addressClicked;
@@ -87,7 +88,6 @@ public class EditProfileActivity extends AppCompatActivity {
         etAddress = findViewById(R.id.etAddress);
         etPhone = findViewById(R.id.etPhone);
         ivProfile = findViewById(R.id.ivProfile);
-
 
         MaterialButton btnSave = findViewById(R.id.btnSave);
         FloatingActionButton fabPicEdit = findViewById(R.id.fabPicEdit);
@@ -108,7 +108,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         String phone = etPhone.getText().toString().trim();
                         String address = etAddress.getText().toString().trim();
 
-                        if (isAddressValid(address)) {
+                        if (isAddressValid(address) || address.isEmpty()) {
                             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                             assert currentUser != null;
                             String uid = currentUser.getUid();
@@ -272,32 +272,51 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void takeUserCurrentPosition() {
-        pbAddress.setVisibility(View.VISIBLE);
+
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
-            class Listener implements LocationListener {
-                @Override
-                public void onLocationChanged(@NonNull Location location) {
-                    List<Address> addresses;
-                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    try {
-                        addresses = geocoder.getFromLocation(Objects.requireNonNull(location).getLatitude(), location.getLongitude(), 1);
-                        etAddress.setText(addresses.get(0).getAddressLine(0));
-                        locationManager.removeUpdates(this);
-                        pbAddress.setVisibility(View.INVISIBLE);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            trackPosition();
+        }
+    }
+
+    private void trackPosition() {
+        pbEdit.setVisibility(View.VISIBLE);
+        class Listener implements LocationListener {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                List<Address> addresses;
+                Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                try {
+                    addresses = geocoder.getFromLocation(Objects.requireNonNull(location).getLatitude(), location.getLongitude(), 1);
+                    etAddress.setText(addresses.get(0).getAddressLine(0));
+                    locationManager.removeUpdates(this);
+                    pbEdit.setVisibility(View.INVISIBLE);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-            Listener listener = new Listener();
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
-            } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+        }
+        Listener listener = new Listener();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
+        } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                trackPosition();
+            } else {
             }
         }
     }

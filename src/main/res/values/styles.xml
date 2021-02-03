@@ -1,11 +1,28 @@
-<resources>
-    <!-- Base application theme. -->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">@android:color/transparent</item>
+        <item name="extendedFloatingActionButtonStyle">@style/FloatingButtonExtend</item>
+        <item name="floatingActionButtonStyle">@style/FloatingButton</item>
+    </style>
+
+    <style name="FloatingButtonExtend" parent="AppTheme">
+        <item name="iconTint">@color/colorWhite</item>
+        <item name="backgroundTint">?attr/colorAccent</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textAppearance">?attr/textAppearanceButton</item>
+    </style>
+
+    <style name="FloatingButton" parent="AppTheme">
+        <item name="tint">@color/colorWhite</item>
+        <item name="elevation">1dp</item>
+        <item name="backgroundTint">?attr/colorAccent</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textAppearance">?attr/textAppearanceButton</item>
     </style>
 
     <style name="Widget.App.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">

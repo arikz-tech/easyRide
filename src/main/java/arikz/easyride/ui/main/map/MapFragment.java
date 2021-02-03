@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -106,21 +107,48 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                             ActivityCompat.checkSelfPermission(getContext(), ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
                     } else {
-                        LocationManager locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
-                        GPSMarker tracker = new GPSMarker(context, mGoogleMap);
-                        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, tracker);
-                        } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, tracker);
-                        }
+                        findLocation(context);
                     }
                 }
             }
+
         });
 
         return view;
     }
 
+    private void findLocation(Context context) {
+        LocationManager locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(Context.LOCATION_SERVICE);
+        GPSMarker tracker = new GPSMarker(context, mGoogleMap);
+        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, tracker);
+        } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, tracker);
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == LOCATION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                findLocation(getContext());
+            } else {
+            }
+        }
+    }
 
     private void updateRidesRoutes() {
         final String uid = getCurrentUserId();
@@ -171,6 +199,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
             });
         }
     }
+
     private void addSourcePoint(LatLng src) {
         if (srcPoints == null) {
             srcPoints = new ArrayList<>();

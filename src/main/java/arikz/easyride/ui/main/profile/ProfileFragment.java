@@ -69,6 +69,7 @@ public class ProfileFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         pbLoadingPic = view.findViewById(R.id.pbLoadingPic);
+        pbLoadingPic.setVisibility(View.VISIBLE);
         tvFirst = view.findViewById(R.id.tvFirstFill);
         tvLast = view.findViewById(R.id.tvLastFill);
         tvMail = view.findViewById(R.id.tvMailFill);
@@ -76,6 +77,7 @@ public class ProfileFragment extends Fragment {
         tvAddress = view.findViewById(R.id.tvAddressFill);
         fabEdit = view.findViewById(R.id.fabEdit);
         ivProfile = view.findViewById(R.id.ivProfilePic);
+        ivProfile.setVisibility(View.INVISIBLE);
 
         fabEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,18 +127,21 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                     pbLoadingPic.setVisibility(View.INVISIBLE);
+                    ivProfile.setVisibility(View.VISIBLE);
                     return false;
                 }
 
                 @Override
                 public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                     pbLoadingPic.setVisibility(View.INVISIBLE);
+                    ivProfile.setVisibility(View.VISIBLE);
                     return false;
                 }
             }).into(ivProfile);
         } else {
             ivProfile.setImageResource(R.drawable.avatar_logo);
             pbLoadingPic.setVisibility(View.INVISIBLE);
+            ivProfile.setVisibility(View.VISIBLE);
         }
     }
 
