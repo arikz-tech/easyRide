@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.setting.SettingFragment"
-    android:background="@color/colorBackground">
+    tools:context=".ui.main.setting.SettingFragment">
 
     <TextView
         android:id="@+id/textView"
@@ -14,7 +13,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:text="@string/general_setting"
-        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -26,7 +24,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:backgroundTint="@color/colorWhite"
         android:clickable="true"
         android:elevation="10dp"
         app:cardCornerRadius="10dp"
@@ -65,8 +62,7 @@
                 android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:thumbTint="@color/colorAccent" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -79,7 +75,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:backgroundTint="@color/colorWhite"
         android:clickable="true"
         android:elevation="10dp"
         app:cardCornerRadius="10dp"
@@ -118,8 +113,7 @@
                 android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:thumbTint="@color/colorAccent" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -132,7 +126,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:text="@string/personal_setting"
-        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cvNight" />
@@ -146,7 +139,6 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:clickable="true"
-        android:backgroundTint="@color/colorWhite"
         android:elevation="10dp"
         app:cardCornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -189,7 +181,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:backgroundTint="@color/colorWhite"
         android:clickable="true"
         android:elevation="10dp"
         app:cardCornerRadius="10dp"
@@ -232,7 +223,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:backgroundTint="@color/colorWhite"
         android:clickable="true"
         android:elevation="10dp"
         app:cardCornerRadius="10dp"
@@ -274,7 +264,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="@string/application_version"
-        android:textColor="@color/colorBlack"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

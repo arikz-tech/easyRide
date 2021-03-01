@@ -1,6 +1,7 @@
 package arikz.easyride.adapters;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -15,6 +16,7 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -102,12 +104,24 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     }
 
     private void collectUserInfo(final ViewHolder holder, String uid, boolean inRide, final int position) {
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        int colorApprove = 0, colorReject = 0;
+        switch (nightModeFlags) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                colorApprove = context.getColor(R.color.light_green_300);
+                colorReject = context.getColor(R.color.red_300);
+                break;
+            case Configuration.UI_MODE_NIGHT_NO:
+                colorApprove = context.getColor(R.color.light_green_500);
+                colorReject = context.getColor(R.color.red_500);
+                break;
+        }
 
         if (inRide) {
-            holder.cvParticipant.setCardBackgroundColor(context.getColor(R.color.colorConfirm));
+            holder.cvParticipant.setCardBackgroundColor(colorApprove);
             holder.tvArrive.setText(context.getText(R.string.arrival_confirmed));
         } else {
-            holder.cvParticipant.setCardBackgroundColor(context.getColor(R.color.colorCancel));
+            holder.cvParticipant.setCardBackgroundColor(colorReject);
             holder.tvArrive.setText(context.getText(R.string.arrival_not_confirmed));
         }
 

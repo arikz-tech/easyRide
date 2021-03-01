@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="@color/colorPrimary"
+            app:contentScrim="@color/deep_orange_500"
             app:expandedTitleMarginBottom="20dp"
             app:expandedTitleMarginStart="15dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_gravity="bottom"
-                android:background="@drawable/ride_title_background" />
+                android:background="@drawable/ride_title_background"/>
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -56,28 +56,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="25dp"
-        android:backgroundTint="@color/colorAccent"
         android:elevation="1dp"
         android:src="@drawable/ic_map_24"
         app:borderWidth="0dp"
         app:layout_anchor="@id/appBarLayout"
         app:layout_anchorGravity="bottom|end|right"
-        app:maxImageSize="28dp"
-        app:tint="@color/colorWhite" />
+        app:maxImageSize="28dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabRoute"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="100dp"
-        android:backgroundTint="@color/colorAccent"
         android:elevation="1dp"
         android:src="@drawable/ic_directions_24"
         app:borderWidth="0dp"
         app:layout_anchor="@id/appBarLayout"
         app:layout_anchorGravity="bottom|end|right"
-        app:maxImageSize="28dp"
-        app:tint="@color/colorWhite" />
+        app:maxImageSize="28dp" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

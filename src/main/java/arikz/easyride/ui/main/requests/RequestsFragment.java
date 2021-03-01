@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -164,15 +165,18 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
 
     private synchronized void buttonChangeToConfirmed() {
         /*Change button style, display confirmed button*/
-        buttonPar.setStrokeColorResource(R.color.colorPrimary);
-        buttonPar.setTextColor(Objects.requireNonNull(getActivity()).getColor(R.color.colorPrimary));
-        buttonPar.setText(R.string.confirmed);
+        FragmentActivity activity = getActivity();
+        if(activity!=null){
+            buttonPar.setStrokeColorResource(R.color.deep_orange_500);
+            buttonPar.setTextColor(activity.getColor(R.color.deep_orange_500));
+            buttonPar.setText(R.string.confirmed);
+        }
     }
 
     private synchronized void buttonChangeToConfirm() {
         /*Change button style, display confirmed button*/
-        buttonPar.setStrokeColorResource(R.color.colorBlack);
-        buttonPar.setTextColor(Objects.requireNonNull(getActivity()).getColor(R.color.colorBlack));
+        buttonPar.setStrokeColorResource(R.color.black);
+        buttonPar.setTextColor(Objects.requireNonNull(getActivity()).getColor(R.color.black));
         buttonPar.setText(R.string.confirm);
     }
 

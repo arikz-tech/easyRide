@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".ui.main.rides.RidesFragment">
 
     <ProgressBar
@@ -31,8 +30,8 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/ic_no_rides_24"
+        app:tint="?attr/colorAccent"
         android:visibility="invisible"
-        app:tint="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/tvNoRides" />
@@ -43,7 +42,6 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:visibility="invisible"
-        android:textColor="@color/colorBlack"
         android:textSize="20sp"
         android:text="@string/no_rides_to_display_add_new_ride_by_click_on_ride_button"
         app:layout_constraintBottom_toBottomOf="parent"

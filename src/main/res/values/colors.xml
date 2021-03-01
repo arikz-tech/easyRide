@@ -1,31 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FF5722</color>
-    <color name="colorPrimaryLight">#FFCCBC</color>
-    <color name="colorPrimarySuperLight">#FBE2DB</color>
-    <color name="colorPrimaryDark">#E64A19</color>
-    <color name="colorPrimarySuperDark">#AF310A</color>
-    <color name="colorAccent">#FF9800</color>
-    <color name="colorPrimaryText">#212121</color>
-    <color name="colorSecondaryText">#757575</color>
-    <color name= "colorWhite">#FFFFFF</color>
-    <color name= "colorGrey">#9C9C9C</color>
-    <color name="colorBlack">#000000</color>
-    <color name="colorBackground">#F8F0ED</color>
-    <color name="colorDarkForRideTitle">#C6000000</color>
+    <color name="deep_orange_50">#FBE9E7</color>
+    <color name="deep_orange_200">#FFAB91</color>
+    <color name="deep_orange_300">#FF8A65</color>
+    <color name="deep_orange_500">#FF5722</color>
+    <color name="deep_orange_700">#E64A19</color>
+    <color name="deep_orange_900">#BF360C</color>
+    <color name="amber_200">#FFE082</color>
+    <color name="amber_500">#FFC107</color>
+    <color name="amber_700">#FFA000</color>
+    <color name="light_green_500">#8BC34A</color>
+    <color name="red_500">#F44336</color>
 
-    <color name="colorBlu">#2196F3</color>
-    <color name="colorRed">#F44336</color>
-    <color name="colorGreen">#4CAF50</color>
+    <color name="light_green_300">#AED581</color>
+    <color name="red_300">#E57373</color>
 
-    <color name="colorConfirm">#9AC568</color>
-    <color name="colorCancel">#F65E53</color>
-
-    <color name="activity_background">#F8F0ED</color>
-
-    <color name="dark_gray">#BDBDBD</color>
-    <color name="white_tint_1">#e5e5e5</color>
-    <color name="black_tint_2">#323232</color>
-    <color name="black_tint_2_85">#d9323232</color>
+    <color name="black">#FF000000</color>
+    <color name="dark_grey">#121212</color>
+    <color name="white">#FFFFFFFF</color>
 
 </resources>

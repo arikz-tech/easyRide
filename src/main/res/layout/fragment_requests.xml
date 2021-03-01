@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".ui.main.requests.RequestsFragment">
 
     <ProgressBar
@@ -32,8 +31,8 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/ic_no_rides_24"
+        app:tint="?attr/colorAccent"
         android:visibility="invisible"
-        app:tint="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/tvNoRequests" />
@@ -43,7 +42,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="invisible"
-        android:textColor="@color/colorBlack"
         android:textAlignment="center"
         android:text="@string/your_invitation_list_is_empty"
         android:textSize="20sp"

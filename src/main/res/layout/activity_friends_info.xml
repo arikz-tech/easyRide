@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".ui.main.friends.FriendsInfoActivity">
 
     <com.google.android.gms.maps.MapView
@@ -80,8 +79,6 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/first_name_colon"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/ivProfile" />
@@ -92,7 +89,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="30dp"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@+id/tvFirst"
                     app:layout_constraintStart_toEndOf="@+id/tvFirst"
@@ -105,8 +101,6 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginTop="3dp"
                     android:text="@string/last_name_colon"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvFirst" />
@@ -117,7 +111,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="30dp"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@+id/tvLast"
                     app:layout_constraintStart_toEndOf="@+id/tvLast"
@@ -130,8 +123,6 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginTop="3dp"
                     android:text="@string/email_colon"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvLast" />
@@ -142,7 +133,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="30dp"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@+id/tvMail"
                     app:layout_constraintStart_toEndOf="@+id/tvMail"
@@ -155,8 +145,6 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginTop="3dp"
                     android:text="@string/address_colon"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvMail" />
@@ -167,7 +155,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="30dp"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@+id/tvAddress"
                     app:layout_constraintStart_toEndOf="@+id/tvAddress"
@@ -181,8 +168,6 @@
                     android:layout_marginTop="3dp"
                     android:layout_marginBottom="30dp"
                     android:text="@string/phone_number_colon"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -212,9 +197,7 @@
             android:layout_marginTop="-25dp"
             android:layout_marginEnd="30dp"
             android:src="@drawable/ic_message_24"
-            app:backgroundTint="@color/colorAccent"
-            app:fabSize="normal"
-            app:tint="@color/colorWhite" />
+            app:fabSize="normal"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabCall"
@@ -225,9 +208,7 @@
             android:layout_marginTop="-25dp"
             android:layout_marginStart="30dp"
             android:src="@drawable/ic_call_24"
-            app:backgroundTint="@color/colorAccent"
-            app:fabSize="normal"
-            app:tint="@color/colorWhite" />
+            app:fabSize="normal" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabWhatsApp"
@@ -239,9 +220,7 @@
             android:layout_marginEnd="150dp"
             android:src="@drawable/ic_whatapp_24"
             android:scaleType="centerCrop"
-            app:backgroundTint="@color/colorAccent"
-            app:fabSize="normal"
-            app:tint="@color/colorWhite" />
+            app:fabSize="normal"/>
 
     </RelativeLayout>
 

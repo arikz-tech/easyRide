@@ -6,9 +6,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
@@ -26,6 +28,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "MESSAGE RECEIVED, FROM: " + remoteMessage.getFrom());
+        /*
+        SharedPreferences sharedPreferences = getSharedPreferences("notificationPref", Context.MODE_PRIVATE);
+
+        if (sharedPreferences.getBoolean("notificationPref", true)) {
+            Toast.makeText(this, "Work", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "does't work", Toast.LENGTH_SHORT).show();
+        }
+         */
 
         showNotification(remoteMessage.getData().get("name"));
     }

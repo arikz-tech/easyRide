@@ -127,4 +127,5 @@
     <string name="new_email_address">כתובת דו\"אל חדשה</string>
     <string name="new_password">סיסמה חדשה</string>
     <string name="sure_delete_acount">האם את/ה בטוח שברצונך למחוק את המשתמש</string>
+    <string name="old_password">סיסמה ישנה</string>
 </resources>

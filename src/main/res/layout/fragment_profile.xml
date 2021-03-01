@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".ui.main.profile.ProfileFragment">
 
     <RelativeLayout
@@ -63,7 +62,6 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/first_name_colon"
-                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -88,7 +86,6 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginTop="3dp"
                     android:text="@string/last_name_colon"
-                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -113,7 +110,6 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginTop="3dp"
                     android:text="@string/email_colon"
-                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -138,7 +134,6 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginTop="3dp"
                     android:text="@string/address_colon"
-                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -164,7 +159,6 @@
                     android:layout_marginTop="3dp"
                     android:layout_marginBottom="30dp"
                     android:text="@string/phone_number_colon"
-                    android:textColor="@color/colorPrimaryDark"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -194,11 +188,8 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-25dp"
             android:layout_marginBottom="5dp"
-            android:backgroundTint="@color/colorAccent"
             android:text="@string/button_edit"
-            android:textColor="@color/colorWhite"
-            app:icon="@drawable/ic_edit_24"
-            app:iconTint="@color/colorWhite" />
+            app:icon="@drawable/ic_edit_24"/>
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

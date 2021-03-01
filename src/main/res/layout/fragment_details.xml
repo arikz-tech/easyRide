@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".ui.main.rides.add.tabs.DetailsFragment">
 
     <RelativeLayout
@@ -26,9 +25,7 @@
             android:layout_marginTop="-30dp"
             android:layout_marginEnd="30dp"
             android:src="@drawable/ic_edit_24"
-            app:backgroundTint="@color/colorAccent"
-            app:fabSize="mini"
-            app:tint="@color/colorWhite" />
+            app:fabSize="mini" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cvPic"
@@ -38,16 +35,16 @@
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
             android:elevation="2dp"
-            app:strokeColor="@color/colorGrey"
-            app:strokeWidth="1dp">
+            app:strokeWidth="1dp"
+            app:strokeColor="?colorOnSurface">
 
             <ImageView
                 android:id="@+id/ivRidePic"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:layout_gravity="center_horizontal|center_vertical"
-                android:background="@color/colorBackground"
                 android:src="@drawable/ic_image_200"
+                android:background="?android:colorBackground"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 

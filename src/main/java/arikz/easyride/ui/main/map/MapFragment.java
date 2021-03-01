@@ -418,7 +418,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
             Polyline polyline = mGoogleMap.addPolyline(polylineOptions);
             polyLines.put(polyline.getId(), polyline);
             if (context != null) {
-                polyline.setColor(context.getColor(R.color.colorGrey));
+                polyline.setColor(context.getColor(R.color.black));
                 polyline.setWidth(13);
                 polyline.setPoints(points);
                 polyline.setClickable(true);
@@ -467,7 +467,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
             Polyline clickedPath = polyLines.get(polyline.getId());
             Marker clickedPathInfo = pathInfo.get(polyline.getId());
             if (clickedPath != null && clickedPathInfo != null) {
-                clickedPath.setColor(context.getColor(R.color.colorAccent));
+                clickedPath.setColor(context.getColor(R.color.amber_500));
                 clickedPath.setWidth(15);
                 clickedPathInfo.setVisible(true);
                 clickedPathInfo.showInfoWindow();
@@ -489,7 +489,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                     Polyline line = polyLines.get(path.getKey());
                     if (line != null) {
                         if (!line.equals(clickedPath)) {
-                            line.setColor(context.getColor(R.color.colorGrey));
+                            line.setColor(context.getColor(R.color.black));
                             line.setWidth(13);
                         }
                     }

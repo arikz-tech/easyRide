@@ -35,15 +35,15 @@
         android:id="@+id/tvFirst"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorWhite"
         android:paddingTop="5dp"
+        android:textColor="@color/white"
         android:textStyle="bold"/>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvMail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textColor="@color/colorWhite"/>
+        android:textColor="@color/white"
+        android:textStyle="bold" />
 
 </LinearLayout>

@@ -22,8 +22,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="@string/app_name"
             app:menu="@menu/top_app_bar"
-            app:navigationIcon="@drawable/ic_menu_24"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+            app:navigationIcon="@drawable/ic_menu_24" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
