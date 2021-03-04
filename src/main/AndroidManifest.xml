@@ -18,31 +18,39 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.main.rides.add.AddContactActivity" />
+        <activity android:name=".ui.main.rides.add.AddContactActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".ui.main.friends.FriendsInfoActivity" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-
         <activity
             android:name=".ui.main.rides.info.MapActivity"
-            android:label="@string/title_activity_map" />
-        <activity android:name=".ui.main.rides.info.RideInfoActivity" />
-        <activity android:name=".ui.main.rides.add.AddParticipantActivity" />
+            android:label="@string/title_activity_map"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.main.rides.info.RideInfoActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.main.rides.add.AddParticipantActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.main.rides.add.AddRideActivity"
-            android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".ui.main.profile.EditProfileActivity" />
-        <activity android:name=".ui.login.PasswordResetActivity" />
-        <activity android:name=".ui.login.RegisterActivity" />
-        <activity android:name=".ui.main.MainActivity">
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.main.profile.EditProfileActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.login.PasswordResetActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.login.RegisterActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.main.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="arikz.easyride.notification_handle" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.login.LoginActivity">
+        <activity android:name=".ui.login.LoginActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,8 +59,8 @@
         </activity>
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat" />
-
+            android:theme="@style/Base.Theme.AppCompat"
+            android:screenOrientation="portrait"/>
         <service
             android:name=".services.MyFirebaseMessagingService"
             android:permission="com.google.android.c2dm.permission.SEND">

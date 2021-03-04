@@ -28,17 +28,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "MESSAGE RECEIVED, FROM: " + remoteMessage.getFrom());
-        /*
+
         SharedPreferences sharedPreferences = getSharedPreferences("notificationPref", Context.MODE_PRIVATE);
 
         if (sharedPreferences.getBoolean("notificationPref", true)) {
-            Toast.makeText(this, "Work", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "does't work", Toast.LENGTH_SHORT).show();
+            showNotification(remoteMessage.getData().get("name"));
         }
-         */
-
-        showNotification(remoteMessage.getData().get("name"));
     }
 
     private void showNotification(String name) {

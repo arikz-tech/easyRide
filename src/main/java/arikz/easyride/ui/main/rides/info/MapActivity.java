@@ -3,6 +3,7 @@ package arikz.easyride.ui.main.rides.info;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -62,6 +64,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         List<UserInRide> users = getIntent().getParcelableArrayListExtra("users");
 
         if (googleMap != null) {
+            int nightModeFlags = getBaseContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getBaseContext(), R.raw.night_map_style));
+            }
             ClusterManager<ClusterMarker> clusterManager = new ClusterManager<>(getApplicationContext(), googleMap);
             UserClusterManagerRenderer clusterManagerRenderer = new UserClusterManagerRenderer(getApplicationContext(), googleMap, clusterManager);
             clusterManager.setRenderer(clusterManagerRenderer);

@@ -218,7 +218,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-25dp"
             android:layout_marginEnd="150dp"
-            android:src="@drawable/ic_whatapp_24"
+            android:src="@drawable/whatsapp"
             android:scaleType="centerCrop"
             app:fabSize="normal"/>
 

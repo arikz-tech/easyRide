@@ -41,6 +41,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
 
@@ -324,18 +325,17 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("JSON_OBJECT_ERROR: ", Objects.requireNonNull(error.getMessage()));
+                Log.d("JSON_OBJECT_ERROR: ", error.toString());
             }
         }) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> header = new HashMap<>();
-                header.put("Authorization", "key=AAAAuQUz1NI:APA91bG-whHcsvKtNMoqdeCD6jd3RuVDlDbajObAWzPr7AC6ULFvRL9MvVh5iOUjOdELcZtDzxwbaPGIdz1kD2mZgLA2Gdea_qIHIgvTtqj9UOw6RGkgStOBd67VW34UWVcpBMDwRt-b");
+                header.put("Authorization", "key=AAAAuQUz1NI:APA91bHTVAC3T8FfWqsP_lX1Kd81L3HuKbkZgwp5BsCvk_gpm2guosbRyI-slC7-NRhyAHHYteAo2v-eszNLIYDshW9R_y6Lu1kSiDDSKiYCKSnQa7eISW2HBzSuMFQ-TUiyOyInxplO");
                 header.put("Content-Type", "application/json");
                 return header;
             }
         };
-
         RequestQueue mRequestQueue;
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
         mRequestQueue.add(request);

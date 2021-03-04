@@ -89,7 +89,6 @@ public class FriendsInfoActivity extends AppCompatActivity {
         fabMessage = findViewById(R.id.fabMessage);
         fabWhatsApp = findViewById(R.id.fabWhatsApp);
 
-
         mapView = findViewById(R.id.mvAddress);
         mapView.onCreate(mapViewBundle);
         MapLoaded mapReady = new MapLoaded(this, currentUser);

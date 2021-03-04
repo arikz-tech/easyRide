@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -43,6 +44,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
 
@@ -80,6 +82,7 @@ public class LoginActivity extends AppCompatActivity {
         pbLogin = findViewById(R.id.pbLogin);
         etMail = findViewById(R.id.etMail);
         etPassword = findViewById(R.id.etPassword);
+
 
         MaterialButton btnLogin = findViewById(R.id.btnLogin);
         SignInButton btnGoogleLogin = findViewById(R.id.btnGoogleLogin);
@@ -297,14 +300,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void saveUserToken(final String uid) {
-        FirebaseAuth.getInstance().getAccessToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
             @Override
-            public void onSuccess(GetTokenResult getTokenResult) {
-                String token = getTokenResult.getToken();
+            public void onSuccess(String s) {
                 FirebaseDatabase.getInstance().getReference().
-                        child("tokens").child(uid).setValue(token);
+                        child("tokens").child(uid).setValue(s);
             }
         });
     }
-
 }

@@ -115,7 +115,6 @@ public class LoadData {
                             AddRideListener addRide = new AddRideListener();
                             db.child("rides").child(currentRid).addListenerForSingleValueEvent(addRide);
                         }
-
                 }
 
                 //TODO Show missing rides description
@@ -134,7 +133,6 @@ public class LoadData {
                         tvNoData.setVisibility(View.INVISIBLE);
                     }
                 }
-
             }
 
             @Override

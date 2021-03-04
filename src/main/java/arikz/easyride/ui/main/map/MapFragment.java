@@ -3,6 +3,7 @@ package arikz.easyride.ui.main.map;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
@@ -18,7 +19,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -33,6 +33,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -63,7 +64,6 @@ import java.util.Objects;
 import arikz.easyride.R;
 import arikz.easyride.util.DistanceComparator;
 import arikz.easyride.models.Ride;
-import arikz.easyride.models.User;
 import arikz.easyride.models.UserInRide;
 import arikz.easyride.util.ClusterMarker;
 import arikz.easyride.util.GPSMarker;
@@ -524,6 +524,10 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
+        int nightModeFlags = getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.night_map_style));
+        }
         updateRidesRoutes();
         mGoogleMap.setOnPolylineClickListener(this);
     }
