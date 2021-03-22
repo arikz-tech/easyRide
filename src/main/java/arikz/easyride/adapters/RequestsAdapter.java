@@ -9,8 +9,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,18 +37,20 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     private final static String TAG = ".RequestsAdapter";
     private List<Ride> rides;
     private Activity activity;
-    private OnRequestClicked requestFrag;
+    private RequestHandler requestFrag;
     public ViewHolder viewHolder;
     private int lastPosition = -1;
 
-    public interface OnRequestClicked {
-        void onClick(int index, MaterialButton button, ProgressBar progressBar);
+    public interface RequestHandler {
+        void onRequestConfirm(int index, MaterialButton button, ProgressBar progressBar);
+
+        void onRequestClick(int index);
     }
 
 
     public RequestsAdapter(Activity activity, Fragment requestFrag, List<Ride> rides) {
         this.rides = rides;
-        this.requestFrag = (OnRequestClicked) requestFrag;
+        this.requestFrag = (RequestHandler) requestFrag;
         this.activity = activity;
     }
 
@@ -56,9 +60,11 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
         MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest, tvDate;
         MaterialButton btnConfirm;
         ProgressBar pbConfirm;
+        CardView cvRequest;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
+            cvRequest = itemView.findViewById(R.id.cvRequest);
             pbConfirm = itemView.findViewById(R.id.pbConfirm);
             ivAvatar = itemView.findViewById(R.id.ivAvatar);
             tvRideOwner = itemView.findViewById(R.id.tvRideOwner);
@@ -67,11 +73,20 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
             tvDest = itemView.findViewById(R.id.tvDestFill);
             tvDate = itemView.findViewById(R.id.tvDateFill);
             btnConfirm = itemView.findViewById(R.id.btnConfirm);
+
             btnConfirm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int index = rides.indexOf((Ride) itemView.getTag());
-                    requestFrag.onClick(index, btnConfirm, pbConfirm);
+                    requestFrag.onRequestConfirm(index, btnConfirm, pbConfirm);
+                }
+            });
+
+            cvRequest.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int index = rides.indexOf((Ride) itemView.getTag());
+                    requestFrag.onRequestClick(index);
                 }
             });
         }

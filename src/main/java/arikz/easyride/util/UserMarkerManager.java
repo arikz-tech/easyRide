@@ -72,7 +72,7 @@ public class UserMarkerManager {
                 User userInfo = snapshot.getValue(User.class);
                 LatLng latLng = new LatLng(lat, lng);
                 String address = getAddressFromLatLng(latLng);
-                if (userInfo != null) {
+                if (userInfo != null && address != null) {
                     String markerName = userInfo.displayName();
                     ClusterMarker newCluster = new ClusterMarker(latLng, markerName, address, imageByteArray);
                     clusterManager.addItem(newCluster);
@@ -92,13 +92,16 @@ public class UserMarkerManager {
     private String getAddressFromLatLng(LatLng latLng) {
         Geocoder geocoder;
         List<Address> addresses;
-        geocoder = new Geocoder(context, Locale.getDefault());
-        try {
-            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-            return addresses.get(0).getAddressLine(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
+        if (context != null) {
+            geocoder = new Geocoder(context, Locale.getDefault());
+            try {
+                addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                return addresses.get(0).getAddressLine(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "";
+            }
         }
+        return null;
     }
 }

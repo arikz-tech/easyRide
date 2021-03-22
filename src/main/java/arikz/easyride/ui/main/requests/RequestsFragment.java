@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -49,9 +50,10 @@ import arikz.easyride.R;
 import arikz.easyride.adapters.RequestsAdapter;
 import arikz.easyride.models.Ride;
 import arikz.easyride.models.UserInRide;
+import arikz.easyride.ui.main.rides.info.RideInfoActivity;
 import arikz.easyride.util.LoadData;
 
-public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequestClicked {
+public class RequestsFragment extends Fragment implements RequestsAdapter.RequestHandler {
     private static String TAG = ".RequestsFragment";
     private static final int LOCATION_REQUEST_CODE = 59;
 
@@ -114,7 +116,7 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
     }
 
     @Override
-    public void onClick(int index, MaterialButton button, ProgressBar progressBar) {
+    public void onRequestConfirm(int index, MaterialButton button, ProgressBar progressBar) {
         if (!loading) {
             indexPar = index;
             buttonPar = button;
@@ -149,6 +151,15 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
         }
     }
 
+    @Override
+    public void onRequestClick(int index) {
+        Intent intent = new Intent(getActivity(), RideInfoActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.putExtra("ride", requests.get(index));
+        intent.putExtra("fromRequestFrag", true);
+        startActivity(intent);
+    }
+
     private synchronized void displayProgressBar() {
         loading = true;
         /*Show progress bar and hide button*/
@@ -166,7 +177,7 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.OnRequ
     private synchronized void buttonChangeToConfirmed() {
         /*Change button style, display confirmed button*/
         FragmentActivity activity = getActivity();
-        if(activity!=null){
+        if (activity != null) {
             buttonPar.setStrokeColorResource(R.color.deep_orange_500);
             buttonPar.setTextColor(activity.getColor(R.color.deep_orange_500));
             buttonPar.setText(R.string.confirmed);

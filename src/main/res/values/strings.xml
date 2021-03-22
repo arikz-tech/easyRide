@@ -2,7 +2,7 @@
     <string name="app_name">easyRide</string>
     <string name="edit_text_password">Password</string>
     <string name="button_login">Login</string>
-    <string name="text_view_welcome">Welcome to easyRide</string>
+    <string name="text_view_welcome">easyRide shuttle mangement</string>
     <string name="text_view_register">Don\'t have an account? Sign up here</string>
     <string name="text_view_forgot_password">Forgot your password? click here</string>
     <string name="text_view_or">OR</string>
@@ -106,7 +106,8 @@
     <string name="ride">ride</string>
     <string name="no_rides_to_display_add_new_ride_by_click_on_ride_button">no rides to display, add new ride by click on "ride" button</string>
     <string name="your_invitation_list_is_empty">Your invitation list is empty</string>
-    <string name="ride_invite">Ride Invitation link: </string>
+    <string name="invite_message">I invite you for a new ride call </string>
+    <string name="invitation_link">Ride confirmation link:</string>
     <string name="add_contact">Contact list</string>
     <string name="search">Search</string>
     <string name="contact_permission__importance">The permission is really important to see your contacts list</string>

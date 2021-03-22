@@ -82,8 +82,13 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
         rvParticipants.setLayoutManager(new LinearLayoutManager(this));
 
         setSupportActionBar(toolbar);
+        assert getIntent().getExtras() != null;
+        boolean fromRequest = getIntent().getBooleanExtra("fromRequestFrag", false);
+        ride = getIntent().getExtras().getParcelable("ride");
 
-        ride = Objects.requireNonNull(getIntent().getExtras()).getParcelable("ride");
+        if (fromRequest)
+            btnDelete.setVisibility(View.GONE);
+
         toolbarLayout.setTitle(Objects.requireNonNull(ride).getName());
         setRideImage();
 

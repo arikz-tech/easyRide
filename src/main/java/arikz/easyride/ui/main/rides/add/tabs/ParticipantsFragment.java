@@ -142,11 +142,7 @@ public class ParticipantsFragment extends Fragment {
         fabAddContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.SEND_SMS}, CONTACT_SMS_REQUEST_CODE);
-                } else {
                     addContact();
-                }
             }
         });
 

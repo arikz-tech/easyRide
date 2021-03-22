@@ -3,7 +3,7 @@
     <string name="app_name">easyRide</string>
     <string name="edit_text_password">סיסמה</string>
     <string name="button_login">התחבר</string>
-    <string name="text_view_welcome">ברוכים הבאים</string>
+    <string name="text_view_welcome">easyRide - ניהול הסעות</string>
     <string name="button_register">צור חשבון</string>
     <string name="text_view_forgot_password">שכחת סיסמה? לחץ כאן</string>
     <string name="text_view_register">אין לך חשבון? הרשם</string>
@@ -128,4 +128,7 @@
     <string name="new_password">סיסמה חדשה</string>
     <string name="sure_delete_acount">האם את/ה בטוח שברצונך למחוק את המשתמש</string>
     <string name="old_password">סיסמה ישנה</string>
+    <string name="invite_message">"שלום, אני מזמין אותך לנסיעה בשם "</string>
+    <string name="ride_name_message">"שם הנסיעה: "</string>
+    <string name="invitation_link">"לינק לאישור נסיעה: "</string>
 </resources>

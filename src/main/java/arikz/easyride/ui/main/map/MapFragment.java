@@ -122,13 +122,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
         GPSMarker tracker = new GPSMarker(context, mGoogleMap);
         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, tracker);
@@ -177,10 +170,11 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                                                 double lat = Double.parseDouble(participant.getLatitude());
                                                 double lng = Double.parseDouble(participant.getLongitude());
                                                 LatLng srcPoint = new LatLng(lat, lng);
-                                                addSourcePoint(srcPoint);
+                                                addSourcePoint(srcPoint, rid);
                                             }
                                         }
                                     }
+
                                 }
 
                                 @Override
@@ -200,22 +194,38 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
         }
     }
 
-    private void addSourcePoint(LatLng src) {
+    private void addSourcePoint(LatLng src, String rid) {
         if (srcPoints == null) {
             srcPoints = new ArrayList<>();
         }
         srcPoints.add(src);
         decrement();
         if (isLastRide()) {
-            LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
-            for (LatLng srcPoint : srcPoints) {
-                boundBuilder.include(srcPoint);
-            }
-            int width = getResources().getDisplayMetrics().widthPixels;
-            int height = getResources().getDisplayMetrics().heightPixels;
-            int padding = (int) (width * 0.15); // offset from edges of the map 15% of screen
-            LatLngBounds bounds = boundBuilder.build();
-            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
+            DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+            dbRef.child("rides").child(rid).child("destination").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String destAddress = snapshot.getValue(String.class);
+                    LatLng destPoint = getAddressLatLng(getContext(), destAddress);
+                    LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
+                    for (LatLng srcPoint : srcPoints) {
+                        boundBuilder.include(srcPoint);
+                    }
+                    if (destPoint != null) {
+                        boundBuilder.include(destPoint);
+                        int width = getResources().getDisplayMetrics().widthPixels;
+                        int height = getResources().getDisplayMetrics().heightPixels;
+                        int padding = (int) (width * 0.30); // offset from edges of the map 15% of screen
+                        LatLngBounds bounds = boundBuilder.build();
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, error.getMessage());
+                }
+            });
         }
     }
 
@@ -254,7 +264,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-
 
     private void createRideRoute(String rid, final List<UserInRide> participants) {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
@@ -534,19 +543,21 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
 
     private LatLng getAddressLatLng(Context context, String address) {
         List<Address> addresses;
-
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-        try {
-            addresses = geocoder.getFromLocationName(address, 1);
-            if (addresses.isEmpty())
+        if (context != null) {
+            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+            try {
+                addresses = geocoder.getFromLocationName(address, 1);
+                if (addresses.isEmpty())
+                    return null;
+                double lat = addresses.get(0).getLatitude();
+                double lng = addresses.get(0).getLongitude();
+                return new LatLng(lat, lng);
+            } catch (IOException e) {
+                e.printStackTrace();
                 return null;
-            double lat = addresses.get(0).getLatitude();
-            double lng = addresses.get(0).getLongitude();
-            return new LatLng(lat, lng);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            }
         }
+        return null;
     }
 
 }

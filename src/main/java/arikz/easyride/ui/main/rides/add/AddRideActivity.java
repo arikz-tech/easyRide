@@ -11,6 +11,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.adapter.FragmentViewHolder;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Address;
@@ -19,6 +21,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -181,7 +184,6 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 uploadImageDatabase(participant);
             }
         }
-
         List<UserInRide> rideUsers = new ArrayList<>();
         int index = 0;
         for (User participant : rideParticipants) {
@@ -190,8 +192,10 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 participant.setUid(uid);
                 dbRef.child("users").child(uid).setValue(participant);
                 //SEND VERIFICATION CODE TO PHONE USERS!!
-                sendVerificationCode(ride.getRid(), index + "", participant.getPhone());
+                sendVerificationCode(ride.getName(), ride.getRid(), index++ + "", participant.getPhone());
             }
+
+
             UserInRide user = new UserInRide();
             user.setUid(participant.getUid());
             if (participant.getUid().equals(currentUser.getUid())) {
@@ -257,13 +261,51 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         finish();
     }
 
-    private void sendVerificationCode(String rid, String index, String phone) {
-        String message = getString(R.string.ride_invite);
-        String url = "https://arikz-tech.github.io/easyrideconfirm?"
+    private void sendVerificationCode(String rideName, String rid, String index, String phone) {
+        String inviteMessage = getString(R.string.invite_message) + "\"" + rideName + "\"" + "\n";
+        String invitationLink = getString(R.string.invitation_link) + "\n" + "https://arikz-tech.github.io/easyrideconfirm?"
                 + "rid=" + rid
                 + "&index=" + index;
+        String allTextMessage = inviteMessage + invitationLink;
+        try {
+            sendSMS("checks",phone);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        /*
         SmsManager sms = SmsManager.getDefault();
-        sms.sendTextMessage(phone, null, url, null, null);
+        ArrayList<String> messageArray = sms.divideMessage(allTextMessage);
+        sms.sendMultipartTextMessage(phone, null, messageArray, null, null);
+         */
+    }
+
+    private void sendSMS(String message, String phone) throws JSONException {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="https://textbelt.com/text";
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("phone",phone);
+        jsonObject.put("message",message);
+        jsonObject.put("key","textbelt");
+        // Request a Json request response from the provided URL.
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST,url,jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Display the first 500 characters of the response string.
+                        Log.d("sendSMSResponse",response.toString());
+                    }
+                } , new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("sendSMSResponse","That didn't work!");
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(jsonRequest);
     }
 
     @Override
