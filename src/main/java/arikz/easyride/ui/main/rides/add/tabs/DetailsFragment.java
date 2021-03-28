@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.location.Address;
 import android.location.Geocoder;
@@ -18,6 +19,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -25,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -32,6 +35,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -68,11 +72,13 @@ public class DetailsFragment extends Fragment {
     private static final int LOCATION_REQUEST_CODE = 19;
 
     private View view;
-    private TextInputEditText etName, etSrc, etDest, etDate;
+    private TextInputEditText etName, etSrc, etDest;
     private ImageView ivRidePic;
     private MaterialButton btnAddRide, btnAddParticipants;
     private DetailsEvents event; //listener
     private ProgressBar pbAddRide;
+    private Chip chipDate, chipTime;
+    private String date = "", time = "";
     private Uri filePath = null;
     private LocationManager locationManager;
     private boolean progress = false;
@@ -96,7 +102,8 @@ public class DetailsFragment extends Fragment {
         etName = view.findViewById(R.id.etName);
         etSrc = view.findViewById(R.id.etSrc);
         etDest = view.findViewById(R.id.etDest);
-        etDate = view.findViewById(R.id.etDate);
+        chipDate = view.findViewById(R.id.chipDate);
+        chipTime = view.findViewById(R.id.chipTime);
         btnAddRide = view.findViewById(R.id.btnAddRide);
         FloatingActionButton fabPicEdit = view.findViewById(R.id.fabPicEdit);
         pbAddRide = view.findViewById(R.id.pbAddRide);
@@ -106,25 +113,28 @@ public class DetailsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!progress) {
-                    if (etName.getText() != null && etSrc.getText() != null && etDest.getText() != null && etDate.getText() != null) {
-                        if (etName.getText().toString().isEmpty() || etSrc.getText().toString().isEmpty() ||
-                                etDest.getText().toString().isEmpty() || etDate.getText().toString().isEmpty()) {
-                            Toast.makeText(getContext(), getString(R.string.enter_fields), Toast.LENGTH_SHORT).show();
-                        } else {
-                            String name = etName.getText().toString();
-                            String source = etSrc.getText().toString();
-                            String destination = etDest.getText().toString();
-                            String date = etDate.getText().toString();
-                            boolean pathValidation = isAddressValid(source) && isAddressValid(destination);
-                            if (pathValidation) {
-                                uploadImageAndSubmit(name, source, destination, date);
+                    if (!date.isEmpty() && !time.isEmpty()) {
+                        if (etName.getText() != null && etSrc.getText() != null && etDest.getText() != null) {
+                            if (etName.getText().toString().isEmpty() || etSrc.getText().toString().isEmpty() ||
+                                    etDest.getText().toString().isEmpty()) {
+                                Toast.makeText(getContext(), getString(R.string.enter_fields), Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(getContext(), R.string.could_not_find_location, Toast.LENGTH_SHORT).show();
+                                String name = etName.getText().toString();
+                                String source = etSrc.getText().toString();
+                                String destination = etDest.getText().toString();
+                                boolean pathValidation = isAddressValid(source) && isAddressValid(destination);
+                                if (pathValidation) {
+                                    uploadImageAndSubmit(name, source, destination, date, time);
+                                } else {
+                                    Toast.makeText(getContext(), R.string.could_not_find_location, Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }
+                    } else {
+                        Toast.makeText(getContext(), getString(R.string.enter_time_date), Toast.LENGTH_SHORT).show();
                     }
-                }else{
-                    Toast.makeText(getContext(),getString(R.string.loading), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), getString(R.string.loading), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -180,64 +190,48 @@ public class DetailsFragment extends Fragment {
             }
         });
 
-        etDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            private int hour;
-            private int minutes;
-            private int clockFormat;
+        chipDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final MaterialDatePicker<Long> datePicker = MaterialDatePicker
+                        .Builder
+                        .datePicker()
+                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                        .build();
+                datePicker.show(getFragmentManager(), "DATE_PICKER");
+
+                datePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                    @Override
+                    public void onPositiveButtonClick(Long selection) {
+                        date = datePicker.getHeaderText();
+                        chipDate.setText(getString(R.string.date_colon) + date);
+                    }
+                });
+
+            }
+        });
+
+        chipTime.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    clockFormat = TimeFormat.CLOCK_24H;
+            public void onClick(View v) {
+                final MaterialTimePicker timePicker = new MaterialTimePicker.Builder().
+                        setTimeFormat(TimeFormat.CLOCK_24H)
+                        .setHour(8)
+                        .setMinute(0)
+                        .build();
 
-                    class OnTimeClicked implements View.OnClickListener {
-                        private MaterialTimePicker materialTimePicker;
-                        private String date;
-
-                        public OnTimeClicked(MaterialTimePicker materialTimePicker, String date) {
-                            this.date = date;
-                            this.materialTimePicker = materialTimePicker;
-                        }
-
-                        @Override
-                        public void onClick(View v) {
-                            int newHour = materialTimePicker.getHour();
-                            int newMinute = materialTimePicker.getMinute();
-                            String time = newHour + ":" + (newMinute < 10 ? "0" + newMinute : newMinute);
-                            String completeDate = date + ", " + time;
-                            etDate.setText(completeDate);
-                        }
+                timePicker.addOnPositiveButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int newHour = timePicker.getHour();
+                        int newMinute = timePicker.getMinute();
+                        time = newHour + ":" + (newMinute < 10 ? "0" + newMinute : newMinute);
+                        chipTime.setText(getString(R.string.time_colon) + time);
                     }
+                });
 
-                    class OnDateClicked implements MaterialPickerOnPositiveButtonClickListener<Long> {
-                        private MaterialDatePicker<Long> materialDatePicker;
-
-                        public OnDateClicked(MaterialDatePicker<Long> materialDatePicker) {
-                            this.materialDatePicker = materialDatePicker;
-                        }
-
-                        @Override
-                        public void onPositiveButtonClick(Long selection) {
-                            MaterialTimePicker materialTimePicker = new MaterialTimePicker.Builder().
-                                    setTimeFormat(clockFormat)
-                                    .setHour(hour)
-                                    .setMinute(minutes)
-                                    .build();
-
-                            OnTimeClicked timeListener = new OnTimeClicked(materialTimePicker, materialDatePicker.getHeaderText());
-                            materialTimePicker.addOnPositiveButtonClickListener(timeListener);
-                            materialTimePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "TIME_PICKER");
-                        }
-                    }
-
-                    MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
-                    builder.setTitleText(R.string.date_select);
-                    MaterialDatePicker<Long> materialDatePicker = builder.build();
-
-                    materialDatePicker.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "DATE_PICKER");
-                    OnDateClicked dateListener = new OnDateClicked(materialDatePicker);
-                    materialDatePicker.addOnPositiveButtonClickListener(dateListener);
-                }
+                timePicker.show(getFragmentManager(), "DATE_PICKER");
             }
         });
 
@@ -308,7 +302,7 @@ public class DetailsFragment extends Fragment {
     }
 
     private void uploadImageAndSubmit(final String rideName, final String source,
-                                      final String destination, final String date) {
+                                      final String destination, final String date, final String time) {
         event.onImageUpload();
         pbAddRide.setVisibility(View.VISIBLE);
         progress = true;
@@ -318,11 +312,11 @@ public class DetailsFragment extends Fragment {
                     child("images").child("rides").child(pid).putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    event.onSubmit(rideName, source, destination, date, pid);
+                    event.onSubmit(rideName, source, destination, date, time, pid);
                 }
             });
         } else
-            event.onSubmit(rideName, source, destination, date, null);
+            event.onSubmit(rideName, source, destination, date, time, null);
     }
 
     @Override

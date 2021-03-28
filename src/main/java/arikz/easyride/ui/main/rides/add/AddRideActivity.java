@@ -4,24 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.adapter.FragmentViewHolder;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.telephony.SmsManager;
-import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -31,9 +22,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -44,9 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import arikz.easyride.R;
@@ -71,7 +57,7 @@ import arikz.easyride.ui.main.rides.add.tabs.ParticipantsFragment;
 
 public class AddRideActivity extends AppCompatActivity implements ParticipantsEvents, DetailsEvents {
     private static final String TAG = ".AddRideActivity";
-    private static final int LOCATION_REQUEST_CODE = 14;
+    private static final int SMS_SENT_REQUEST_CODE = 14;
 
     private ViewPager2 viewPager;
     private List<User> rideParticipants;
@@ -159,7 +145,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     }
 
     @Override
-    public void onSubmit(String name, String src, String dest, String date, String pid) {
+    public void onSubmit(String name, String src, String dest, String date, String time, String pid) {
 
         rideParticipants.add(currentUser);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
@@ -169,6 +155,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         ride.setSource(src);
         ride.setDestination(dest);
         ride.setDate(date);
+        ride.setTime(time);
         ride.setPid(pid);
         ride.setRid(dbRef.child("rides").push().getKey());
 
@@ -185,18 +172,18 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
             }
         }
         List<UserInRide> rideUsers = new ArrayList<>();
-        int index = 0;
         for (User participant : rideParticipants) {
+            UserInRide user = new UserInRide();
+
             if (participant.getUid() == null) {
                 String uid = UUID.randomUUID().toString();
                 participant.setUid(uid);
                 dbRef.child("users").child(uid).setValue(participant);
+                user.setContactUser(true);
                 //SEND VERIFICATION CODE TO PHONE USERS!!
-                sendVerificationCode(ride.getName(), ride.getRid(), index++ + "", participant.getPhone());
+                //sendVerificationCode(ride.getName(), ride.getRid(), index + "", participant.getPhone());
             }
 
-
-            UserInRide user = new UserInRide();
             user.setUid(participant.getUid());
             if (participant.getUid().equals(currentUser.getUid())) {
                 LatLng latLng = getAddressLatLng(src);
@@ -209,7 +196,6 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 user.setInRide(false);
 
             rideUsers.add(user);
-            index++;
         }
 
         dbRef.child("rideUsers").child(ride.getRid()).setValue(rideUsers);
@@ -256,57 +242,10 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
                 });
             }
         }
-
         Toast.makeText(AddRideActivity.this, R.string.ride_added, Toast.LENGTH_SHORT).show();
         finish();
     }
 
-    private void sendVerificationCode(String rideName, String rid, String index, String phone) {
-        String inviteMessage = getString(R.string.invite_message) + "\"" + rideName + "\"" + "\n";
-        String invitationLink = getString(R.string.invitation_link) + "\n" + "https://arikz-tech.github.io/easyrideconfirm?"
-                + "rid=" + rid
-                + "&index=" + index;
-        String allTextMessage = inviteMessage + invitationLink;
-        try {
-            sendSMS("checks",phone);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        /*
-        SmsManager sms = SmsManager.getDefault();
-        ArrayList<String> messageArray = sms.divideMessage(allTextMessage);
-        sms.sendMultipartTextMessage(phone, null, messageArray, null, null);
-         */
-    }
-
-    private void sendSMS(String message, String phone) throws JSONException {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://textbelt.com/text";
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("phone",phone);
-        jsonObject.put("message",message);
-        jsonObject.put("key","textbelt");
-        // Request a Json request response from the provided URL.
-        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST,url,jsonObject,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        // Display the first 500 characters of the response string.
-                        Log.d("sendSMSResponse",response.toString());
-                    }
-                } , new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("sendSMSResponse","That didn't work!");
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        queue.add(jsonRequest);
-    }
 
     @Override
     public void onBackPressed() {

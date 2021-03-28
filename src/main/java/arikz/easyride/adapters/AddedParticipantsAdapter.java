@@ -32,21 +32,32 @@ import java.util.List;
 import arikz.easyride.R;
 import arikz.easyride.models.User;
 
-//TODO Ripple Effect Accent
+/**
+ * Adapter class,
+ * hold RecyclerView items when participant added to the "participant list" while adding new ride.
+ * @author Arikz
+ * @since 27-03-2021
+ */
 public class AddedParticipantsAdapter extends RecyclerView.Adapter<AddedParticipantsAdapter.ViewHolder> {
-    private static final String TAG = ".ParticipantsAdapter";
-    private Context context;
-    private List<User> participants;
-    private int lastPosition = -1;
 
-    public interface OnParticipantClick {
-        void onClick(int index);
-    }
+    /**
+     * Appropriate context of the application, in order to sync participant images and animation
+     */
+    private final Context context;
+
+    /**
+     * List of participants of particular ride, holds all users information
+     */
+    private final List<User> participants;
+
+    /**
+     *Animation last item position
+     */
+    private int lastPosition = -1;
 
     public AddedParticipantsAdapter(List<User> participants, Context context) {
         this.participants = participants;
         this.context = context;
-
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

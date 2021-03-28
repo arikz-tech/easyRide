@@ -10,7 +10,7 @@
         android:id="@+id/ivRidePicLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -35,16 +35,16 @@
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
             android:elevation="2dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="?colorOnSurface">
+            app:strokeColor="?colorOnSurface"
+            app:strokeWidth="1dp">
 
             <ImageView
                 android:id="@+id/ivRidePic"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:layout_gravity="center_horizontal|center_vertical"
-                android:src="@drawable/ic_image_200"
                 android:background="?android:colorBackground"
+                android:src="@drawable/ic_image_200"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -61,7 +61,7 @@
         android:hint="@string/ride_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivRidePicLayout"
+        app:layout_constraintTop_toBottomOf="@+id/chipTime"
         app:startIconDrawable="@drawable/ic_rides_24">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -77,8 +77,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginStart="30dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="30dp"
         android:hint="@string/starting_point"
         app:layout_constraintEnd_toEndOf="parent"
@@ -100,8 +100,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginStart="30dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="30dp"
         android:hint="@string/destination"
         app:layout_constraintEnd_toEndOf="parent"
@@ -117,50 +117,28 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/etDateLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="30dp"
-        android:hint="@string/date"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etDestLayout"
-        app:startIconDrawable="@drawable/ic_event_24">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textEmailAddress" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddParticipants"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="30dp"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="30dp"
         android:text="@string/add_participants"
-        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/btnAddRide"
-        app:layout_constraintTop_toBottomOf="@+id/etDateLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/etDestLayout" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddRide"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:text="@string/add_ride"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etDateLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/etDestLayout" />
 
     <ProgressBar
         android:id="@+id/pbAddRide"
@@ -169,9 +147,42 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="30dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="30dp"
         android:indeterminate="true"
         android:visibility="invisible"
-        app:layout_constraintTop_toBottomOf="@+id/etDateLayout" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnAddParticipants" />
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chipTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="30dp"
+        android:text="@string/time"
+        android:textAlignment="center"
+        app:chipIcon="@drawable/ic_time_24"
+        app:chipIconTint="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chipDate"
+        app:layout_constraintTop_toBottomOf="@+id/ivRidePicLayout" />
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chipDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="5dp"
+        android:text="@string/date"
+        android:textAlignment="center"
+        app:chipIcon="@drawable/ic_event_24"
+        app:chipIconTint="?attr/colorOnSurface"
+        app:layout_constraintEnd_toStartOf="@+id/chipTime"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivRidePicLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

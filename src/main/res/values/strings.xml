@@ -44,8 +44,8 @@
     <string name="register_success">Successfully registered</string>
     <string name="scheduled_rides">Scheduled Rides</string>
     <string name="participants">Participants</string>
-    <string name="dest">Destination:</string>
-    <string name="src">Starting Point:</string>
+    <string name="dest_colon">Destination:</string>
+    <string name="src_colon">Starting Point:</string>
     <string name="add_ride">Add Ride</string>
     <string name="ride_name">Ride name</string>
     <string name="ride_details">Ride Details</string>
@@ -72,7 +72,7 @@
     <string name="arrival_confirmed">Arrival confirmed</string>
     <string name="arrival_not_confirmed">Arrival not confirmed</string>
     <string name="title_activity_map">Map</string>
-    <string name="date">Date</string>
+    <string name="date">Ride Date</string>
     <string name="date_colon">Date:</string>
     <string name="date_select">Select ride date</string>
     <string name="current_location">Current location</string>
@@ -129,5 +129,9 @@
     <string name="new_password">New password</string>
     <string name="sure_delete_acount">Are you sure you want to delete your account?</string>
     <string name="old_password">Old password</string>
+    <string name="invite">Send Invitation</string>
+    <string name="time">Ride Time</string>
+    <string name="time_colon">Time: </string>
+    <string name="enter_time_date">Please enter date and time</string>
 
 </resources>

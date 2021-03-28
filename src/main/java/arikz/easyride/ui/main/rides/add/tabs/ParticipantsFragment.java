@@ -43,8 +43,6 @@ import arikz.easyride.ui.main.rides.add.interfaces.ParticipantsEvents;
 public class ParticipantsFragment extends Fragment {
     private static String TAG = ".ParticipantsFragment";
     private static final int ADD_REQUEST_CODE = 17;
-    private static final int DIALOG_SMS_REQUEST_CODE = 29;
-    private static final int CONTACT_SMS_REQUEST_CODE = 34;
 
     private View view;
     private List<User> participants;
@@ -149,11 +147,7 @@ public class ParticipantsFragment extends Fragment {
         fabAddPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.SEND_SMS}, DIALOG_SMS_REQUEST_CODE);
-                } else {
                     addPhoneDialog();
-                }
             }
         });
     }
@@ -186,7 +180,6 @@ public class ParticipantsFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(R.string.add_phone_number);
         View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.phone_dialog_layout, (ViewGroup) getView(), false);
-
         final EditText NameInput = viewInflated.findViewById(R.id.etName);
         final EditText PhoneInput = viewInflated.findViewById(R.id.etPhone);
         builder.setView(viewInflated);
@@ -238,23 +231,4 @@ public class ParticipantsFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == DIALOG_SMS_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                addPhoneDialog();
-            } else
-                Toast.makeText(getContext(), R.string.sms_permission_importance, Toast.LENGTH_SHORT).show();
-        }
-
-        if (requestCode == CONTACT_SMS_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                addContact();
-            } else
-                Toast.makeText(getContext(), R.string.sms_permission_importance, Toast.LENGTH_SHORT).show();
-        }
-
-    }
 }

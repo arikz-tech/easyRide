@@ -88,7 +88,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     }
 
     private void collectContactFriends() {
-        if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, CONTACT_REQUEST_CODE);
         else
             fetchContact();

@@ -49,8 +49,8 @@
     <string name="add_ride">הוסף נסיעה</string>
     <string name="ride_name">שם נסיעה</string>
     <string name="ride_details">פרטי נסיעה</string>
-    <string name="dest">יעד:</string>
-    <string name="src">נקודת התחלה:</string>
+    <string name="dest_colon">"יעד: "</string>
+    <string name="src_colon">"נקודת התחלה: "</string>
     <string name="add">הוסף</string>
     <string name="saving_changes">השינויים נשמרים בבקשה המתן..</string>
     <string name="rides_requests">הזמנות נסיעה</string>
@@ -71,8 +71,8 @@
     <string name="arrival_confirmed">אישר\\ה נסיעה</string>
     <string name="arrival_not_confirmed">לא אישר/ה נסיעה</string>
     <string name="title_activity_map">מפה</string>
-    <string name="date">תאריך</string>
-    <string name="date_colon">תאריך:</string>
+    <string name="date">תאריך נסיעה</string>
+    <string name="date_colon">"תאריך: "</string>
     <string name="date_select">בחר תאריך נסיעה</string>
     <string name="current_location">מיקום נוכחי</string>
     <string name="yes">כן</string>
@@ -131,4 +131,7 @@
     <string name="invite_message">"שלום, אני מזמין אותך לנסיעה בשם "</string>
     <string name="ride_name_message">"שם הנסיעה: "</string>
     <string name="invitation_link">"לינק לאישור נסיעה: "</string>
+    <string name="invite">שלח הזמנה</string>
+    <string name="time">שעת נסיעה</string>
+    <string name="time_colon">"שעה: "</string>
 </resources>

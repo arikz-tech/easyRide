@@ -90,60 +90,113 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp">
+                android:layout_marginStart="5dp">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_start_flag_24" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvSrc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="@string/src_colon"
                     android:textSize="16sp"
-                    android:text="@string/src"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvSrcFill"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp">
+                android:layout_marginStart="5dp">
+
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_dest_24" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvDest"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="@string/dest_colon"
                     android:textSize="16sp"
-                    android:text="@string/dest"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvDestFill"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/lLDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp">
+                android:layout_marginStart="5dp">
+
+                <ImageView
+                    android:id="@+id/imageView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_event_24" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:layout_marginStart="5dp"
                     android:text="@string/date_colon"
-                    android:textStyle="bold"/>
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvDateFill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lLTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp">
+
+                <ImageView
+                    android:id="@+id/imageView5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_time_24" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="@string/time_colon"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvTimeFill"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp" />
@@ -165,7 +218,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="5dp"
-                app:layout_anchor="@id/lLDate"
+                app:layout_anchor="@id/lLTime"
                 app:layout_anchorGravity="bottom"/>
 
             <ProgressBar

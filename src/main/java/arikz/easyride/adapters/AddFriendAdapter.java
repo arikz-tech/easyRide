@@ -1,10 +1,7 @@
 package arikz.easyride.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,19 +23,17 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import java.io.IOException;
 import java.util.List;
 
 import arikz.easyride.R;
 import arikz.easyride.models.User;
 
-//TODO Ripple Effect Accent
 public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.ViewHolder> {
+
     private static final String TAG = ".AddFriendAdapter";
-    private Context context;
-    private List<User> participants;
-    private AddParticipantListener clickHandle;
+    private final Context context;
+    private final List<User> participants;
+    private final AddParticipantListener clickHandle;
     private int lastPosition = -1;
 
     public interface AddParticipantListener {

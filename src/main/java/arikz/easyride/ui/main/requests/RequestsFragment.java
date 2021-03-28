@@ -195,18 +195,19 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.Reques
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         String uid = getCurrentUserId();
         class AddressListener implements ValueEventListener {
-
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String address = snapshot.getValue(String.class);
                 if (address == null) {
                     Toast.makeText(getContext(), R.string.add_address_location, Toast.LENGTH_SHORT).show();
                     buttonChangeToConfirm();
+                    hideProgressBar();
                 } else {
                     final LatLng location = getAddressLatLng(address);
                     if (location == null) {
                         Toast.makeText(getContext(), R.string.add_address_location, Toast.LENGTH_SHORT).show();
                         buttonChangeToConfirm();
+                        hideProgressBar();
                     } else {
                         final String rid = requests.get(indexPar).getRid();
                         dbRef.child("rideUsers").child(rid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -253,6 +254,7 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.Reques
         if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             buttonChangeToConfirm();
+            hideProgressBar();
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
             class Listener implements LocationListener {
@@ -293,6 +295,10 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.Reques
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
             } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+            }else{
+                Toast.makeText(getContext(), "Couldn't find your location", Toast.LENGTH_SHORT).show();
+                buttonChangeToConfirm();
+                hideProgressBar();
             }
         }
     }

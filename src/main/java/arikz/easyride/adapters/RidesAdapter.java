@@ -50,7 +50,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private CardView cvRide, cvOwner;
         private ImageView ivAvatar, ivRidePic;
-        private MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest, tvDate;
+        private MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest, tvDate, tvTime;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -61,6 +61,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
             tvSrc = itemView.findViewById(R.id.tvSrcFill);
             tvDest = itemView.findViewById(R.id.tvDestFill);
             tvDate = itemView.findViewById(R.id.tvDateFill);
+            tvTime = itemView.findViewById(R.id.tvTimeFill);
             cvRide = itemView.findViewById(R.id.cvRide);
             cvOwner = itemView.findViewById(R.id.cvOwner);
 
@@ -90,6 +91,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
         holder.tvSrc.setText(ride.getSource());
         holder.tvDest.setText(ride.getDestination());
         holder.tvDate.setText(ride.getDate());
+        holder.tvTime.setText(ride.getTime());
         setRideImage(holder.itemView, holder.ivRidePic, ride.getPid());
         getOwnerInfo(holder, ride.getOwnerUID());
         setAnimation(holder.itemView, position);
@@ -132,6 +134,7 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
                     child("images").child("rides").child(pid);
 
             Glide.with(itemView).load(imageRef).into(ivRidePic);
+
         } else ivRidePic.setImageResource(R.drawable.card_view_sample);
     }
 

@@ -97,7 +97,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
         //Async map
         assert supportMapFragment != null;
         supportMapFragment.getMapAsync(this);
-
         fabLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -276,13 +275,14 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                     String dest = ride.getDestination();
                     String name = ride.getName();
                     String date = ride.getDate();
+                    String time = ride.getTime();
                     Context context = getContext();
                     if (context != null) {
                         LatLng srcLatLng = getAddressLatLng(context, src);
                         if (srcLatLng != null) {
                             DistanceComparator comparator = new DistanceComparator(srcLatLng);
                             Collections.sort(participants, comparator);
-                            createRoute(name, src, dest, date, participants);
+                            createRoute(name, src, dest, date, time, participants);
                         }
                     }
                 }
@@ -295,7 +295,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
         });
     }
 
-    private void createRoute(final String name, String src, String dest, final String date, final List<UserInRide> participants) {
+    private void createRoute(final String name, String src, final String dest, final String date, final String time, final List<UserInRide> participants) {
         StringBuilder sb = new StringBuilder();
         int googleLimit = 8;
         for (UserInRide participant : participants) {
@@ -351,7 +351,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                             }
                             route.add(path);
                         }
-                        addPolyline(name, date, participants, route);
+                        addPolyline(name, date, time, dest, participants, route);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -404,7 +404,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
         return poly;
     }
 
-    private void addPolyline(String name, String date, List<UserInRide> participants, List<List<HashMap<String, String>>> route) {
+    private void addPolyline(String name, String date, String time, String dest, List<UserInRide> participants, List<List<HashMap<String, String>>> route) {
         ArrayList<LatLng> points = new ArrayList<>();
         PolylineOptions polylineOptions = new PolylineOptions();
 
@@ -431,7 +431,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                 polyline.setWidth(13);
                 polyline.setPoints(points);
                 polyline.setClickable(true);
-                addPathInfo(name, date, polyline);
+                addPathInfo(name, date, time, polyline);
 
                 if (pathBounds == null) {
                     pathBounds = new HashMap<>();
@@ -455,6 +455,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                         googleLimit--;
                     }
                 }
+                //Add destination point.
+                boundPoints.add(getAddressLatLng(context, dest));
                 pathBounds.put(polyline.getId(), boundPoints);
             }
         }
@@ -516,8 +518,9 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
         }
     }
 
-    private void addPathInfo(String name, String date, Polyline polyline) {
-        LatLng latLng = polyline.getPoints().get(0);
+    private void addPathInfo(String name, String date, String time, Polyline polyline) {
+        int middleIndex = polyline.getPoints().size() / 2;
+        LatLng latLng = polyline.getPoints().get(middleIndex);
         if (pathInfo == null) {
             pathInfo = new HashMap<>();
         }
@@ -525,7 +528,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
                 .title(name)
-                .snippet(getString(R.string.date_colon) + " " + date));
+                .snippet(getString(R.string.date_colon) + date + " " + getString(R.string.time_colon) + time));
         marker.setVisible(false);
         pathInfo.put(polyline.getId(), marker);
     }

@@ -96,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="3dp"
-                android:text="@string/src"
+                android:text="@string/src_colon"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textStyle="bold"
@@ -120,7 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:text="@string/dest"
+                android:text="@string/dest_colon"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textStyle="bold"
@@ -160,6 +160,28 @@
                 app:layout_constraintBottom_toBottomOf="@+id/tvDate"
                 app:layout_constraintStart_toEndOf="@+id/tvDate"
                 app:layout_constraintTop_toTopOf="@+id/tvDate" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvTimeFill"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="?android:attr/textColorSecondary"
+                app:layout_constraintBottom_toBottomOf="@+id/tvTime"
+                app:layout_constraintStart_toEndOf="@+id/tvTime"
+                app:layout_constraintTop_toBottomOf="@+id/tvDate" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/time_colon"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvDate" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

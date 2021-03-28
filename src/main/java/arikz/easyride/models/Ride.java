@@ -11,20 +11,39 @@ public class Ride implements Parcelable {
     private String source;
     private String destination;
     private String date;
+    private String time;
     private String pid;
     private String ownerUID;
 
     public Ride(){
     }
 
-    public Ride(Parcel in) {
+    protected Ride(Parcel in) {
         rid = in.readString();
         name = in.readString();
         source = in.readString();
         destination = in.readString();
         date = in.readString();
+        time = in.readString();
         pid = in.readString();
         ownerUID = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(rid);
+        dest.writeString(name);
+        dest.writeString(source);
+        dest.writeString(destination);
+        dest.writeString(date);
+        dest.writeString(time);
+        dest.writeString(pid);
+        dest.writeString(ownerUID);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<Ride> CREATOR = new Creator<Ride>() {
@@ -38,22 +57,6 @@ public class Ride implements Parcelable {
             return new Ride[size];
         }
     };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(rid);
-        dest.writeString(name);
-        dest.writeString(source);
-        dest.writeString(destination);
-        dest.writeString(date);
-        dest.writeString(pid);
-        dest.writeString(ownerUID);
-    }
 
     public String getRid() {
         return rid;
@@ -95,6 +98,14 @@ public class Ride implements Parcelable {
         this.date = date;
     }
 
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
     public String getPid() {
         return pid;
     }
@@ -109,9 +120,5 @@ public class Ride implements Parcelable {
 
     public void setOwnerUID(String ownerUID) {
         this.ownerUID = ownerUID;
-    }
-
-    public static Creator<Ride> getCREATOR() {
-        return CREATOR;
     }
 }

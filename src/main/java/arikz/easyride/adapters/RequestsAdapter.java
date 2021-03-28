@@ -57,7 +57,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivAvatar;
-        MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest, tvDate;
+        MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest, tvDate, tvTime;
         MaterialButton btnConfirm;
         ProgressBar pbConfirm;
         CardView cvRequest;
@@ -72,6 +72,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
             tvSrc = itemView.findViewById(R.id.tvSrcFill);
             tvDest = itemView.findViewById(R.id.tvDestFill);
             tvDate = itemView.findViewById(R.id.tvDateFill);
+            tvTime = itemView.findViewById(R.id.tvTimeFill);
             btnConfirm = itemView.findViewById(R.id.btnConfirm);
 
             btnConfirm.setOnClickListener(new View.OnClickListener() {
@@ -108,6 +109,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
         holder.tvSrc.setText(ride.getSource());
         holder.tvDest.setText(ride.getDestination());
         holder.tvDate.setText(ride.getDate());
+        holder.tvTime.setText(ride.getTime());
         getOwnerInfo(holder, ride.getOwnerUID());
         setAnimation(holder.itemView, position);
     }

@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/deep_orange_500</item>
         <item name="colorPrimaryVariant">@color/deep_orange_700</item>
@@ -13,21 +13,22 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
 
         <!-- Customize your theme here. -->
-        <item name="bottomNavigationStyle">@style/Widget.MaterialComponents.BottomNavigationView.PrimarySurface</item>
+        <item name="bottomNavigationStyle">
+            @style/Widget.MaterialComponents.BottomNavigationView.PrimarySurface
+        </item>
         <item name="tabStyle">@style/Widget.MaterialComponents.TabLayout.Colored</item>
         <item name="toolbarStyle">@style/toolbarWhiteStyle</item>
-          <item name="drawerArrowStyle">@style/drawerStyle</item>
-          <item name="android:colorBackground">@color/deep_orange_50</item>
-      </style>
+        <item name="drawerArrowStyle">@style/drawerStyle</item>
+        <item name="android:colorBackground">@color/deep_orange_50</item>
+    </style>
 
-      <style name="drawerStyle" parent="Widget.AppCompat.DrawerArrowToggle">
-          <item name="color">@color/white</item>
-      </style>
+    <style name="drawerStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@color/white</item>
+    </style>
 
     <style name="toolbarWhiteStyle" parent="Widget.MaterialComponents.Toolbar">
         <item name="titleTextColor">@color/white</item>
     </style>
 
 
-
-      </resources>
+</resources>

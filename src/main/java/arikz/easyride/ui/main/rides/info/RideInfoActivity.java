@@ -1,6 +1,7 @@
 package arikz.easyride.ui.main.rides.info;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,6 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -51,6 +53,8 @@ import arikz.easyride.adapters.ParticipantsAdapter;
 
 public class RideInfoActivity extends AppCompatActivity implements ParticipantsAdapter.OnParticipantClick {
     private static final String TAG = ".RideInfoActivity";
+    private static final int SMS_SENT_REQUEST_CODE = 12;
+
     private ProgressBar pbRideInfo;
     private FloatingActionButton fabMap, fabRoute;
     private ImageView ivRidePic;
@@ -68,6 +72,7 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
         MaterialTextView tvSrcFill = findViewById(R.id.tvSrcFill);
         MaterialTextView tvDestFill = findViewById(R.id.tvDestFill);
         MaterialTextView tvDateFill = findViewById(R.id.tvDateFill);
+        MaterialTextView tvTimeFill = findViewById(R.id.tvTimeFill);
         btnDelete = findViewById(R.id.btnDelete);
         ivRidePic = findViewById(R.id.ivRidePic);
         pbRideInfo = findViewById(R.id.pbRideInfo);
@@ -76,15 +81,14 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
 
         RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         participants = new ArrayList<>();
-
-        participantsAdapter = new ParticipantsAdapter(participants, RideInfoActivity.this);
+        ride = getIntent().getExtras().getParcelable("ride");
+        participantsAdapter = new ParticipantsAdapter(ride, participants, RideInfoActivity.this);
         rvParticipants.setAdapter(participantsAdapter);
         rvParticipants.setLayoutManager(new LinearLayoutManager(this));
 
         setSupportActionBar(toolbar);
         assert getIntent().getExtras() != null;
         boolean fromRequest = getIntent().getBooleanExtra("fromRequestFrag", false);
-        ride = getIntent().getExtras().getParcelable("ride");
 
         if (fromRequest)
             btnDelete.setVisibility(View.GONE);
@@ -95,6 +99,7 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
         tvSrcFill.setText(ride.getSource());
         tvDestFill.setText(ride.getDestination());
         tvDateFill.setText(ride.getDate());
+        tvTimeFill.setText(ride.getTime());
 
         collectParticipants();
 
@@ -170,13 +175,12 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
         fabMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent intent = new Intent(RideInfoActivity.this, MapActivity.class);
-                intent.putParcelableArrayListExtra("users", (ArrayList<UserInRide>) participants);
+                intent.putExtra("ride", ride);
                 startActivity(intent);
-
             }
         });
+
     }
 
     private LatLng getAddressLatLng(String address) {
@@ -396,7 +400,6 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
                 Log.e(TAG, error.getMessage());
             }
         });
-
     }
 
 }
