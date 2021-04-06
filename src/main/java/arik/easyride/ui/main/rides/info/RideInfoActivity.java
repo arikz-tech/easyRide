@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -48,6 +49,7 @@ import arik.easyride.models.User;
 import arik.easyride.models.UserInRide;
 import arik.easyride.ui.main.friends.FriendsInfoActivity;
 import arik.easyride.adapters.ParticipantsAdapter;
+import arik.easyride.util.Navigate;
 
 public class RideInfoActivity extends AppCompatActivity implements ParticipantsAdapter.OnParticipantClick {
     private static final String TAG = ".RideInfoActivity";
@@ -119,10 +121,12 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
         fabRoute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String source = ride.getSource();
                 String destination = ride.getDestination();
                 LatLng src = getAddressLatLng(source);
                 LatLng dest = getAddressLatLng(destination);
+
                 if (src != null && dest != null) {
                     DistanceComparator comparator = new DistanceComparator(src);
                     Collections.sort(participants, comparator);
@@ -163,11 +167,13 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
                     if (intent.resolveActivity(getPackageManager()) != null) {
                         startActivity(intent);
                     }
+
                 } else {
                     Toast.makeText(RideInfoActivity.this, R.string.could_not_find_location, Toast.LENGTH_SHORT).show();
                 }
 
             }
+
         });
 
         fabMap.setOnClickListener(new View.OnClickListener() {

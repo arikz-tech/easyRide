@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -175,20 +176,45 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.Reques
     }
 
     private synchronized void buttonChangeToConfirmed() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         /*Change button style, display confirmed button*/
         FragmentActivity activity = getActivity();
         if (activity != null) {
-            buttonPar.setStrokeColorResource(R.color.deep_orange_500);
-            buttonPar.setTextColor(activity.getColor(R.color.deep_orange_500));
-            buttonPar.setText(R.string.confirmed);
+            switch (nightModeFlags) {
+                case Configuration.UI_MODE_NIGHT_YES:
+                    /*Change button style, display confirmed button*/
+                    buttonPar.setStrokeColorResource(R.color.deep_orange_200);
+                    buttonPar.setTextColor(activity.getColor(R.color.deep_orange_200));
+                    buttonPar.setText(R.string.confirmed);
+                    break;
+                case Configuration.UI_MODE_NIGHT_NO:
+                    /*Change button style, display confirmed button*/
+                    buttonPar.setStrokeColorResource(R.color.deep_orange_500);
+                    buttonPar.setTextColor(activity.getColor(R.color.deep_orange_500));
+                    buttonPar.setText(R.string.confirmed);
+                    break;
+            }
         }
     }
 
     private synchronized void buttonChangeToConfirm() {
-        /*Change button style, display confirmed button*/
-        buttonPar.setStrokeColorResource(R.color.black);
-        buttonPar.setTextColor(Objects.requireNonNull(getActivity()).getColor(R.color.black));
-        buttonPar.setText(R.string.confirm);
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+        switch (nightModeFlags) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                /*Change button style, display confirmed button*/
+                buttonPar.setStrokeColorResource(R.color.black);
+                buttonPar.setTextColor(Objects.requireNonNull(getActivity()).getColor(R.color.black));
+                buttonPar.setText(R.string.confirm);
+                break;
+            case Configuration.UI_MODE_NIGHT_NO:
+                /*Change button style, display confirmed button*/
+                buttonPar.setStrokeColorResource(R.color.white);
+                buttonPar.setTextColor(Objects.requireNonNull(getActivity()).getColor(R.color.white));
+                buttonPar.setText(R.string.confirm);
+                break;
+        }
+
     }
 
     private synchronized void getUserSavedAddress() {
@@ -295,7 +321,7 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.Reques
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, listener);
             } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
-            }else{
+            } else {
                 Toast.makeText(getContext(), "Couldn't find your location", Toast.LENGTH_SHORT).show();
                 buttonChangeToConfirm();
                 hideProgressBar();

@@ -127,7 +127,7 @@ public class DetailsFragment extends Fragment {
                             }
                         }
                     } else {
-                        Toast.makeText(getContext(), getString(R.string.enter_time_date), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.time_or_date_empty), Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(getContext(), getString(R.string.loading), Toast.LENGTH_SHORT).show();

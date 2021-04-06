@@ -8,12 +8,49 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:794656232658:android:2785792b2676473c67c90b",
+        "mobilesdk_app_id": "1:794656232658:android:90ad1bbeb011ff4267c90b",
         "android_client_info": {
           "package_name": "arik.easyride"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "794656232658-344l4usirjipiiagge23vi75lt938evb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCasf4DTrFPABNIDlt3-ITpvh-x-G-mgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "794656232658-344l4usirjipiiagge23vi75lt938evb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794656232658:android:2785792b2676473c67c90b",
+        "android_client_info": {
+          "package_name": "arikz.easyride"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "794656232658-8trth0ctft13g6i301pepkmbhk6vkqeh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "arikz.easyride",
+            "certificate_hash": "cbb1e16512841c781bb3c83cbbd89c85a54997c6"
+          }
+        },
         {
           "client_id": "794656232658-344l4usirjipiiagge23vi75lt938evb.apps.googleusercontent.com",
           "client_type": 3

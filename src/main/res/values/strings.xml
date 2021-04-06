@@ -28,7 +28,6 @@
     <string name="friends">Friends</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="share_intent_message">Hi there, you should to try this out easyRide !Link!</string>
     <string name="alert_dialog_confirm">Confirm</string>
     <string name="alert_dialog_no_thanks">no thanks</string>
     <string name="save_changes">Save Changes</string>
@@ -92,7 +91,7 @@
     <string name="start_point_not_found">Didn\'t found your starting point location</string>
     <string name="address_not_found">Didn\'t found your address</string>
     <string name="add_address_location">To use saved address you have to enter you address in profile section</string>
-    <string name="google_direction_api">AIzaSyAnvrgEunno_caWZuvAS9Qm5FKGJQ1MATU</string>
+    <string name="google_direction_api" translatable="false">AIzaSyCatAgGuCDmh-XElvu8wUrlB5xX67pG_9U</string>
     <string name="add_phone">Phone number</string>
     <string name="add_friend">Friends list</string>
     <string name="name">Name</string>
@@ -132,6 +131,8 @@
     <string name="invite">Send Invitation</string>
     <string name="time">Ride Time</string>
     <string name="time_colon">Time: </string>
-    <string name="enter_time_date">Please enter date and time</string>
+    <string name="share_message" translatable="false">easyRide Application:\nhttps://play.google.com/store/apps/details?id=arik.easyride</string>
+    <string name="time_or_date_empty">Please enter time and date</string>
+
 
 </resources>

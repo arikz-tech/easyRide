@@ -62,6 +62,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import arik.easyride.R;
+import arik.easyride.ui.main.rides.info.MapActivity;
 import arik.easyride.util.DistanceComparator;
 import arik.easyride.models.Ride;
 import arik.easyride.models.UserInRide;
@@ -80,13 +81,12 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
     private HashMap<String, Polyline> polyLines;
     private HashMap<String, Marker> pathInfo;
     private HashMap<String, List<LatLng>> pathBounds;
-    private List<LatLng> srcPoints;
+    private List<LatLng> srcDestPoints;
     private int numOfRides = 0;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         //Initialize view
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         FloatingActionButton fabLocation = view.findViewById(R.id.fabLocation);
@@ -169,7 +169,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                                                 double lat = Double.parseDouble(participant.getLatitude());
                                                 double lng = Double.parseDouble(participant.getLongitude());
                                                 LatLng srcPoint = new LatLng(lat, lng);
-                                                addSourcePoint(srcPoint, rid);
+                                                addSrcAndDestPoints(srcPoint, rid);
                                             }
                                         }
                                     }
@@ -193,39 +193,38 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
         }
     }
 
-    private void addSourcePoint(LatLng src, String rid) {
-        if (srcPoints == null) {
-            srcPoints = new ArrayList<>();
+    private void addSrcAndDestPoints(LatLng src, String rid) {
+        if (srcDestPoints == null) {
+            srcDestPoints = new ArrayList<>();
         }
-        srcPoints.add(src);
+        srcDestPoints.add(src);
         decrement();
-        if (isLastRide()) {
-            DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-            dbRef.child("rides").child(rid).child("destination").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String destAddress = snapshot.getValue(String.class);
-                    LatLng destPoint = getAddressLatLng(getContext(), destAddress);
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.child("rides").child(rid).child("destination").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String destAddress = snapshot.getValue(String.class);
+                LatLng destPoint = getAddressLatLng(getContext(), destAddress);
+                srcDestPoints.add(destPoint);
+                if (isLastRide()) {
                     LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
-                    for (LatLng srcPoint : srcPoints) {
-                        boundBuilder.include(srcPoint);
+                    for (LatLng srcDestPoint : srcDestPoints) {
+                        boundBuilder.include(srcDestPoint);
                     }
-                    if (destPoint != null) {
-                        boundBuilder.include(destPoint);
-                        int width = getResources().getDisplayMetrics().widthPixels;
-                        int height = getResources().getDisplayMetrics().heightPixels;
-                        int padding = (int) (width * 0.30); // offset from edges of the map 15% of screen
-                        LatLngBounds bounds = boundBuilder.build();
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
-                    }
+                    int width = getResources().getDisplayMetrics().widthPixels;
+                    int height = getResources().getDisplayMetrics().heightPixels;
+                    int padding = (int) (width * 0.30); // offset from edges of the map 15% of screen
+                    LatLngBounds bounds = boundBuilder.build();
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
                 }
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, error.getMessage());
-                }
-            });
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, error.getMessage());
+            }
+        });
+
     }
 
     private synchronized boolean isLastRide() {
@@ -355,8 +354,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
-
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -455,8 +452,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
                         googleLimit--;
                     }
                 }
-                //Add destination point.
-                boundPoints.add(getAddressLatLng(context, dest));
+
                 pathBounds.put(polyline.getId(), boundPoints);
             }
         }

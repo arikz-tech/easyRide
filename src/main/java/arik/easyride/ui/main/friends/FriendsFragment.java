@@ -77,7 +77,7 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
             public void onClick(View v) {
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, getText(R.string.share_intent_message));
+                sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_message));
                 sendIntent.setType("text/plain");
                 sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 Intent shareIntent = Intent.createChooser(sendIntent, null);

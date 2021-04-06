@@ -78,9 +78,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         mapFragment.getMapAsync(this);
     }
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mGoogleMap = googleMap;
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
@@ -89,6 +89,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         updateRidesRoutes();
         mGoogleMap.setOnPolylineClickListener(this);
+
     }
 
     @Override
@@ -145,13 +146,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     participants.add(snap.getValue(UserInRide.class));
                 }
-
-                for (UserInRide participant : participants) {
-                    if (participant.isInRide()) {
-                        createRideRoute(ride.getRid(), participants);
-                        addUsersMarker(participants);
-                    }
-                }
+                createRideRoute(ride.getRid(), participants);
+                addUsersMarker(participants);
             }
 
             @Override
@@ -346,8 +342,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 pathBounds = new HashMap<>();
             }
 
+
+            LatLng destPoint = getAddressLatLng(MapActivity.this, dest);
+
             int googleLimit = 8;
             List<LatLng> boundPoints = new ArrayList<>();
+            boundPoints.add(destPoint);
             for (UserInRide participant : participants) {
                 if (participant.isInRide()) {
                     if (googleLimit < 1)
@@ -364,8 +364,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     googleLimit--;
                 }
             }
-            //Add destination point.
-            boundPoints.add(getAddressLatLng(this, dest));
             pathBounds.put(polyline.getId(), boundPoints);
 
             onPolylineClick(polyline);

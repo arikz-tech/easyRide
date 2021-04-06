@@ -31,7 +31,6 @@
     <string name="alert_dialog_confirm">אישור</string>
     <string name="alert_dialog_no_thanks">לא תודה</string>
     <string name="save_changes">שמור שינויים</string>
-    <string name="share_intent_message">שלום לך, כדאי לנסות את האפליקציה easyRide !LINK!</string>
     <string name="edit_success">השינויים נשמרו</string>
     <string name="error">שגיאה:</string>
     <string name="edit_profile">עריכת פרופיל</string>
@@ -134,4 +133,5 @@
     <string name="invite">שלח הזמנה</string>
     <string name="time">שעת נסיעה</string>
     <string name="time_colon">"שעה: "</string>
+    <string name="time_or_date_empty">בבקשה הכנס תאריך ושעה</string>
 </resources>

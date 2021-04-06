@@ -23,6 +23,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,7 +46,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import arik.easyride.models.User;
@@ -58,10 +61,11 @@ public class LoginActivity extends AppCompatActivity {
     //Constant variables
     private static final int RC_SIGN_IN = 3; //Request code for google sign in
     private static final int REGISTER_INFO = 5; //
+    private static final int PHONE_NUMBER_PERMISSION = 20;
 
     private TextInputEditText etMail, etPassword;
     private ProgressBar pbLogin;
-    private String pid;
+    private GoogleSignInAccount account;
 
     @Override
     protected void onStart() {
@@ -195,9 +199,16 @@ public class LoginActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                if (account != null)
-                    firebaseAuthWithGoogle(account.getIdToken());
+                account = task.getResult(ApiException.class);
+                if (account != null) {
+                    if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(LoginActivity.this),
+                            new Scope("https://www.googleapis.com/auth/user.phonenumbers.read"))) {
+                        GoogleSignIn.requestPermissions(LoginActivity.this, PHONE_NUMBER_PERMISSION, account, new Scope("https://www.googleapis.com/auth/user.phonenumbers.read"));
+                    } else {
+                        firebaseAuthWithGoogle(account.getIdToken());
+                    }
+                }
+
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));
@@ -213,6 +224,11 @@ public class LoginActivity extends AppCompatActivity {
                 etPassword.setText(password);
             }
         }
+
+        if (requestCode == PHONE_NUMBER_PERMISSION) {
+            firebaseAuthWithGoogle(account.getIdToken());
+        }
+
     }
 
     // Enter to firebase and take google credential to enter google account
@@ -255,11 +271,14 @@ public class LoginActivity extends AppCompatActivity {
                             user.setPid(pid);
                             snapshot.getRef().setValue(user);
 
+                            collectPhoneNumberFromGoogleServers(uid);
+
                             //Upload google image to firebase storage
                             String photoURL = googleUser.getPhotoUrl().toString();
                             uploadGooglePhotoAndLogin(photoURL, uid, pid);
                         }
                     } else login();
+
                 }
 
                 @Override
@@ -268,6 +287,10 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void collectPhoneNumberFromGoogleServers(String uid) {
+
     }
 
     private void uploadGooglePhotoAndLogin(String photoUrl, final String uid, final String pid) {
