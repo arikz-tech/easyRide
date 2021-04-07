@@ -290,7 +290,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void collectPhoneNumberFromGoogleServers(String uid) {
+        //FirebaseUser user;
+        //String phone = user.getPhoneNumber();
+        /*
+        Person profile = peopleService.people().get("people/me")
+                .setPersonFields("names,emailAddresses")
+                .execute();
 
+         */
     }
 
     private void uploadGooglePhotoAndLogin(String photoUrl, final String uid, final String pid) {

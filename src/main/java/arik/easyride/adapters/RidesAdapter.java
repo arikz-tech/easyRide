@@ -49,13 +49,12 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private CardView cvRide, cvOwner;
-        private ImageView ivAvatar, ivRidePic;
+        private ImageView ivAvatar;
         private MaterialTextView tvRideOwner, tvRideName, tvSrc, tvDest, tvDate, tvTime;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.ivAvatar);
-            ivRidePic = itemView.findViewById(R.id.ivRidePic);
             tvRideOwner = itemView.findViewById(R.id.tvRideOwner);
             tvRideName = itemView.findViewById(R.id.tvRideName);
             tvSrc = itemView.findViewById(R.id.tvSrcFill);
@@ -92,7 +91,6 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
         holder.tvDest.setText(ride.getDestination());
         holder.tvDate.setText(ride.getDate());
         holder.tvTime.setText(ride.getTime());
-        setRideImage(holder.itemView, holder.ivRidePic, ride.getPid());
         getOwnerInfo(holder, ride.getOwnerUID());
         setAnimation(holder.itemView, position);
     }
@@ -126,16 +124,6 @@ public class RidesAdapter extends RecyclerView.Adapter<RidesAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
         return rides.size();
-    }
-
-    private void setRideImage(View itemView, ImageView ivRidePic, String pid) {
-        if (pid != null) {
-            StorageReference imageRef = FirebaseStorage.getInstance().getReference().
-                    child("images").child("rides").child(pid);
-
-            Glide.with(itemView).load(imageRef).into(ivRidePic);
-
-        } else ivRidePic.setImageResource(R.drawable.card_view_sample);
     }
 
     private void setAnimation(View viewToAnimate, int position) {

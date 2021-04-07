@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -49,7 +48,6 @@ import arik.easyride.models.User;
 import arik.easyride.models.UserInRide;
 import arik.easyride.ui.main.friends.FriendsInfoActivity;
 import arik.easyride.adapters.ParticipantsAdapter;
-import arik.easyride.util.Navigate;
 
 public class RideInfoActivity extends AppCompatActivity implements ParticipantsAdapter.OnParticipantClick {
     private static final String TAG = ".RideInfoActivity";

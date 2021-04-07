@@ -137,7 +137,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnPolylineClickLi
         if (requestCode == LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 findLocation(getContext());
-            } else {
             }
         }
     }

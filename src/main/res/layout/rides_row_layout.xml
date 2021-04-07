@@ -2,16 +2,18 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="388dp">
+    android:layout_height="wrap_content">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvRide"
-        android:layout_width="344dp"
-        android:layout_height="382dp"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_margin="5dp"
+        android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:background="?attr/selectableItemBackground"
         app:cardElevation="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,8 +24,8 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvOwner"
-                android:layout_width="344dp"
-                android:layout_height="72dp"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -49,8 +51,8 @@
                             android:id="@+id/ivAvatar"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
-                            android:scaleType="centerCrop"
-                            android:layout_gravity="center_horizontal|center_vertical" />
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:scaleType="centerCrop" />
 
                     </com.google.android.material.card.MaterialCardView>
 
@@ -69,26 +71,15 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <ImageView
-                android:id="@+id/ivRidePic"
-                android:layout_width="344dp"
-                android:layout_height="194dp"
-                android:scaleType="centerCrop"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cvOwner"
-                app:srcCompat="@drawable/card_view_sample" />
-
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvRideName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ivRidePic" />
+                app:layout_constraintTop_toBottomOf="@+id/cvOwner" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvSrc"
