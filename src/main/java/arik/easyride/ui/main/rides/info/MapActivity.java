@@ -82,10 +82,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.night_map_style));
         }
 
-        updateRidesRoutes();
+        setRideDirections();
     }
 
-    private void updateRidesRoutes() {
+    private void setRideDirections() {
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child("rideUsers").child(ride.getRid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -95,7 +95,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                     participants.add(snap.getValue(UserInRide.class));
                 }
 
-                createRideRoute(ride.getRid(), participants);
+                createRideDirections(ride.getRid(), participants);
                 addUsersMarker(participants);
             }
 
@@ -106,17 +106,20 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         });
     }
 
-    private void createRideRoute(String rid, final List<UserInRide> participants) {
+    private void createRideDirections(String rid, final List<UserInRide> participants) {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child("rides").child(rid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Ride ride = snapshot.getValue(Ride.class);
                 if (ride != null) {
+
                     final RideDirections directions = new RideDirections(getApplicationContext(), mGoogleMap, ride, participants);
                     directions.setDefaultPolylineColor(getColor(R.color.black));
                     directions.setClickedPolylineColor(getColor(R.color.deep_orange_500));
                     directions.createRoute();
+                    directions.setPolylineBoundaries();
+                    directions.moveCameraToPolylinePosition();
 
                     mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                         @Override

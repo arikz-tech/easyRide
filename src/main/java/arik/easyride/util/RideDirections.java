@@ -54,6 +54,7 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
     private String polyLineId;
     private Polyline polyline;
     private Marker directionPathInfo;
+    private List<LatLng> polylineBoundaries;
 
     public RideDirections(Context context, GoogleMap googleMap, Ride ride, List<UserInRide> participants) {
         this.context = context;
@@ -165,12 +166,11 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
             polyline.setVisible(true);
 
             setPolyLineId(polyline.getId());
-            moveCameraToPolylinePosition();
         }
     }
 
-    private void moveCameraToPolylinePosition() {
-        LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
+    public void setPolylineBoundaries() {
+        polylineBoundaries = new ArrayList<>();
         for (UserInRide participant : participants) {
             if (participant.isInRide()) {
                 if (participant.getLatitude() != null && participant.getLongitude() != null) {
@@ -179,21 +179,13 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
                     if (latStr != null && lngStr != null) {
                         double lat = Double.parseDouble(latStr);
                         double lng = Double.parseDouble(lngStr);
-                        boundBuilder.include(new LatLng(lat, lng));
+                        polylineBoundaries.add(new LatLng(lat, lng));
                     }
                 }
             }
         }
-
-        boundBuilder.include(destinationPoint);
-        boundBuilder.include(sourcePoint);
-
-        int width = context.getResources().getDisplayMetrics().widthPixels;
-        int height = context.getResources().getDisplayMetrics().heightPixels;
-        int padding = (int) (width * 0.15); // offset from edges of the map 15% of screen
-        LatLngBounds bounds = boundBuilder.build();
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
-
+        polylineBoundaries.add(destinationPoint);
+        polylineBoundaries.add(sourcePoint);
     }
 
     @Override
@@ -201,6 +193,20 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
         moveCameraToPolylinePosition();
         polyline.setColor(clickedPolylineColor);
         addDirectionPathInfo();
+    }
+
+    public void moveCameraToPolylinePosition() {
+        LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
+
+        for (LatLng point : polylineBoundaries) {
+            boundBuilder.include(point);
+        }
+
+        int width = context.getResources().getDisplayMetrics().widthPixels;
+        int height = context.getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.15); // offset from edges of the map 15% of screen
+        LatLngBounds bounds = boundBuilder.build();
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
     }
 
     public void clearMarkedPolyline() {
@@ -271,6 +277,10 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
         }
 
         return poly;
+    }
+
+    public List<LatLng> getPolylineBoundaries() {
+        return polylineBoundaries;
     }
 
     public static String getGoogleDirectionApiKey() {
