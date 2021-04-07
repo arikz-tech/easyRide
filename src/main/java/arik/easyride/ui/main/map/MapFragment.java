@@ -48,6 +48,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONArray;
@@ -85,8 +87,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private List<List<LatLng>> allRideBoundaries;
     private long numberOfRides;
     private HashMap<String, RideDirections> listOfDirections;
-    private final Context context = getContext();
-    private final Activity activity = getActivity();
+    private int[] polylineColors;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -139,18 +140,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         if (requestCode == LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                findLocation(context);
+                findLocation(getContext());
             }
         }
     }
 
     private void addUsersMarker(List<UserInRide> participants) {
-        if (context != null) {
-            if (mGoogleMap != null) {
-                ClusterManager<ClusterMarker> clusterManager = new ClusterManager<>(context, mGoogleMap);
-                UserClusterManagerRenderer clusterManagerRenderer = new UserClusterManagerRenderer(context, mGoogleMap, clusterManager);
+        if (mGoogleMap != null) {
+            if (getContext() != null) {
+                ClusterManager<ClusterMarker> clusterManager = new ClusterManager<>(getContext(), mGoogleMap);
+                UserClusterManagerRenderer clusterManagerRenderer = new UserClusterManagerRenderer(getContext(), mGoogleMap, clusterManager);
                 clusterManager.setRenderer(clusterManagerRenderer);
-                UserMarkerManager userMarkerManager = new UserMarkerManager(context, clusterManager);
+                UserMarkerManager userMarkerManager = new UserMarkerManager(getContext(), clusterManager);
                 if (participants != null) {
                     for (UserInRide user : participants) {
                         if (user.isInRide()) {
@@ -173,30 +174,36 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        if (context != null) {
-            int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        mGoogleMap.setOnPolylineClickListener(this);
+        polylineColors = new int[2];
+        if (getContext() != null) {
+            int nightModeFlags = getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-                mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.night_map_style));
+                mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.night_map_style));
+                polylineColors[0] = getContext().getColor(R.color.black);
+                polylineColors[1] = getContext().getColor(R.color.deep_orange_200);
+            } else {
+                mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.light_map_style));
+                polylineColors[0] = getContext().getColor(R.color.dark_grey);
+                polylineColors[1] = getContext().getColor(R.color.deep_orange_500);
             }
         }
         setAllRidesDirections();
-        mGoogleMap.setOnPolylineClickListener(this);
     }
 
     private void setAllRidesDirections() {
         final String uid = getCurrentUserId();
         allRideBoundaries = new ArrayList<>();
         listOfDirections = new HashMap<>();
-        if(uid != null) {
+        if (uid != null) {
             DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("userRides");
             dbRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (activity != null) {
-                        synchronized (activity) {
+                    if (getActivity() != null)
+                        synchronized (getActivity()) {
                             numberOfRides = snapshot.getChildrenCount();
                         }
-                    }
 
                     for (DataSnapshot snap : snapshot.getChildren()) {
                         String rid = snap.getValue(String.class);
@@ -220,19 +227,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     UserInRide user = snap.getValue(UserInRide.class);
-                    if (user != null) {
+                    if (user != null)
                         if (user.getUid().equals(uid)) {
                             if (user.isInRide()) {
                                 setRideDirections(rid);
                             } else {
-                                if (activity != null) {
-                                    synchronized (activity) {
+                                if (getActivity() != null)
+                                    synchronized (getActivity()) {
                                         numberOfRides--;
                                     }
-                                }
                             }
                         }
-                    }
                 }
             }
 
@@ -273,35 +278,36 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Ride ride = snapshot.getValue(Ride.class);
                 if (ride != null) {
-                    if (activity != null) {
-                        if (context != null) {
-                            RideDirections directions = new RideDirections(getContext(), mGoogleMap, ride, participants);
-                            directions.setDefaultPolylineColor(context.getColor(R.color.black));
-                            directions.setClickedPolylineColor(context.getColor(R.color.deep_orange_500));
-                            directions.createRoute();
-                            directions.setPolylineBoundaries();
-                            allRideBoundaries.add(directions.getPolylineBoundaries());
-                            listOfDirections.put(ride.getRid(), directions);
+                    if (getContext() != null) {
+                        RideDirections directions = new RideDirections(getContext(), mGoogleMap, ride, participants);
+                        directions.setDefaultPolylineColor(polylineColors[0]);
+                        directions.setClickedPolylineColor(polylineColors[1]);
+                        directions.createRoute();
+                        directions.setPolylineBoundaries();
+                        allRideBoundaries.add(directions.getPolylineBoundaries());
+                        listOfDirections.put(ride.getRid(), directions);
+                    }
 
-                            synchronized (activity) {
-                                numberOfRides--;
-                                if (numberOfRides == 0) {
-                                    moveCameraToAllPolylinePosition();
-                                    mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                                        @Override
-                                        public void onMapClick(LatLng latLng) {
-                                            for (Map.Entry<String, RideDirections> directions : listOfDirections.entrySet()) {
-                                                RideDirections rideDirections = directions.getValue();
-                                                rideDirections.clearMarkedPolyline();
-                                            }
+                    if (getActivity() != null)
+                        synchronized (getActivity()) {
+                            numberOfRides--;
+                            if (numberOfRides == 0) {
+                                moveCameraToAllPolylinePosition();
+
+                                mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                                    @Override
+                                    public void onMapClick(LatLng latLng) {
+                                        for (Map.Entry<String, RideDirections> directions : listOfDirections.entrySet()) {
+                                            RideDirections rideDirections = directions.getValue();
+                                            rideDirections.clearMarkedPolyline();
                                         }
-                                    });
-                                }
+                                    }
+                                });
                             }
                         }
-                    }
                 }
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

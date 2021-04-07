@@ -60,6 +60,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private GoogleMap mGoogleMap;
     private Ride ride;
     private RideDirections directions;
+    private int[] polylineColors;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,9 +79,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     public void onMapReady(GoogleMap googleMap) {
 
         mGoogleMap = googleMap;
+        polylineColors = new int[2];
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.night_map_style));
+            polylineColors[0] = getColor(R.color.black);
+            polylineColors[1] = getColor(R.color.deep_orange_200);
+        } else {
+            mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.light_map_style));
+            polylineColors[0] = getColor(R.color.dark_grey);
+            polylineColors[1] = getColor(R.color.deep_orange_500);
         }
 
         setRideDirections();
@@ -114,10 +122,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Ride ride = snapshot.getValue(Ride.class);
                 if (ride != null) {
-
                     directions = new RideDirections(getApplicationContext(), mGoogleMap, ride, participants);
-                    directions.setDefaultPolylineColor(getColor(R.color.black));
-                    directions.setClickedPolylineColor(getColor(R.color.deep_orange_500));
+                    directions.setDefaultPolylineColor(polylineColors[0]);
+                    directions.setClickedPolylineColor(polylineColors[1]);
                     directions.setPolylineBoundaries();
                     directions.setDisplayDirectionImmediately(true);
                     directions.createRoute();

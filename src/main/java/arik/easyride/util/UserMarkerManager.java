@@ -15,6 +15,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.IOException;
@@ -27,8 +28,8 @@ import arik.easyride.models.UserInRide;
 public class UserMarkerManager {
     private static final String TAG = ".UserMarkerManager";
 
-    private ClusterManager<ClusterMarker> clusterManager;
-    private Context context;
+    private final ClusterManager<ClusterMarker> clusterManager;
+    private final Context context;
 
     public UserMarkerManager(Context context, ClusterManager<ClusterMarker> clusterManager) {
         this.clusterManager = clusterManager;
@@ -86,7 +87,6 @@ public class UserMarkerManager {
 
     }
 
-
     private String getAddressFromLatLng(LatLng latLng) {
         Geocoder geocoder;
         List<Address> addresses;
@@ -102,4 +102,5 @@ public class UserMarkerManager {
         }
         return null;
     }
+
 }

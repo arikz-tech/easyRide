@@ -54,6 +54,7 @@ public class RideDirections {
     private List<UserInRide> participants;
     private Polyline polyline;
     private Marker directionPathInfo;
+
     private List<LatLng> polylineBoundaries;
     private boolean displayDirectionImmediately;
 
@@ -228,8 +229,10 @@ public class RideDirections {
                 .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
                 .title(ride.getName())
                 .snippet(context.getString(R.string.date_colon) + ride.getDate() + " " + context.getString(R.string.time_colon) + ride.getTime()));
+
         directionPathInfo.setVisible(true);
         directionPathInfo.showInfoWindow();
+
     }
 
     private LatLng getAddressLatLng(String address) {
@@ -326,5 +329,9 @@ public class RideDirections {
 
     public void setDisplayDirectionImmediately(boolean displayDirectionImmediately) {
         this.displayDirectionImmediately = displayDirectionImmediately;
+    }
+
+    public Marker getDirectionPathInfo() {
+        return directionPathInfo;
     }
 }
