@@ -1,6 +1,7 @@
 package arik.easyride.ui.main.map;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -76,12 +77,16 @@ import arik.easyride.util.UserMarkerManager;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnPolylineClickListener {
 
     private static final String TAG = ".MapFragment";
     private static final int LOCATION_REQUEST_CODE = 195;
     private GoogleMap mGoogleMap;
     private List<List<LatLng>> allRideBoundaries;
+    private long numberOfRides;
+    private HashMap<String, RideDirections> listOfDirections;
+    private final Context context = getContext();
+    private final Activity activity = getActivity();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -134,13 +139,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         if (requestCode == LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                findLocation(getContext());
+                findLocation(context);
             }
         }
     }
 
     private void addUsersMarker(List<UserInRide> participants) {
-        Context context = getContext();
         if (context != null) {
             if (mGoogleMap != null) {
                 ClusterManager<ClusterMarker> clusterManager = new ClusterManager<>(context, mGoogleMap);
@@ -169,35 +173,44 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        int nightModeFlags = getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.night_map_style));
+        if (context != null) {
+            int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+                mGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.night_map_style));
+            }
         }
-
         setAllRidesDirections();
-
+        mGoogleMap.setOnPolylineClickListener(this);
     }
 
     private void setAllRidesDirections() {
         final String uid = getCurrentUserId();
         allRideBoundaries = new ArrayList<>();
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("userRides");
-        dbRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    String rid = snap.getValue(String.class);
-                    checkIfUserExistInRideAndAddDirections(uid, rid);
+        listOfDirections = new HashMap<>();
+        if(uid != null) {
+            DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("userRides");
+            dbRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (activity != null) {
+                        synchronized (activity) {
+                            numberOfRides = snapshot.getChildrenCount();
+                        }
+                    }
+
+                    for (DataSnapshot snap : snapshot.getChildren()) {
+                        String rid = snap.getValue(String.class);
+                        checkIfUserExistInRideAndAddDirections(uid, rid);
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, error.getMessage());
-            }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, error.getMessage());
+                }
 
-        });
-
+            });
+        }
     }
 
     private void checkIfUserExistInRideAndAddDirections(final String uid, final String rid) {
@@ -207,9 +220,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     UserInRide user = snap.getValue(UserInRide.class);
-                    if (user.getUid().equals(uid)) {
-                        if (user.isInRide()) {
-                            setRideDirections(rid);
+                    if (user != null) {
+                        if (user.getUid().equals(uid)) {
+                            if (user.isInRide()) {
+                                setRideDirections(rid);
+                            } else {
+                                if (activity != null) {
+                                    synchronized (activity) {
+                                        numberOfRides--;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -250,16 +271,35 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         dbRef.child("rides").child(rid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    Ride ride = snapshot.getValue(Ride.class);
-                    RideDirections directions = new RideDirections(getContext(), mGoogleMap, ride, participants);
-                    directions.setDefaultPolylineColor(getActivity().getColor(R.color.black));
-                    directions.setClickedPolylineColor(getActivity().getColor(R.color.deep_orange_500));
-                    directions.createRoute();
-                    directions.setPolylineBoundaries();
-                    allRideBoundaries.add(directions.getPolylineBoundaries());
+                Ride ride = snapshot.getValue(Ride.class);
+                if (ride != null) {
+                    if (activity != null) {
+                        if (context != null) {
+                            RideDirections directions = new RideDirections(getContext(), mGoogleMap, ride, participants);
+                            directions.setDefaultPolylineColor(context.getColor(R.color.black));
+                            directions.setClickedPolylineColor(context.getColor(R.color.deep_orange_500));
+                            directions.createRoute();
+                            directions.setPolylineBoundaries();
+                            allRideBoundaries.add(directions.getPolylineBoundaries());
+                            listOfDirections.put(ride.getRid(), directions);
 
-
+                            synchronized (activity) {
+                                numberOfRides--;
+                                if (numberOfRides == 0) {
+                                    moveCameraToAllPolylinePosition();
+                                    mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                                        @Override
+                                        public void onMapClick(LatLng latLng) {
+                                            for (Map.Entry<String, RideDirections> directions : listOfDirections.entrySet()) {
+                                                RideDirections rideDirections = directions.getValue();
+                                                rideDirections.clearMarkedPolyline();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -270,4 +310,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    public void moveCameraToAllPolylinePosition() {
+        LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
+
+        for (List<LatLng> polylineBoundaries : allRideBoundaries) {
+            for (LatLng point : polylineBoundaries) {
+                boundBuilder.include(point);
+            }
+        }
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.15); // offset from edges of the map 15% of screen
+        LatLngBounds bounds = boundBuilder.build();
+        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
+    }
+
+    @Override
+    public void onPolylineClick(Polyline polyline) {
+        for (Map.Entry<String, RideDirections> directions : listOfDirections.entrySet()) {
+            RideDirections rideDirections = directions.getValue();
+            String polylineID = rideDirections.getPolyline().getId();
+            if (polylineID.equals(polyline.getId())) {
+                rideDirections.onPolylineClick();
+            } else {
+                rideDirections.clearMarkedPolyline();
+            }
+        }
+    }
 }

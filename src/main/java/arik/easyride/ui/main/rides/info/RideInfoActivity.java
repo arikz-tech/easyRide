@@ -51,10 +51,8 @@ import arik.easyride.adapters.ParticipantsAdapter;
 
 public class RideInfoActivity extends AppCompatActivity implements ParticipantsAdapter.OnParticipantClick {
     private static final String TAG = ".RideInfoActivity";
-    private static final int SMS_SENT_REQUEST_CODE = 12;
 
     private ProgressBar pbRideInfo;
-    private FloatingActionButton fabMap, fabRoute;
     private ImageView ivRidePic;
     private MaterialButton btnDelete;
     private Ride ride;
@@ -74,8 +72,8 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
         btnDelete = findViewById(R.id.btnDelete);
         ivRidePic = findViewById(R.id.ivRidePic);
         pbRideInfo = findViewById(R.id.pbRideInfo);
-        fabMap = findViewById(R.id.fabMap);
-        fabRoute = findViewById(R.id.fabRoute);
+        FloatingActionButton fabMap = findViewById(R.id.fabMap);
+        FloatingActionButton fabRoute = findViewById(R.id.fabRoute);
 
         RecyclerView rvParticipants = findViewById(R.id.rvParticipants);
         participants = new ArrayList<>();
@@ -402,17 +400,6 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
                 Log.e(TAG, error.getMessage());
             }
         });
-    }
-
-    private ImageView displayImageMap() {
-        String latEiffelTower = "48.858235";
-        String lngEiffelTower = "2.294571";
-        String url = "http://maps.google.com/maps/api/staticmap?center="
-                + latEiffelTower
-                + ","
-                + lngEiffelTower
-                + "&zoom=15&size=200x200&sensor=false&key=YOUR_API_KEY";
-        return null;
     }
 
 }

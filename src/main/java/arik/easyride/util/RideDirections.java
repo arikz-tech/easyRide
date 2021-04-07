@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -38,7 +39,7 @@ import arik.easyride.models.Ride;
 import arik.easyride.models.UserInRide;
 import arik.easyride.ui.main.rides.info.MapActivity;
 
-public class RideDirections implements GoogleMap.OnPolylineClickListener {
+public class RideDirections {
 
     private final static String TAG = "RideDirections";
     private final static String GOOGLE_DIRECTION_API_KEY = "AIzaSyCatAgGuCDmh-XElvu8wUrlB5xX67pG_9U";
@@ -46,15 +47,15 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
     private static int defaultPolylineColor;
     private static int clickedPolylineColor;
 
+    private final GoogleMap googleMap;
+    private final LatLng destinationPoint, sourcePoint;
     private Context context;
     private Ride ride;
-    private LatLng destinationPoint, sourcePoint;
     private List<UserInRide> participants;
-    private GoogleMap googleMap;
-    private String polyLineId;
     private Polyline polyline;
     private Marker directionPathInfo;
     private List<LatLng> polylineBoundaries;
+    private boolean displayDirectionImmediately;
 
     public RideDirections(Context context, GoogleMap googleMap, Ride ride, List<UserInRide> participants) {
         this.context = context;
@@ -64,7 +65,6 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
 
         destinationPoint = getAddressLatLng(ride.getDestination());
         sourcePoint = getAddressLatLng(ride.getSource());
-        googleMap.setOnPolylineClickListener(this);
     }
 
     public void createRoute() {
@@ -164,8 +164,12 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
             polyline.setPoints(points);
             polyline.setClickable(true);
             polyline.setVisible(true);
+            addDirectionPathInfo();
 
-            setPolyLineId(polyline.getId());
+            if (displayDirectionImmediately) {
+                onPolylineClick();
+            }
+
         }
     }
 
@@ -188,11 +192,11 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
         polylineBoundaries.add(sourcePoint);
     }
 
-    @Override
-    public void onPolylineClick(Polyline polyline) {
+    public void onPolylineClick() {
         moveCameraToPolylinePosition();
         polyline.setColor(clickedPolylineColor);
-        addDirectionPathInfo();
+        directionPathInfo.setVisible(true);
+        directionPathInfo.showInfoWindow();
     }
 
     public void moveCameraToPolylinePosition() {
@@ -211,6 +215,7 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
 
     public void clearMarkedPolyline() {
         polyline.setColor(defaultPolylineColor);
+        directionPathInfo.hideInfoWindow();
         directionPathInfo.setVisible(false);
     }
 
@@ -223,8 +228,8 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
                 .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
                 .title(ride.getName())
                 .snippet(context.getString(R.string.date_colon) + ride.getDate() + " " + context.getString(R.string.time_colon) + ride.getTime()));
-
         directionPathInfo.setVisible(true);
+        directionPathInfo.showInfoWindow();
     }
 
     private LatLng getAddressLatLng(String address) {
@@ -283,24 +288,8 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
         return polylineBoundaries;
     }
 
-    public static String getGoogleDirectionApiKey() {
-        return GOOGLE_DIRECTION_API_KEY;
-    }
-
-    public static int getGoogleDirectionWayPointsLimit() {
-        return GOOGLE_DIRECTION_WAY_POINTS_LIMIT;
-    }
-
-    public int getDefaultPolylineColor() {
-        return defaultPolylineColor;
-    }
-
     public void setDefaultPolylineColor(int defaultPolylineColor) {
         RideDirections.defaultPolylineColor = defaultPolylineColor;
-    }
-
-    public int getClickedPolylineColor() {
-        return clickedPolylineColor;
     }
 
     public void setClickedPolylineColor(int clickedPolylineColor) {
@@ -323,22 +312,6 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
         this.ride = ride;
     }
 
-    public LatLng getDestinationPoint() {
-        return destinationPoint;
-    }
-
-    public void setDestinationPoint(LatLng destPoint) {
-        this.destinationPoint = destPoint;
-    }
-
-    public LatLng getSourcePoint() {
-        return sourcePoint;
-    }
-
-    public void setSourcePoint(LatLng sourcePoint) {
-        this.sourcePoint = sourcePoint;
-    }
-
     public List<UserInRide> getParticipants() {
         return participants;
     }
@@ -347,19 +320,11 @@ public class RideDirections implements GoogleMap.OnPolylineClickListener {
         this.participants = participants;
     }
 
-    public GoogleMap getGoogleMap() {
-        return googleMap;
+    public Polyline getPolyline() {
+        return polyline;
     }
 
-    public void setGoogleMap(GoogleMap googleMap) {
-        this.googleMap = googleMap;
-    }
-
-    public String getPolyLineId() {
-        return polyLineId;
-    }
-
-    public void setPolyLineId(String polyLineId) {
-        this.polyLineId = polyLineId;
+    public void setDisplayDirectionImmediately(boolean displayDirectionImmediately) {
+        this.displayDirectionImmediately = displayDirectionImmediately;
     }
 }

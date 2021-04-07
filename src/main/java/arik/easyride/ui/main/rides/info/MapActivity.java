@@ -55,10 +55,11 @@ import arik.easyride.util.RideDirections;
 import arik.easyride.util.UserClusterManagerRenderer;
 import arik.easyride.util.UserMarkerManager;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnPolylineClickListener {
     private static final String TAG = ".MapActivity";
     private GoogleMap mGoogleMap;
     private Ride ride;
+    private RideDirections directions;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,12 +115,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 Ride ride = snapshot.getValue(Ride.class);
                 if (ride != null) {
 
-                    final RideDirections directions = new RideDirections(getApplicationContext(), mGoogleMap, ride, participants);
+                    directions = new RideDirections(getApplicationContext(), mGoogleMap, ride, participants);
                     directions.setDefaultPolylineColor(getColor(R.color.black));
                     directions.setClickedPolylineColor(getColor(R.color.deep_orange_500));
-                    directions.createRoute();
                     directions.setPolylineBoundaries();
-                    directions.moveCameraToPolylinePosition();
+                    directions.setDisplayDirectionImmediately(true);
+                    directions.createRoute();
 
                     mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                         @Override
@@ -153,4 +154,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         }
     }
 
+    @Override
+    public void onPolylineClick(Polyline polyline) {
+        directions.onPolylineClick();
+    }
 }
