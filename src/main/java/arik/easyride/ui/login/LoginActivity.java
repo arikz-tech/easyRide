@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -52,6 +53,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import arik.easyride.models.User;
+import arik.easyride.models.UserInRide;
 import arik.easyride.ui.main.MainActivity;
 import arik.easyride.R;
 
@@ -82,7 +84,6 @@ public class LoginActivity extends AppCompatActivity {
         pbLogin = findViewById(R.id.pbLogin);
         etMail = findViewById(R.id.etMail);
         etPassword = findViewById(R.id.etPassword);
-
 
         MaterialButton btnLogin = findViewById(R.id.btnLogin);
         SignInButton btnGoogleLogin = findViewById(R.id.btnGoogleLogin);

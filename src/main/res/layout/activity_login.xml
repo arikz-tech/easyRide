@@ -6,13 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.login.LoginActivity"
-    android:background="?colorOnPrimary">
+    android:background="?colorBackgroundFloating">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivLogo"
         android:layout_width="200dp"
         android:layout_height="100dp"
-        android:layout_marginTop="130dp"
+        android:layout_marginTop="150dp"
         android:src="@drawable/easyride_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -111,21 +111,11 @@
         android:id="@+id/pbLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvForgot" />
+        app:layout_constraintTop_toBottomOf="@+id/btnGoogleLogin" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvOR"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text_view_or"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pbLogin" />
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/btnGoogleLogin"
@@ -134,6 +124,6 @@
         android:layout_marginTop="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvOR" />
+        app:layout_constraintTop_toBottomOf="@+id/tvForgot" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
