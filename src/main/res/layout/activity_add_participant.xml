@@ -23,6 +23,43 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <ImageView
+        android:id="@+id/ivNoFriends"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_friends_24"
+        android:visibility="invisible"
+        app:tint="?attr/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tvNoFriends" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvNoFriends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:visibility="invisible"
+        android:textSize="20sp"
+        android:text="@string/you_don_t_have_friends_in_order_to_add_new_participants_you_have_to_invite_your_friends_to_the_app"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnInvite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/invite_friends"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvNoFriends">
+
+    </com.google.android.material.button.MaterialButton>
+
     <ProgressBar
         android:id="@+id/pbParticipants"
         android:layout_width="wrap_content"

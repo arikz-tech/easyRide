@@ -127,17 +127,21 @@
     <string name="new_password">New password</string>
     <string name="sure_delete_acount">Are you sure you want to delete your account?</string>
     <string name="old_password">Old password</string>
-    <string name="invite">Send Invitation</string>
+    <string name="invite">Invite</string>
     <string name="time">Ride Time</string>
     <string name="time_colon">Time: </string>
     <string name="share_message" translatable="false">easyRide Application:\nhttps://play.google.com/store/apps/details?id=arik.easyride</string>
     <string name="time_or_date_empty">Please enter time and date</string>
     <string name="area">Area</string>
     <string name="add_phone_number_message">In order to see your in-app friends, you must add your phone number to the profile section</string>
-    <string name="current_location">Current location</string>
+    <string name="current_location">Current</string>
     <string name="ride_invite">Ride invitation</string>
     <string name="ride_name_message">Ride name</string>
     <string name="phone">phone</string>
-
+    <string name="send_invitation">Send Invitation</string>
+    <string name="default_address">Default</string>
+    <string name="there_is_no_friends_to_display_you_can_invite_new_friends_by_clicking_on_invite_friends_button">There is no friends to display, you can invite new friends by clicking on \"Invite Friend\" button</string>
+    <string name="you_don_t_have_friends_in_order_to_add_new_participants_you_have_to_invite_your_friends_to_the_app">You don\'t have friends, in order to add new participants you have to invite your friends to easyRide application</string>
+    <string name="invite_friends">Invite Friends</string>
 
 </resources>

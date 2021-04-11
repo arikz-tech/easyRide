@@ -12,7 +12,10 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -31,6 +34,7 @@ import arik.easyride.R;
 import arik.easyride.adapters.AddFriendAdapter;
 import arik.easyride.models.ContactPerson;
 import arik.easyride.models.User;
+import arik.easyride.ui.main.friends.FriendsInfoActivity;
 import arik.easyride.util.LoadContacts;
 
 public class AddParticipantActivity extends AppCompatActivity implements AddFriendAdapter.AddParticipantListener {
@@ -42,11 +46,18 @@ public class AddParticipantActivity extends AppCompatActivity implements AddFrie
     private ProgressBar pbParticipants;
     private MaterialToolbar toolbar;
     private User currentUser;
+    private ImageView ivNoFriends;
+    private TextView tvNoFriends;
+    private Button btnInvite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_participant);
+
+        ivNoFriends = findViewById(R.id.ivNoFriends);
+        tvNoFriends = findViewById(R.id.tvNoFriends);
+        btnInvite = findViewById(R.id.btnInvite);
 
         pbParticipants = findViewById(R.id.pbParticipants);
         toolbar = findViewById(R.id.topAppBar);
@@ -63,6 +74,19 @@ public class AddParticipantActivity extends AppCompatActivity implements AddFrie
         rvParticipants.setAdapter(addParticipantsAdapter);
 
         collectContactFriends();
+
+        btnInvite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_message));
+                sendIntent.setType("text/plain");
+                sendIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                Intent shareIntent = Intent.createChooser(sendIntent, null);
+                startActivity(shareIntent);
+            }
+        });
     }
 
     private void getCurrentUser() {
@@ -109,6 +133,13 @@ public class AddParticipantActivity extends AppCompatActivity implements AddFrie
                         }
                     }
                 }
+
+                if (participants.isEmpty()) {
+                    btnInvite.setVisibility(View.VISIBLE);
+                    ivNoFriends.setVisibility(View.VISIBLE);
+                    tvNoFriends.setVisibility(View.VISIBLE);
+                }
+
                 addParticipantsAdapter.notifyDataSetChanged();
                 pbParticipants.setVisibility(View.INVISIBLE);
             }

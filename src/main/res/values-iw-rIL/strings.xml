@@ -73,7 +73,7 @@
     <string name="date">תאריך נסיעה</string>
     <string name="date_colon">"תאריך: "</string>
     <string name="date_select">בחר תאריך נסיעה</string>
-    <string name="current_location">מיקום נוכחי</string>
+    <string name="current_location">נוכחית</string>
     <string name="yes">כן</string>
     <string name="no">לא</string>
     <string name="never_ask_again">אל תשאל שוב</string>
@@ -83,7 +83,7 @@
     <string name="address">כתובת ברירת מחדל</string>
     <string name="address_colon">כתובת ברירת מחדל:</string>
     <string name="pickup_location">מיקום איסוף</string>
-    <string name="wich_location">איזה מיקום אתה מעדיף?</string>
+    <string name="wich_location">מהי כתובת נקודת ההתחלה שאתה מעדיף?</string>
     <string name="saved_location">מיקום שמור</string>
     <string name="type">כתיבה</string>
     <string name="my_address">הכתובת שלי</string>
@@ -103,7 +103,7 @@
     <string name="could_not_find_location">לא ניתן למצוא מסלול מנקודת התחלה ליעד המבוקש</string>
     <string name="loading">טוען נא להמתין...</string>
     <string name="ride">נסיעה</string>
-    <string name="no_rides_to_display_add_new_ride_by_click_on_ride_button">אין נסיעות להציג, בשביל להוסיף נסיעה חדש לחץ על \"נסיעה\"</string>
+    <string name="no_rides_to_display_add_new_ride_by_click_on_ride_button">אין נסיעות להציג, בשביל להוסיף נסיעה חדשה לחץ על \"נסיעה\"</string>
     <string name="your_invitation_list_is_empty">רשימת ההזמנות שלך ריקה</string>
     <string name="ride_invite">"לינק הזמנה לנסיעה: "</string>
     <string name="add_contact">אנשי קשר</string>
@@ -130,11 +130,16 @@
     <string name="invite_message">"שלום, אני מזמין אותך לנסיעה בשם "</string>
     <string name="ride_name_message">"שם הנסיעה: "</string>
     <string name="invitation_link">"לינק לאישור נסיעה: "</string>
-    <string name="invite">שלח הזמנה</string>
+    <string name="invite">הזמן</string>
     <string name="time">שעת נסיעה</string>
     <string name="time_colon">"שעה: "</string>
     <string name="time_or_date_empty">בבקשה הכנס תאריך ושעה</string>
     <string name="area">קידומת</string>
     <string name="add_phone_number_message">על מנת לראות את החברים שלך באפליקציה, עליך להוסיף את מספר הטלפון שלך לפרופיל</string>
     <string name="phone">טלפון</string>
+    <string name="send_invitation">שלח הזמנה</string>
+    <string name="default_address">ברירת מחדל</string>
+    <string name="there_is_no_friends_to_display_you_can_invite_new_friends_by_clicking_on_invite_friends_button">רשימת החברים שלך ריקה, בשביל להוסיף חברים לחץ על \"הזמן חבר\"</string>
+    <string name="you_don_t_have_friends_in_order_to_add_new_participants_you_have_to_invite_your_friends_to_the_app">רשימת החברים שלך ריקה, בשביל להוסיף משתתפים לנסיעה אתה צריך להזמין את חבריך לאפליקציית easyRide</string>
+    <string name="invite_friends">הזמן חברים</string>
 </resources>

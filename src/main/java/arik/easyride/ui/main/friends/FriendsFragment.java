@@ -16,10 +16,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -46,6 +49,8 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     private ExtendedFloatingActionButton fabInviteFriends;
     private ProgressBar pbFriend;
     private User currentUser;
+    private ImageView ivNoFriends;
+    private TextView tvNoFriends;
 
 
     @Override
@@ -59,6 +64,8 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         fabInviteFriends = view.findViewById(R.id.fabInviteFriends);
+        ivNoFriends = view.findViewById(R.id.ivNoFriends);
+        tvNoFriends = view.findViewById(R.id.tvNoFriends);
         pbFriend = view.findViewById(R.id.pbFriend);
 
         RecyclerView rvFriends = view.findViewById(R.id.rvFriends);
@@ -115,6 +122,10 @@ public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriend
                             }
                         }
                     }
+                }
+                if (friends.isEmpty()){
+                    ivNoFriends.setVisibility(View.VISIBLE);
+                    tvNoFriends.setVisibility(View.VISIBLE);
                 }
                 friendsAdapter.notifyDataSetChanged();
                 pbFriend.setVisibility(View.INVISIBLE);

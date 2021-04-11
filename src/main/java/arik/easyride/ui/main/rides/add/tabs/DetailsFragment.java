@@ -167,7 +167,7 @@ public class DetailsFragment extends Fragment {
                                 public void onClick(DialogInterface dialog, int which) {
                                     takeUserCurrentPosition();
                                 }
-                            }).setNegativeButton(R.string.saved_location, new DialogInterface.OnClickListener() {
+                            }).setNegativeButton(R.string.default_address, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     takeSavedPosition();

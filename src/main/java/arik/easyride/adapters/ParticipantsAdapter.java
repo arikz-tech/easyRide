@@ -2,6 +2,8 @@ package arik.easyride.adapters;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -11,9 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,6 +47,7 @@ import arik.easyride.R;
 import arik.easyride.models.Ride;
 import arik.easyride.models.User;
 import arik.easyride.models.UserInRide;
+import arik.easyride.util.LoadContacts;
 
 //TODO Ripple Effect Accent
 public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapter.ViewHolder> {
@@ -51,6 +57,10 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     private Activity activity;
     private OnParticipantClick listener;
     private int lastPosition = -1;
+
+    enum APP {
+        Whatsapp, SMS;
+    }
 
     public interface OnParticipantClick {
         void onClick(int index);
@@ -65,6 +75,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivAvatar, ivLogo;
+        ImageButton btnSms, btnWhatsapp;
         TextView tvName, tvArrive;
         CardView cvParticipant;
         ProgressBar pbParticipant;
@@ -79,6 +90,8 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
             cvParticipant = itemView.findViewById(R.id.cvParticipant);
             pbParticipant = itemView.findViewById(R.id.pbParticipant);
             btnInvite = itemView.findViewById(R.id.btnInvite);
+            btnSms = itemView.findViewById(R.id.btnSMS);
+            btnWhatsapp = itemView.findViewById(R.id.btnWhatsapp);
 
             cvParticipant.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -88,49 +101,71 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
                 }
             });
 
+            btnSms.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sendVerificationCode(APP.SMS);
+                }
+            });
+
+            btnWhatsapp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sendVerificationCode(APP.Whatsapp);
+                }
+            });
+
             btnInvite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-                    final int index = participants.indexOf((UserInRide) itemView.getTag());
-                    participants.get(index).setInvitationSent(true);
-                    notifyItemChanged(index);
-                    dbRef.child("rideUsers").child(ride.getRid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            for (DataSnapshot snap : snapshot.getChildren()) {
-                                UserInRide participant = snap.getValue(UserInRide.class);
-                                if (participant.getUid().equals(participants.get(index).getUid())) {
-                                    final String databaseIndex = snap.getKey();
-                                    dbRef.child("users").child(participant.getUid()).child("phone").addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            String phone = snapshot.getValue(String.class);
-                                            sendVerificationCode(databaseIndex, phone);
-                                            dbRef.child("rideUsers").child(ride.getRid()).child(databaseIndex).child("invitationSent").setValue(true);
-                                        }
+                    btnInvite.setVisibility(View.GONE);
+                    btnWhatsapp.setVisibility(View.VISIBLE);
+                    btnSms.setVisibility(View.VISIBLE);
+                }
+            });
+        }
 
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-                                            Log.e(TAG, error.getMessage());
-                                        }
-                                    });
-
-
+        private void sendVerificationCode(final APP application) {
+            final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+            final int index = participants.indexOf((UserInRide) itemView.getTag());
+            participants.get(index).setInvitationSent(true);
+            notifyItemChanged(index);
+            dbRef.child("rideUsers").child(ride.getRid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot snap : snapshot.getChildren()) {
+                        UserInRide participant = snap.getValue(UserInRide.class);
+                        if (participant.getUid().equals(participants.get(index).getUid())) {
+                            final String databaseIndex = snap.getKey();
+                            dbRef.child("users").child(participant.getUid()).child("phone").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    String phone = snapshot.getValue(String.class);
+                                    sendVerificationCodeIntent(databaseIndex, phone, application);
+                                    if (databaseIndex != null)
+                                        dbRef.child("rideUsers").child(ride.getRid()).child(databaseIndex).child("invitationSent").setValue(true);
                                 }
-                            }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e(TAG, error.getMessage());
+                                }
+                            });
+
 
                         }
+                    }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.e(TAG, error.getMessage());
-                        }
-                    });
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, error.getMessage());
                 }
             });
         }
     }
+
 
     @NonNull
     @Override
@@ -170,10 +205,12 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
                     if (isOwner() && !participant.isInvitationSent()) {
                         holder.tvArrive.setVisibility(View.GONE);
                         holder.btnInvite.setVisibility(View.VISIBLE);
-                    }else{
+                    } else {
                         holder.tvArrive.setText(activity.getText(R.string.arrival_not_confirmed));
                         holder.tvArrive.setVisibility(View.VISIBLE);
                         holder.btnInvite.setVisibility(View.GONE);
+                        holder.btnWhatsapp.setVisibility(View.INVISIBLE);
+                        holder.btnSms.setVisibility(View.INVISIBLE);
                     }
 
                 } else {
@@ -245,20 +282,42 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
             return null;
     }
 
-    private void sendVerificationCode(String dbIndex, String phoneNumber) {
+    private void sendVerificationCodeIntent(String dbIndex, String phoneNumber, APP application) {
         String inviteMessage = activity.getString(R.string.invite_message) + "\"" + ride.getName() + "\"" + "\n";
         String invitationLink = activity.getString(R.string.invitation_link) + "\n" + "https://arikz-tech.github.io/easyrideconfirm?"
                 + "rid=" + ride.getRid()
                 + "&index=" + dbIndex;
         String allTextMessage = inviteMessage + invitationLink;
 
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("smsto:" + phoneNumber));
-        intent.putExtra("address", phoneNumber);
-        intent.putExtra("sms_body", allTextMessage);
-        intent.putExtra("exit_on_sent", true);
+        Intent intent= new Intent(Intent.ACTION_VIEW);
+        switch (application) {
+            case SMS:
+                intent.setData(Uri.parse("smsto:" + phoneNumber));
+                intent.putExtra("address", phoneNumber);
+                intent.putExtra("sms_body", allTextMessage);
+                intent.putExtra("exit_on_sent", true);
+                activity.startActivity(intent);
+                break;
 
-        activity.startActivity(intent);
+            case Whatsapp:
+                PackageManager packageManager = activity.getPackageManager();
+                try {
+                    phoneNumber = "+972" + phoneNumber.substring(1);
+                    String url = "https://api.whatsapp.com/send?phone="
+                            + phoneNumber
+                            +"&text="
+                            + URLEncoder.encode(allTextMessage, "UTF-8");
+
+                    intent.setPackage("com.whatsapp");
+                    intent.setData(Uri.parse(url));
+                    if (intent.resolveActivity(packageManager) != null) {
+                        activity.startActivity(intent);
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+                break;
+        }
     }
 
 

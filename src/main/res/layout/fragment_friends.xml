@@ -24,6 +24,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/ivNoFriends"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_friends_24"
+        android:visibility="invisible"
+        app:tint="?attr/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tvNoFriends" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvNoFriends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:visibility="invisible"
+        android:textSize="20sp"
+        android:text="@string/there_is_no_friends_to_display_you_can_invite_new_friends_by_clicking_on_invite_friends_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fabInviteFriends"
         android:layout_width="wrap_content"
