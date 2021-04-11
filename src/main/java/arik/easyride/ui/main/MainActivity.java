@@ -8,14 +8,23 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -33,6 +42,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -211,8 +221,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User currentUser = snapshot.getValue(User.class);
-                assert currentUser != null;
-                updateUI(currentUser);
+                if (currentUser != null) {
+                    updateUI(currentUser);
+
+                    if (currentUser.getPhone() == null) {
+                        showSetPhoneDialog(currentUser.getUid());
+                    }
+                }
             }
 
             @Override
@@ -220,6 +235,42 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, error.getMessage());
             }
         });
+    }
+
+    private void showSetPhoneDialog(final String uid) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(R.string.add_phone_number);
+        builder.setMessage(R.string.add_phone_number_message);
+        View viewInflated = LayoutInflater.from(MainActivity.this).inflate(R.layout.phone_dialog_layout, (ViewGroup) findViewById(android.R.id.content).getRootView(), false);
+        final View NameInput = viewInflated.findViewById(R.id.etNameLayout);
+        final EditText PhoneInput = viewInflated.findViewById(R.id.etPhone);
+        final AutoCompleteTextView etArea = viewInflated.findViewById(R.id.etArea);
+        NameInput.setVisibility(View.GONE);
+
+        String[] areas = {"050", "051", "052", "053", "054"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.select_dialog_item, areas);
+        etArea.setAdapter(adapter);
+
+        builder.setView(viewInflated);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String phone = etArea.getText().toString().trim() + PhoneInput.getText().toString().trim();
+                if (!phone.isEmpty()) {
+                    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+                    dbRef.child("users").child(uid).child("phone").setValue(phone);
+                } else
+                    Toast.makeText(MainActivity.this, R.string.enter_fields, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     private void updateUI(User user) {

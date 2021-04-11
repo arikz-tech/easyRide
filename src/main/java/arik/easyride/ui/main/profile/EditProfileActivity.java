@@ -21,6 +21,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -70,6 +72,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private Uri filePath = null;
     private boolean saving, changeImage, addressClicked;
     private LocationManager locationManager;
+    private AutoCompleteTextView etArea;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +87,16 @@ public class EditProfileActivity extends AppCompatActivity {
         etAddress = findViewById(R.id.etAddress);
         etPhone = findViewById(R.id.etPhone);
         ivProfile = findViewById(R.id.ivProfile);
+        etArea = findViewById(R.id.etArea);
 
         MaterialButton btnSave = findViewById(R.id.btnSave);
         FloatingActionButton fabPicEdit = findViewById(R.id.fabPicEdit);
 
         displayUserInfo();
+
+        String[] areas = {"050", "051", "052", "053","054"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_item, areas);
+        etArea.setAdapter(adapter);
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,7 +109,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         pbEdit.setVisibility(View.VISIBLE);
                         String first = etFirst.getText().toString().trim();
                         String last = etLast.getText().toString().trim();
-                        String phone = etPhone.getText().toString().trim();
+                        String phone = etArea.getText().toString().trim() + etPhone.getText().toString().trim();
                         String address = etAddress.getText().toString().trim();
 
                         if (isAddressValid(address) || address.isEmpty()) {

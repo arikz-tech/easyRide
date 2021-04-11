@@ -139,7 +139,7 @@ public class RequestsFragment extends Fragment implements RequestsAdapter.Reques
                         displayProgressBar();
                         getUserCurrentPosition();
                     }
-                }).setNegativeButton(R.string.saved_location, new DialogInterface.OnClickListener() {
+                }).setNegativeButton(R.string.address, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         displayProgressBar();

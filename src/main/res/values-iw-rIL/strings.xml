@@ -80,8 +80,8 @@
     <string name="add_participant">הוסף משתתף</string>
     <string name="accept_ride">הנסיעה אושרה</string>
     <string name="invite_friend">הזמן חבר</string>
-    <string name="address">כתובת</string>
-    <string name="address_colon">כתובת:</string>
+    <string name="address">כתובת ברירת מחדל</string>
+    <string name="address_colon">כתובת ברירת מחדל:</string>
     <string name="pickup_location">מיקום איסוף</string>
     <string name="wich_location">איזה מיקום אתה מעדיף?</string>
     <string name="saved_location">מיקום שמור</string>
@@ -134,4 +134,6 @@
     <string name="time">שעת נסיעה</string>
     <string name="time_colon">"שעה: "</string>
     <string name="time_or_date_empty">בבקשה הכנס תאריך ושעה</string>
+    <string name="area">קידומת</string>
+    <string name="add_phone_number_message">על מנת לראות את החברים שלך באפליקציה, עליך להוסיף את מספר הטלפון שלך לפרופיל</string>
 </resources>

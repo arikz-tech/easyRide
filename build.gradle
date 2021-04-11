@@ -9,7 +9,7 @@ android {
         applicationId "arik.easyride"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 12
+        versionCode 13
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -70,5 +70,9 @@ dependencies {
 
     //Phone numbers
     implementation 'io.michaelrocks:libphonenumber-android:8.12.13'
+
+    implementation ('com.weiwangcn.betterspinner:library-material:1.1.0') {
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+    }
 
 }

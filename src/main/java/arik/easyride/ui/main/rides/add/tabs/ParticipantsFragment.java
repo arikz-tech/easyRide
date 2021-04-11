@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -22,6 +24,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -179,12 +182,18 @@ public class ParticipantsFragment extends Fragment {
         View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.phone_dialog_layout, (ViewGroup) getView(), false);
         final EditText NameInput = viewInflated.findViewById(R.id.etName);
         final EditText PhoneInput = viewInflated.findViewById(R.id.etPhone);
+        final AutoCompleteTextView etArea = viewInflated.findViewById(R.id.etArea);
+
+        String[] areas = {"050", "051", "052", "053","054"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.select_dialog_item, areas);
+        etArea.setAdapter(adapter);
+
         builder.setView(viewInflated);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String name = NameInput.getText().toString().trim();
-                String phone = PhoneInput.getText().toString().trim();
+                String phone = etArea.getText().toString().trim() + PhoneInput.getText().toString().trim();
                 if (!name.isEmpty() && !phone.isEmpty()) {
                     User phoneUser = new User();
                     phoneUser.setFirst(name);

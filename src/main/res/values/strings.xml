@@ -74,15 +74,14 @@
     <string name="date">Ride Date</string>
     <string name="date_colon">Date:</string>
     <string name="date_select">Select ride date</string>
-    <string name="current_location">Current location</string>
     <string name="take_current_pos">would you like to use current position as your default address</string>
     <string name="yes">yes</string>
     <string name="no">No</string>
     <string name="never_ask_again">Never ask again</string>
     <string name="accept_ride">Ride as been accepted</string>
     <string name="invite_friend">Invite friend</string>
-    <string name="address">Address</string>
-    <string name="address_colon">Address:</string>
+    <string name="address">Default address</string>
+    <string name="address_colon">Default address:</string>
     <string name="pickup_location">Pickup location</string>
     <string name="wich_location">Which location you prefer ?</string>
     <string name="saved_location">Your saved Location</string>
@@ -133,6 +132,11 @@
     <string name="time_colon">Time: </string>
     <string name="share_message" translatable="false">easyRide Application:\nhttps://play.google.com/store/apps/details?id=arik.easyride</string>
     <string name="time_or_date_empty">Please enter time and date</string>
+    <string name="area">Area</string>
+    <string name="add_phone_number_message">In order to see your in-app friends, you must add your phone number to the profile section</string>
+    <string name="current_location">Current location</string>
+    <string name="ride_invite">Ride invitation</string>
+    <string name="ride_name_message">Ride name</string>
 
 
 </resources>

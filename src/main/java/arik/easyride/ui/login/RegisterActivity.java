@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -17,6 +19,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import arik.easyride.R;
@@ -26,6 +30,7 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = ".RegisterActivity";
     private TextInputEditText etFirst, etLast, etMail, etPhone, etPassword;
     private ProgressBar pbRegister;
+    private AutoCompleteTextView etArea;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +44,12 @@ public class RegisterActivity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         etPassword = findViewById(R.id.etPassword);
         pbRegister = findViewById(R.id.pbRegister);
+        etArea = findViewById(R.id.etArea);
         MaterialButton btnRegister = findViewById(R.id.btnRegister);
+
+        String[] areas = {"050", "051", "052", "053","054"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_item, areas);
+        etArea.setAdapter(adapter);
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,10 +60,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerNewUser() {
-        boolean emptyField = Objects.requireNonNull(etFirst.getText()).toString().isEmpty() || Objects.requireNonNull(etLast.getText()).toString().isEmpty() ||
-                Objects.requireNonNull(etMail.getText()).toString().isEmpty() || Objects.requireNonNull(etPassword.getText()).toString().isEmpty() ||
-                Objects.requireNonNull(etPhone.getText()).toString().isEmpty();
-        //TODO CHECK PHONE NUMBER IS CORRECT
+        boolean emptyField = etFirst.getText().toString().isEmpty() || etLast.getText().toString().isEmpty() ||
+                etMail.getText().toString().isEmpty() || etPassword.getText().toString().isEmpty() ||
+                etPhone.getText().toString().isEmpty() || etArea.getText().toString().isEmpty();
         if (emptyField) {
             Toast.makeText(RegisterActivity.this, R.string.enter_fields, Toast.LENGTH_SHORT).show();
         } else {
@@ -77,7 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
                     user.setEmail(etMail.getText().toString().trim());
                     user.setFirst(etFirst.getText().toString().trim());
                     user.setLast(etLast.getText().toString().trim());
-                    user.setPhone(etPhone.getText().toString().trim());
+                    user.setPhone(etArea.getText().toString().trim() + etPhone.getText().toString().trim());
                     user.setPid("avatar_logo.png");
                     user.setUid(Objects.requireNonNull(authResult.getUser()).getUid());
 

@@ -199,16 +199,7 @@ public class LoginActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
-                account = task.getResult(ApiException.class);
-                if (account != null) {
-                    if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(LoginActivity.this),
-                            new Scope("https://www.googleapis.com/auth/user.phonenumbers.read"))) {
-                        GoogleSignIn.requestPermissions(LoginActivity.this, PHONE_NUMBER_PERMISSION, account, new Scope("https://www.googleapis.com/auth/user.phonenumbers.read"));
-                    } else {
-                        firebaseAuthWithGoogle(account.getIdToken());
-                    }
-                }
-
+                firebaseAuthWithGoogle(task.getResult(ApiException.class).getIdToken());
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));
@@ -224,11 +215,6 @@ public class LoginActivity extends AppCompatActivity {
                 etPassword.setText(password);
             }
         }
-
-        if (requestCode == PHONE_NUMBER_PERMISSION) {
-            firebaseAuthWithGoogle(account.getIdToken());
-        }
-
     }
 
     // Enter to firebase and take google credential to enter google account
@@ -271,8 +257,6 @@ public class LoginActivity extends AppCompatActivity {
                             user.setPid(pid);
                             snapshot.getRef().setValue(user);
 
-                            collectPhoneNumberFromGoogleServers(uid);
-
                             //Upload google image to firebase storage
                             String photoURL = googleUser.getPhotoUrl().toString();
                             uploadGooglePhotoAndLogin(photoURL, uid, pid);
@@ -287,17 +271,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
-    }
-
-    private void collectPhoneNumberFromGoogleServers(String uid) {
-        //FirebaseUser user;
-        //String phone = user.getPhoneNumber();
-        /*
-        Person profile = peopleService.people().get("people/me")
-                .setPersonFields("names,emailAddresses")
-                .execute();
-
-         */
     }
 
     private void uploadGooglePhotoAndLogin(String photoUrl, final String uid, final String pid) {
