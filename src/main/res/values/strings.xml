@@ -137,6 +137,7 @@
     <string name="current_location">Current location</string>
     <string name="ride_invite">Ride invitation</string>
     <string name="ride_name_message">Ride name</string>
+    <string name="phone">phone</string>
 
 
 </resources>

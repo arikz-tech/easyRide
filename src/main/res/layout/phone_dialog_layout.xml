@@ -15,9 +15,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="20dp"
+            android:layout_margin="5dp"
             app:startIconDrawable="@drawable/ic_friends_24">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -39,16 +37,15 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_margin="5dp"
+            android:layout_weight="9"
             app:startIconDrawable="@drawable/ic_phone_24">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/phone_number"
+                android:hint="@string/phone"
                 android:inputType="phone" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -58,10 +55,8 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="20dp"
+            android:layout_weight="10"
+            android:layout_margin="5dp"
             android:hint="@string/area"
             android:orientation="horizontal"
             app:met_floatingLabel="highlight">

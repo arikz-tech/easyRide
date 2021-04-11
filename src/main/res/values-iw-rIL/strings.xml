@@ -136,4 +136,5 @@
     <string name="time_or_date_empty">בבקשה הכנס תאריך ושעה</string>
     <string name="area">קידומת</string>
     <string name="add_phone_number_message">על מנת לראות את החברים שלך באפליקציה, עליך להוסיף את מספר הטלפון שלך לפרופיל</string>
+    <string name="phone">טלפון</string>
 </resources>
