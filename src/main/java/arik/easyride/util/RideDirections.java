@@ -215,9 +215,11 @@ public class RideDirections {
     }
 
     public void clearMarkedPolyline() {
-        polyline.setColor(defaultPolylineColor);
-        directionPathInfo.hideInfoWindow();
-        directionPathInfo.setVisible(false);
+        if(polyline != null) {
+            polyline.setColor(defaultPolylineColor);
+            directionPathInfo.hideInfoWindow();
+            directionPathInfo.setVisible(false);
+        }
     }
 
     private void addDirectionPathInfo() {

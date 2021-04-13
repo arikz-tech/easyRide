@@ -19,17 +19,21 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Parcel;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -47,6 +51,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
+import com.google.maps.PlacesApi;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -58,6 +63,7 @@ import java.util.UUID;
 
 import arik.easyride.R;
 import arik.easyride.ui.main.rides.add.interfaces.DetailsEvents;
+import arik.easyride.util.PlaceArrayAdapter;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -68,7 +74,8 @@ public class DetailsFragment extends Fragment {
     private static final int LOCATION_REQUEST_CODE = 19;
 
     private View view;
-    private TextInputEditText etName, etSrc, etDest;
+    private TextInputEditText etName;
+    private AutoCompleteTextView etSrc, etDest;
     private ImageView ivRidePic;
     private MaterialButton btnAddRide, btnAddParticipants;
     private DetailsEvents event; //listener
@@ -104,6 +111,56 @@ public class DetailsFragment extends Fragment {
         FloatingActionButton fabPicEdit = view.findViewById(R.id.fabPicEdit);
         pbAddRide = view.findViewById(R.id.pbAddRide);
         btnAddParticipants = view.findViewById(R.id.btnAddParticipants);
+
+        PlaceArrayAdapter adapter = new PlaceArrayAdapter(getContext(), android.R.layout.simple_list_item_1, new RectangularBounds() {
+            @NonNull
+            @Override
+            public LatLng getSouthwest() {
+                LatLng latLng = getLocationLatLng();
+                if (latLng != null)
+                    return latLng;
+
+                //Default israel
+                return new LatLng(29.772007, 34.312865);
+            }
+
+            @NonNull
+            @Override
+            public LatLng getNortheast() {
+                LatLng latLng = getLocationLatLng();
+                if (latLng != null)
+                    return latLng;
+
+                //Default israel
+                return new LatLng(33.179859, 35.679968);
+            }
+
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
+
+            }
+
+            private LatLng getLocationLatLng() {
+                LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager != null) {
+                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(getContext(), "Need Permission", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        return new LatLng(location.getLatitude(), location.getLongitude());
+                    }
+                }
+                //Default: israel;
+                return null;
+            }
+        });
+        etDest.setAdapter(adapter);
+        etSrc.setAdapter(adapter);
 
         btnAddRide.setOnClickListener(new View.OnClickListener() {
             @Override

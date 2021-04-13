@@ -87,7 +87,7 @@
         app:layout_constraintTop_toBottomOf="@+id/etNameLayout"
         app:startIconDrawable="@drawable/ic_start_flag_24">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <AutoCompleteTextView
             android:id="@+id/etSrc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -109,7 +109,7 @@
         app:layout_constraintTop_toBottomOf="@+id/etSrcLayout"
         app:startIconDrawable="@drawable/ic_dest_24">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <AutoCompleteTextView
             android:id="@+id/etDest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

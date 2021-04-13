@@ -122,7 +122,7 @@
         app:layout_constraintTop_toBottomOf="@+id/etLastLayout"
         app:startIconDrawable="@drawable/ic_address_24">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <AutoCompleteTextView
             android:id="@+id/etAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

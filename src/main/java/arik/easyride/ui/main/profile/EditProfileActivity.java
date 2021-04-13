@@ -19,6 +19,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -32,7 +33,9 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -56,6 +59,7 @@ import java.util.UUID;
 
 import arik.easyride.R;
 import arik.easyride.models.User;
+import arik.easyride.util.PlaceArrayAdapter;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -65,7 +69,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private static final String TAG = ".EditProfileActivity";
     private static final int LOCATION_REQUEST_CODE = 19;
 
-    private TextInputEditText etFirst, etLast, etPhone, etAddress;
+    private TextInputEditText etFirst, etLast, etPhone;
+    private AutoCompleteTextView etAddress;
     private ImageView ivProfile;
     private ProgressBar pbEdit, pbLoadingPic;
     private String pid;
@@ -89,14 +94,64 @@ public class EditProfileActivity extends AppCompatActivity {
         ivProfile = findViewById(R.id.ivProfile);
         etArea = findViewById(R.id.etArea);
 
+        PlaceArrayAdapter addressAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1, new RectangularBounds() {
+            @NonNull
+            @Override
+            public LatLng getSouthwest() {
+                LatLng latLng = getLocationLatLng();
+                if (latLng != null)
+                    return latLng;
+
+                //Default israel
+                return new LatLng(29.772007, 34.312865);
+            }
+
+            @NonNull
+            @Override
+            public LatLng getNortheast() {
+                LatLng latLng = getLocationLatLng();
+                if (latLng != null)
+                    return latLng;
+
+                //Default israel
+                return new LatLng(33.179859, 35.679968);
+            }
+
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
+
+            }
+
+            private LatLng getLocationLatLng() {
+                LocationManager locationManager = (LocationManager) EditProfileActivity.this.getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager != null) {
+                    if (ActivityCompat.checkSelfPermission(EditProfileActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(EditProfileActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(EditProfileActivity.this, "Need Permission", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        return new LatLng(location.getLatitude(), location.getLongitude());
+                    }
+                }
+                //Default: israel;
+                return null;
+            }
+        });
+        etAddress.setAdapter(addressAdapter);
+
         MaterialButton btnSave = findViewById(R.id.btnSave);
         FloatingActionButton fabPicEdit = findViewById(R.id.fabPicEdit);
 
         displayUserInfo();
 
+
         String[] areas = {"050", "051", "052", "053","054"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_item, areas);
-        etArea.setAdapter(adapter);
+        ArrayAdapter<String> areaAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_item, areas);
+        etArea.setAdapter(areaAdapter);
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -336,11 +336,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onPolylineClick(Polyline polyline) {
         for (Map.Entry<String, RideDirections> directions : listOfDirections.entrySet()) {
             RideDirections rideDirections = directions.getValue();
-            String polylineID = rideDirections.getPolyline().getId();
-            if (polylineID.equals(polyline.getId())) {
-                rideDirections.onPolylineClick();
-            } else {
-                rideDirections.clearMarkedPolyline();
+            Polyline directionsPolyline = rideDirections.getPolyline();
+            if (directionsPolyline != null) {
+                String polylineID = directionsPolyline.getId();
+                if (polylineID.equals(polyline.getId())) {
+                    rideDirections.onPolylineClick();
+                } else {
+                    rideDirections.clearMarkedPolyline();
+                }
             }
         }
     }
