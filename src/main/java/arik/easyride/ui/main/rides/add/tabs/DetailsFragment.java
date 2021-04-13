@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Parcel;
@@ -32,6 +35,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.material.button.MaterialButton;
@@ -112,14 +116,27 @@ public class DetailsFragment extends Fragment {
         pbAddRide = view.findViewById(R.id.pbAddRide);
         btnAddParticipants = view.findViewById(R.id.btnAddParticipants);
 
+
+        int nightModeFlags = getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (nightModeFlags){
+            case Configuration.UI_MODE_NIGHT_YES:
+                Toast.makeText(getContext(), "nide mode", Toast.LENGTH_SHORT).show();
+                chipTime.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.dark_grey)));
+                chipDate.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.dark_grey)));
+                chipTime.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
+                chipDate.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
+                break;
+            case Configuration.UI_MODE_NIGHT_NO:
+                chipTime.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.deep_orange_50)));
+                chipDate.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.deep_orange_50)));
+                break;
+        }
+
+
         PlaceArrayAdapter adapter = new PlaceArrayAdapter(getContext(), android.R.layout.simple_list_item_1, new RectangularBounds() {
             @NonNull
             @Override
             public LatLng getSouthwest() {
-                LatLng latLng = getLocationLatLng();
-                if (latLng != null)
-                    return latLng;
-
                 //Default israel
                 return new LatLng(29.772007, 34.312865);
             }
@@ -127,10 +144,6 @@ public class DetailsFragment extends Fragment {
             @NonNull
             @Override
             public LatLng getNortheast() {
-                LatLng latLng = getLocationLatLng();
-                if (latLng != null)
-                    return latLng;
-
                 //Default israel
                 return new LatLng(33.179859, 35.679968);
             }
@@ -145,11 +158,11 @@ public class DetailsFragment extends Fragment {
 
             }
 
+            //Need to create rectangle from current position
             private LatLng getLocationLatLng() {
                 LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null) {
                     if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(getContext(), "Need Permission", Toast.LENGTH_SHORT).show();
                     } else {
                         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         return new LatLng(location.getLatitude(), location.getLongitude());

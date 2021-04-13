@@ -123,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+        bottomNavigationView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+
+            }
+        });
 
 
         setSupportActionBar(toolbar);

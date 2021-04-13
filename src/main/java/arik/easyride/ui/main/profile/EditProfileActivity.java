@@ -261,7 +261,12 @@ public class EditProfileActivity extends AppCompatActivity {
         etLast.setText(user.getLast());
         etLast.setText(user.getLast());
         etAddress.setText(user.getAddress());
-        etPhone.setText(user.getPhone());
+
+
+        String phone = user.getPhone().substring(3);
+        String area = user.getPhone().substring(0,3);
+        etArea.setText(area);
+        etPhone.setText(phone);
 
         pid = user.getPid();
         if (pid != null) {
