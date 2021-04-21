@@ -98,10 +98,6 @@ public class EditProfileActivity extends AppCompatActivity {
             @NonNull
             @Override
             public LatLng getSouthwest() {
-                LatLng latLng = getLocationLatLng();
-                if (latLng != null)
-                    return latLng;
-
                 //Default israel
                 return new LatLng(29.772007, 34.312865);
             }
@@ -109,10 +105,6 @@ public class EditProfileActivity extends AppCompatActivity {
             @NonNull
             @Override
             public LatLng getNortheast() {
-                LatLng latLng = getLocationLatLng();
-                if (latLng != null)
-                    return latLng;
-
                 //Default israel
                 return new LatLng(33.179859, 35.679968);
             }
@@ -131,7 +123,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 LocationManager locationManager = (LocationManager) EditProfileActivity.this.getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null) {
                     if (ActivityCompat.checkSelfPermission(EditProfileActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(EditProfileActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(EditProfileActivity.this, "Need Permission", Toast.LENGTH_SHORT).show();
                     } else {
                         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         return new LatLng(location.getLatitude(), location.getLongitude());
