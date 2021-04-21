@@ -128,13 +128,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     directions.setPolylineBoundaries();
                     directions.setDisplayDirectionImmediately(true);
                     directions.createRoute();
-
-                    mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                        @Override
-                        public void onMapClick(LatLng latLng) {
-                            directions.clearMarkedPolyline();
-                        }
-                    });
                 }
             }
 
