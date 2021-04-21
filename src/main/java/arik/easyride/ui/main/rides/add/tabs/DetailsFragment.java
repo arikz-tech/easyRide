@@ -116,23 +116,6 @@ public class DetailsFragment extends Fragment {
         pbAddRide = view.findViewById(R.id.pbAddRide);
         btnAddParticipants = view.findViewById(R.id.btnAddParticipants);
 
-
-        int nightModeFlags = getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        switch (nightModeFlags){
-            case Configuration.UI_MODE_NIGHT_YES:
-                Toast.makeText(getContext(), "nide mode", Toast.LENGTH_SHORT).show();
-                chipTime.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.dark_grey)));
-                chipDate.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.dark_grey)));
-                chipTime.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
-                chipDate.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
-                break;
-            case Configuration.UI_MODE_NIGHT_NO:
-                chipTime.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.deep_orange_50)));
-                chipDate.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.deep_orange_50)));
-                break;
-        }
-
-
         PlaceArrayAdapter adapter = new PlaceArrayAdapter(getContext(), android.R.layout.simple_list_item_1, new RectangularBounds() {
             @NonNull
             @Override
