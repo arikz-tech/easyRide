@@ -6,7 +6,7 @@ import java.util.Comparator;
 
 import arik.easyride.models.UserInRide;
 
-public class DistanceComparator implements Comparator<UserInRide> {
+public class DistanceComparator implements Comparator<LatLng> {
     private double currentLat;
     private double currentLng;
 
@@ -16,28 +16,11 @@ public class DistanceComparator implements Comparator<UserInRide> {
     }
 
     @Override
-    public int compare(UserInRide first, UserInRide second) {
-        if(first.isInRide() && !second.isInRide()){
-            return -1;
-        }
-
-        if(!first.isInRide() && second.isInRide()){
-            return 1;
-        }
-
-        if (first.isInRide() && second.isInRide()) {
-            if (first.getLongitude() != null && first.getLatitude() != null && second.getLatitude() != null && second.getLongitude() != null) {
-                double firstLat = Double.parseDouble(first.getLatitude());
-                double firstLng = Double.parseDouble(first.getLongitude());
-                double secondLat = Double.parseDouble(second.getLatitude());
-                double secondLng = Double.parseDouble(second.getLongitude());
-
-                double distanceToFirst = distance(currentLat, currentLng, firstLat, firstLng);
-                double distanceToSecond = distance(currentLat, currentLng, secondLat, secondLng);
-
-                return (int) (distanceToFirst - distanceToSecond);
-            } else
-                return 0;
+    public int compare(LatLng first, LatLng second) {
+        if (first != null && second != null) {
+            double distanceToFirst = distance(currentLat, currentLng, first.latitude, first.longitude);
+            double distanceToSecond = distance(currentLat, currentLng, second.latitude, second.longitude);
+            return (int) (distanceToFirst - distanceToSecond);
         }
         return 0;
     }

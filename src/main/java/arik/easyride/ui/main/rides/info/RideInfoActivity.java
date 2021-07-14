@@ -48,6 +48,7 @@ import arik.easyride.models.User;
 import arik.easyride.models.UserInRide;
 import arik.easyride.ui.main.friends.FriendsInfoActivity;
 import arik.easyride.adapters.ParticipantsAdapter;
+import arik.easyride.util.KMeans;
 
 public class RideInfoActivity extends AppCompatActivity implements ParticipantsAdapter.OnParticipantClick {
     private static final String TAG = ".RideInfoActivity";
@@ -125,7 +126,8 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
 
                 if (src != null && dest != null) {
                     DistanceComparator comparator = new DistanceComparator(src);
-                    Collections.sort(participants, comparator);
+                    List<LatLng> stations = calculateStopStations();
+                    Collections.sort(stations, comparator);
 
                     String url = "https://maps.google.com/maps?";
                     StringBuilder sb = new StringBuilder(url);
@@ -135,20 +137,18 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
                     sb.append(src.longitude);
 
                     boolean flag = false;
-                    for (UserInRide participant : participants) {
-                        if (participant.isInRide()) {
-                            if (!flag) {
-                                sb.append("&daddr=");
-                                sb.append(participant.getLatitude());
-                                sb.append(",");
-                                sb.append(participant.getLongitude());
-                                flag = true;
-                            } else {
-                                sb.append("+to:");
-                                sb.append(participant.getLatitude());
-                                sb.append(",");
-                                sb.append(participant.getLongitude());
-                            }
+                    for (LatLng station : stations) {
+                        if (!flag) {
+                            sb.append("&daddr=");
+                            sb.append(station.latitude);
+                            sb.append(",");
+                            sb.append(station.longitude);
+                            flag = true;
+                        } else {
+                            sb.append("+to:");
+                            sb.append(station.latitude);
+                            sb.append(",");
+                            sb.append(station.longitude);
                         }
                     }
 
@@ -181,6 +181,26 @@ public class RideInfoActivity extends AppCompatActivity implements ParticipantsA
             }
         });
 
+    }
+
+    public List<LatLng> calculateStopStations() {
+        List<LatLng> latLngPoints = new ArrayList<>();
+
+        for (UserInRide user : participants) {
+            if (user.isInRide()) {
+                if (user.getLongitude() != null && user.getLatitude() != null) {
+                    double lat = Double.parseDouble(user.getLatitude());
+                    double lng = Double.parseDouble(user.getLongitude());
+                    LatLng latLng = new LatLng(lat, lng);
+                    latLngPoints.add(latLng);
+                }
+            }
+        }
+
+        List<KMeans.Point> points = KMeans.convertToPoints(latLngPoints);
+        KMeans kMeans = new KMeans(points, 2);
+        kMeans.startCluster();
+        return kMeans.latLngCentroidClusters();
     }
 
     private LatLng getAddressLatLng(String address) {

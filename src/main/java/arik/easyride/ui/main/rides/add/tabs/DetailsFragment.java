@@ -174,9 +174,10 @@ public class DetailsFragment extends Fragment {
                                 String name = etName.getText().toString();
                                 String source = etSrc.getText().toString();
                                 String destination = etDest.getText().toString();
+                                int numberOfStops = (int) sStation.getValue();
                                 boolean pathValidation = isAddressValid(source) && isAddressValid(destination);
                                 if (pathValidation) {
-                                    uploadImageAndSubmit(name, source, destination, date, time);
+                                    uploadImageAndSubmit(name, source, destination, date, time, numberOfStops);
                                 } else {
                                     Toast.makeText(getContext(), R.string.could_not_find_location, Toast.LENGTH_SHORT).show();
                                 }
@@ -354,7 +355,7 @@ public class DetailsFragment extends Fragment {
     }
 
     private void uploadImageAndSubmit(final String rideName, final String source,
-                                      final String destination, final String date, final String time) {
+                                      final String destination, final String date, final String time, final int numberOfStations) {
         event.onImageUpload();
         pbAddRide.setVisibility(View.VISIBLE);
         progress = true;
@@ -364,11 +365,11 @@ public class DetailsFragment extends Fragment {
                     child("images").child("rides").child(pid).putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    event.onSubmit(rideName, source, destination, date, time, pid);
+                    event.onSubmit(rideName, source, destination, date, time, numberOfStations, pid);
                 }
             });
         } else
-            event.onSubmit(rideName, source, destination, date, time, null);
+            event.onSubmit(rideName, source, destination, date, time, numberOfStations, null);
     }
 
     @Override

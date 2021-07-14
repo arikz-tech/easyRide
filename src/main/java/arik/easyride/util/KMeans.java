@@ -5,6 +5,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class KMeans {
 
@@ -50,7 +51,7 @@ public class KMeans {
     }
 
     public void startCluster() {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 30; i++) {
             iteration();
         }
     }

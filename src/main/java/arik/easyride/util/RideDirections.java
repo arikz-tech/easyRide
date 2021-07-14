@@ -76,102 +76,96 @@ public class RideDirections {
     }
 
     public void createRoute() {
-        int numberOfPoints = participants.size();
-        if (numberOfPoints <= GOOGLE_DIRECTION_WAY_POINTS_LIMIT) {
-            DistanceComparator comparator = new DistanceComparator(sourcePoint);
-            Collections.sort(participants, comparator);
-            calculateAndDisplayStopStations();
-            StringBuilder sb = new StringBuilder();
-            for (UserInRide participant : participants) {
-                if (participant.isInRide()) {
-                    if (participant.getLatitude() != null && participant.getLongitude() != null) {
-                        sb.append(participant.getLatitude());
-                        sb.append(",");
-                        sb.append(participant.getLongitude());
-                        sb.append("|");
-                    }
-                }
-            }
-            sb.deleteCharAt(sb.length() - 1);
-            String wayPoints = sb.toString();
+        DistanceComparator comparator = new DistanceComparator(sourcePoint);
+        List<LatLng> stations = calculateStopStations(ride.getNumberOfStations());
+        Collections.sort(stations, comparator);
 
-            RequestQueue requestQueue = Volley.newRequestQueue(context);
-            String rideSource = ride.getSource();
-            String rideDestination = ride.getDestination();
-            String URL = "https://maps.googleapis.com/maps/api/directions/json?"
-                    + "origin=" + rideSource
-                    + "&destination=" + rideDestination
-                    + "&mode=driving"
-                    + "&waypoints=" + wayPoints
-                    + "&alternatives=true"
-                    + "&key=" + GOOGLE_DIRECTION_API_KEY;
-            JsonObjectRequest objectRequest = new JsonObjectRequest(
-                    Request.Method.GET,
-                    URL, null, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    try {
-                        List<List<HashMap<String, String>>> route = new ArrayList<>();
-                        List<HashMap<String, String>> path = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        int i = 1;
+        for (LatLng station : stations) {
+            sb.append(station.latitude);
+            sb.append(",");
+            sb.append(station.longitude);
+            sb.append("|");
+            googleMap.addMarker(new MarkerOptions().position(station).title("Station #" + (i++)));
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        String wayPoints = sb.toString();
 
-                        JSONArray routeArray = response.getJSONArray("routes");
-                        for (int i = 0; i < routeArray.length(); i++) {
-                            JSONArray legsArray = ((JSONObject) routeArray.get(i)).getJSONArray("legs");
-                            for (int j = 0; j < legsArray.length(); j++) {
-                                JSONArray stepsArray = ((JSONObject) legsArray.get(j)).getJSONArray("steps");
-                                String polyline = "";
-                                for (int k = 0; k < stepsArray.length(); k++) {
-                                    polyline = (String) ((JSONObject) ((JSONObject) stepsArray.get(k)).get("polyline")).get("points");
-                                    List<LatLng> list = decodePoly(polyline);
-                                    for (int l = 0; l < list.size(); l++) {
-                                        HashMap<String, String> hm = new HashMap<>();
-                                        hm.put("lat", Double.toString(((LatLng) list.get(l)).latitude));
-                                        hm.put("lng", Double.toString(((LatLng) list.get(l)).longitude));
-                                        path.add(hm);
-                                    }
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        String rideSource = ride.getSource();
+        String rideDestination = ride.getDestination();
+        String URL = "https://maps.googleapis.com/maps/api/directions/json?"
+                + "origin=" + rideSource
+                + "&destination=" + rideDestination
+                + "&mode=driving"
+                + "&waypoints=" + wayPoints
+                + "&alternatives=true"
+                + "&key=" + GOOGLE_DIRECTION_API_KEY;
+        JsonObjectRequest objectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                URL, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    List<List<HashMap<String, String>>> route = new ArrayList<>();
+                    List<HashMap<String, String>> path = new ArrayList<>();
+
+                    JSONArray routeArray = response.getJSONArray("routes");
+                    Log.e("Route", routeArray.toString());
+                    for (int i = 0; i < routeArray.length(); i++) {
+                        JSONArray legsArray = ((JSONObject) routeArray.get(i)).getJSONArray("legs");
+                        Log.e("Legs", legsArray.toString());
+                        for (int j = 0; j < legsArray.length(); j++) {
+                            JSONArray stepsArray = ((JSONObject) legsArray.get(j)).getJSONArray("steps");
+                            Log.e("Steps", stepsArray.toString());
+                            String polyline = "";
+                            for (int k = 0; k < stepsArray.length(); k++) {
+                                polyline = (String) ((JSONObject) ((JSONObject) stepsArray.get(k)).get("polyline")).get("points");
+                                List<LatLng> list = decodePoly(polyline);
+                                for (int l = 0; l < list.size(); l++) {
+                                    HashMap<String, String> hm = new HashMap<>();
+                                    hm.put("lat", Double.toString(((LatLng) list.get(l)).latitude));
+                                    hm.put("lng", Double.toString(((LatLng) list.get(l)).longitude));
+                                    path.add(hm);
                                 }
                             }
-                            route.add(path);
                         }
-                        createPolyline(route);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        route.add(path);
                     }
+                    createPolyline(route);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("Direction Response error: ", error.toString());
-                }
-            });
-            requestQueue.add(objectRequest);
-        } else {
-            Log.e(TAG, "Exceed points limits");
-        }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Direction Response error: ", error.toString());
+            }
+        });
+        requestQueue.add(objectRequest);
     }
 
-    public void calculateAndDisplayStopStations() {
+    public List<LatLng> calculateStopStations(int numberOfStations) {
         List<LatLng> latLngPoints = new ArrayList<>();
 
         for (UserInRide user : participants) {
-            if (user.getLongitude() != null && user.getLatitude() != null) {
-                double lat = Double.parseDouble(user.getLatitude());
-                double lng = Double.parseDouble(user.getLongitude());
-                LatLng latLng = new LatLng(lat, lng);
-                latLngPoints.add(latLng);
+            if (user.isInRide()) {
+                if (user.getLongitude() != null && user.getLatitude() != null) {
+                    double lat = Double.parseDouble(user.getLatitude());
+                    double lng = Double.parseDouble(user.getLongitude());
+                    LatLng latLng = new LatLng(lat, lng);
+                    latLngPoints.add(latLng);
+                }
             }
         }
 
         List<KMeans.Point> points = KMeans.convertToPoints(latLngPoints);
-        KMeans kMeans = new KMeans(points, 2);
+        KMeans kMeans = new KMeans(points, numberOfStations);
         kMeans.startCluster();
-        List<LatLng> stopStations = kMeans.latLngCentroidClusters();
-
-        int i = 1;
-        for (LatLng stopStation : stopStations)
-            googleMap.addMarker(new MarkerOptions().position(stopStation).title("Stop Station #" + (i++)));
-
+        return kMeans.latLngCentroidClusters();
     }
 
     private void createPolyline(List<List<HashMap<String, String>>> route) {

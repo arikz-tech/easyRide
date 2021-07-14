@@ -145,7 +145,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
     }
 
     @Override
-    public void onSubmit(String name, String src, String dest, String date, String time, String pid) {
+    public void onSubmit(String name, String src, String dest, String date, String time, int numberOfStations, String pid) {
 
         rideParticipants.add(currentUser);
         final DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
@@ -156,6 +156,7 @@ public class AddRideActivity extends AppCompatActivity implements ParticipantsEv
         ride.setDestination(dest);
         ride.setDate(date);
         ride.setTime(time);
+        ride.setNumberOfStations(numberOfStations);
         ride.setPid(pid);
         ride.setRid(dbRef.child("rides").push().getKey());
 
