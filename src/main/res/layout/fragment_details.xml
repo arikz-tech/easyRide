@@ -127,7 +127,7 @@
         android:text="@string/add_participants"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnAddRide"
-        app:layout_constraintTop_toBottomOf="@+id/chipDate" />
+        app:layout_constraintTop_toBottomOf="@+id/sStation" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddRide"
@@ -140,7 +140,7 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chipDate" />
+        app:layout_constraintTop_toBottomOf="@+id/sStation" />
 
     <ProgressBar
         android:id="@+id/pbAddRide"
@@ -165,12 +165,12 @@
         android:layout_marginEnd="30dp"
         android:text="@string/time"
         app:chipBackgroundColor="?android:colorBackground"
-        app:chipStrokeColor="?android:textColorHint"
         app:chipCornerRadius="5dp"
-        app:iconStartPadding="5dp"
         app:chipIcon="@drawable/ic_time_24"
         app:chipMinHeight="40dp"
+        app:chipStrokeColor="?android:textColorHint"
         app:chipStrokeWidth="1dp"
+        app:iconStartPadding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etDestLayout" />
@@ -182,15 +182,40 @@
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:text="@string/date"
-        app:iconStartPadding="5dp"
         app:chipBackgroundColor="?android:colorBackground"
-        app:chipStrokeColor="?android:textColorHint"
         app:chipCornerRadius="5dp"
         app:chipIcon="@drawable/ic_event_24"
         app:chipMinHeight="40dp"
+        app:chipStrokeColor="?android:textColorHint"
         app:chipStrokeWidth="1dp"
+        app:iconStartPadding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chipTime" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvStations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/station"
+        android:layout_marginStart="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnAddRide"
+        app:layout_constraintEnd_toStartOf="@+id/sStation"
+        app:layout_constraintHorizontal_bias="0.45"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chipDate" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/sStation"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="30dp"
+        android:stepSize="1"
+        android:valueFrom="0"
+        android:valueTo="8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tvStations"
+        app:layout_constraintTop_toBottomOf="@+id/chipDate" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

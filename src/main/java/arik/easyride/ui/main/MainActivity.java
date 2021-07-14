@@ -47,6 +47,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.type.LatLng;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import arik.easyride.R;
 import arik.easyride.models.User;
@@ -57,6 +61,7 @@ import arik.easyride.ui.main.profile.ProfileFragment;
 import arik.easyride.ui.main.requests.RequestsFragment;
 import arik.easyride.ui.main.rides.RidesFragment;
 import arik.easyride.ui.main.setting.SettingFragment;
+import arik.easyride.util.KMeans;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = ".MainActivity";
@@ -85,6 +90,20 @@ public class MainActivity extends AppCompatActivity {
         drawer = findViewById(R.id.drawer_layout);
         toolbar = findViewById(R.id.topAppBar);
         setRidesDefaultFragment();
+
+        /////////////////////////////////////Test//////////////////////////
+        List<KMeans.Point> points = new ArrayList<>();
+        points.add(new KMeans.Point(3,3));
+        points.add(new KMeans.Point(4,5));
+        points.add(new KMeans.Point(5,4));
+        points.add(new KMeans.Point(8,9));
+        points.add(new KMeans.Point(11,8));
+        points.add(new KMeans.Point(12,7));
+        points.add(new KMeans.Point(12,11));
+        points.add(new KMeans.Point(3,7));
+
+        KMeans kMeans = new KMeans(points,3);
+        kMeans.startCluster();
 
         //Set the bottom navigation view
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {

@@ -43,6 +43,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
@@ -80,6 +81,7 @@ public class DetailsFragment extends Fragment {
     private View view;
     private TextInputEditText etName;
     private AutoCompleteTextView etSrc, etDest;
+    private Slider sStation;
     private ImageView ivRidePic;
     private MaterialButton btnAddRide, btnAddParticipants;
     private DetailsEvents event; //listener
@@ -111,6 +113,7 @@ public class DetailsFragment extends Fragment {
         etDest = view.findViewById(R.id.etDest);
         chipDate = view.findViewById(R.id.chipDate);
         chipTime = view.findViewById(R.id.chipTime);
+        sStation = view.findViewById(R.id.sStation);
         btnAddRide = view.findViewById(R.id.btnAddRide);
         FloatingActionButton fabPicEdit = view.findViewById(R.id.fabPicEdit);
         pbAddRide = view.findViewById(R.id.pbAddRide);
@@ -141,7 +144,7 @@ public class DetailsFragment extends Fragment {
 
             }
 
-            //Need to create rectangle from current position
+            //TODO: to create rectangle from current position
             private LatLng getLocationLatLng() {
                 LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null) {

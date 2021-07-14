@@ -246,8 +246,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 Log.e(TAG, error.getMessage());
             }
         });
-
-
     }
 
     private void setRideDirections(final String rid) {

@@ -43,6 +43,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private Ride ride;
     private RideDirections directions;
     private int[] polylineColors;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +93,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             polylineColors[1] = getColor(R.color.deep_orange_500);
         }
 
+
         setRideDirections();
+
     }
 
     private void setRideDirections() {
@@ -136,6 +140,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 Log.e(TAG, error.getMessage());
             }
         });
+    }
+
+    private void addMarker(LatLng latLngPoint) {
+
     }
 
     private void addUsersMarker(List<UserInRide> participants) {

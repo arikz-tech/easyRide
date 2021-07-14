@@ -142,4 +142,5 @@
     <string name="there_is_no_friends_to_display_you_can_invite_new_friends_by_clicking_on_invite_friends_button">רשימת החברים שלך ריקה, בשביל להוסיף חברים לחץ על \"הזמן חבר\"</string>
     <string name="you_don_t_have_friends_in_order_to_add_new_participants_you_have_to_invite_your_friends_to_the_app">רשימת החברים שלך ריקה, בשביל להוסיף משתתפים לנסיעה אתה צריך להזמין את חבריך לאפליקציית easyRide</string>
     <string name="invite_friends">הזמן חברים</string>
+    <string name="station">תחנות:</string>
 </resources>

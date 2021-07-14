@@ -2,15 +2,19 @@ package arik.easyride.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.constraintlayout.solver.widgets.Rectangle;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpResponse;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,11 +32,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.locks.Lock;
 
 import arik.easyride.R;
 import arik.easyride.models.Ride;
@@ -43,6 +49,7 @@ public class RideDirections {
 
     private final static String TAG = "RideDirections";
     private final static String GOOGLE_DIRECTION_API_KEY = "AIzaSyCatAgGuCDmh-XElvu8wUrlB5xX67pG_9U";
+    private static final double EARTH_RADIUS = 6378137;
     private final static int GOOGLE_DIRECTION_WAY_POINTS_LIMIT = 8;
     private static int defaultPolylineColor;
     private static int clickedPolylineColor;
@@ -63,9 +70,9 @@ public class RideDirections {
         this.googleMap = googleMap;
         this.ride = ride;
         this.participants = participants;
-
         destinationPoint = getAddressLatLng(ride.getDestination());
         sourcePoint = getAddressLatLng(ride.getSource());
+        getAddressLatLng(ride.getSource());
     }
 
     public void createRoute() {
@@ -73,7 +80,7 @@ public class RideDirections {
         if (numberOfPoints <= GOOGLE_DIRECTION_WAY_POINTS_LIMIT) {
             DistanceComparator comparator = new DistanceComparator(sourcePoint);
             Collections.sort(participants, comparator);
-
+            calculateAndDisplayStopStations();
             StringBuilder sb = new StringBuilder();
             for (UserInRide participant : participants) {
                 if (participant.isInRide()) {
@@ -142,6 +149,29 @@ public class RideDirections {
         } else {
             Log.e(TAG, "Exceed points limits");
         }
+    }
+
+    public void calculateAndDisplayStopStations() {
+        List<LatLng> latLngPoints = new ArrayList<>();
+
+        for (UserInRide user : participants) {
+            if (user.getLongitude() != null && user.getLatitude() != null) {
+                double lat = Double.parseDouble(user.getLatitude());
+                double lng = Double.parseDouble(user.getLongitude());
+                LatLng latLng = new LatLng(lat, lng);
+                latLngPoints.add(latLng);
+            }
+        }
+
+        List<KMeans.Point> points = KMeans.convertToPoints(latLngPoints);
+        KMeans kMeans = new KMeans(points, 2);
+        kMeans.startCluster();
+        List<LatLng> stopStations = kMeans.latLngCentroidClusters();
+
+        int i = 1;
+        for (LatLng stopStation : stopStations)
+            googleMap.addMarker(new MarkerOptions().position(stopStation).title("Stop Station #" + (i++)));
+
     }
 
     private void createPolyline(List<List<HashMap<String, String>>> route) {
@@ -215,7 +245,7 @@ public class RideDirections {
     }
 
     public void clearMarkedPolyline() {
-        if(polyline != null) {
+        if (polyline != null) {
             polyline.setColor(defaultPolylineColor);
             directionPathInfo.hideInfoWindow();
             directionPathInfo.setVisible(false);
@@ -237,24 +267,30 @@ public class RideDirections {
 
     }
 
+
     private LatLng getAddressLatLng(String address) {
         List<Address> addresses;
         if (context != null) {
-            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-            try {
-                addresses = geocoder.getFromLocationName(address, 1);
-                if (addresses.isEmpty())
+            if (Geocoder.isPresent()) {
+                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+                try {
+                    addresses = geocoder.getFromLocationName(address, 1);
+                    if (addresses.isEmpty())
+                        return null;
+                    double lat = addresses.get(0).getLatitude();
+                    double lng = addresses.get(0).getLongitude();
+                    return new LatLng(lat, lng);
+                } catch (IOException e) {
+                    e.printStackTrace();
                     return null;
-                double lat = addresses.get(0).getLatitude();
-                double lng = addresses.get(0).getLongitude();
-                return new LatLng(lat, lng);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
+                }
+            } else {
+                Toast.makeText(context, "GeoCoder isn't working", Toast.LENGTH_SHORT).show();
             }
         }
         return null;
     }
+
 
     private List<LatLng> decodePoly(String encoded) {
         List<LatLng> poly = new ArrayList<>();

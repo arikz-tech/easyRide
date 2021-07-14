@@ -36,7 +36,6 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
         //Attach layout component
         etFirst = findViewById(R.id.etFirst);
         etLast = findViewById(R.id.etLast);
